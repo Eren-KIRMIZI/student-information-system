@@ -22,13 +22,13 @@ export const generateTranscriptPDF = (transcriptData, res) => {
   const { student, grades, gpa, totalCredits } = transcriptData;
   const fonts = registerFont(new PDFDocument({ autoFirstPage: false }));
 
-  const doc = new PDFDocument({ size: 'A4', margin: 50, bufferPages: true, info: { Title: `Transkript - ${student.firstName} ${student.lastName}`, Author: 'Bozok Üniversitesi' } });
+  const doc = new PDFDocument({ size: 'A4', margin: 50, bufferPages: true, info: { Title: `Transkript - ${student.firstName} ${student.lastName}`, Author: 'OBS' } });
   doc.pipe(res);
 
   const pageW = doc.page.width - 100;
 
   const drawHeader = () => {
-    doc.font(fonts.bold).fontSize(16).text('BOZOK ÜNİVERSİTESİ', 50, 50, { align: 'center', width: pageW });
+    doc.font(fonts.bold).fontSize(16).text('ÜNİVERSİTESİ', 50, 50, { align: 'center', width: pageW });
     doc.font(fonts.regular).fontSize(11).text('Öğrenci Bilgi Sistemi — Transkript Belgesi', { align: 'center', width: pageW });
     doc.moveDown(0.8);
     doc.moveTo(50, doc.y).lineTo(50 + pageW, doc.y).stroke('#2563eb');

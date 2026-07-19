@@ -1,4 +1,7 @@
-# Bozok Universitesi OBS — Ogrenci Bilgi Sistemi
+# OBS — Ogrenci Bilgi Sistemi
+
+<img width="317" height="317" alt="Uni-Photoroom" src="https://github.com/user-attachments/assets/8182fde1-1b90-4ca5-ba0f-7c5a7a8f392c" />
+
 
 Fakulte, bolum, ders, ogrenci, akademisyen, kayit, not, devamsizlik, duyuru ve takvim
 islemlerini tek bir platform uzerinden yonetmek icin gelistirilmis kapsamli bir web
@@ -657,21 +660,3 @@ Route (React Router)
 - **.gitignore**: `.env`, `node_modules`, `uploads/`, `dist/` dosyalari versiyon kontrolu disinda
 
 ---
-
-## Gelistirme Asamalari
-
-| Asama | Icerik | Durum |
-|-------|--------|-------|
-| Faz 1 | Frontend altyapisi: paylasilan bilesenler, hook'lar, servisler, sabitler, yardimcilar | Tamamlandi |
-| Faz 2 | Backend akademik yapi CRUD: fakulte, bolum, ders, sube, ogrenci, akademisyen | Tamamlandi |
-| Faz 3 | Kayit ve danisman: ders secme, kontenjan/AKTS kontrolu, danisman onayi | Tamamlandi |
-| Faz 4 | Not ve devamsizlik: not girisi, harf notu, GPA, transkript PDF, yoklama | Tamamlandi |
-| Faz 5 | Takvim, program ve duyuru: haftalik/sinav programi, duyuru, akademik takvim | Tamamlandi |
-| Faz 6 | Admin paneli: kullanici/rol yonetimi, log, dosya yukleme/silme | Tamamlandi |
-| Faz 7 | Cilalama: dark mode, animasyonlar, responsive duzeltmeleri, swagger dokumasyonu | Tamamlandi |
-
----
-
-## Lisans
-
-Bu proje ogretim amacli olarak gelistirilmistir.

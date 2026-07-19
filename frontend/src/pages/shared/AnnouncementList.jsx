@@ -4,7 +4,6 @@ import { getAnnouncements, createAnnouncement, deleteAnnouncement } from '../../
 import { PageHeader, SearchInput, FilterBar, TableSkeleton, ErrorState, EmptyState, ConfirmDialog, Modal } from '../../components/ui/index';
 import { AnnouncementCard } from '../../components/feature/index';
 import { Megaphone, Trash2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../context/AuthContext';
@@ -12,7 +11,6 @@ import { Pagination } from '../../components/ui/index';
 
 const AnnouncementList = () => {
   const qc = useQueryClient();
-  const navigate = useNavigate();
   const { user } = useAuth();
   const roleName = typeof user?.role === 'object' ? user.role?.name : user?.role;
   const isAdmin = roleName === 'ADMIN';
@@ -59,7 +57,11 @@ const AnnouncementList = () => {
       <PageHeader
         title="Duyurular"
         subtitle="Genel sistem, akademik ve idari duyurular"
-        action={isAdmin ? { label: 'Yeni Duyuru', icon: Megaphone, onClick: () => { reset(); setIsModalOpen(true); } } : undefined}
+        action={isAdmin ? (
+                  <button className="btn btn-primary" onClick={() => { reset(); setIsModalOpen(true); }}>
+                    <Megaphone size={16} /> Yeni Duyuru
+                  </button>
+                ) : undefined}
       />
 
       <FilterBar>
@@ -83,8 +85,7 @@ const AnnouncementList = () => {
             <div key={item.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
               <div style={{ flex: 1 }}>
                 <AnnouncementCard
-                  announcement={item}
-                  onClick={() => navigate(`/announcements/${item.id}`)}
+                  item={item}
                 />
               </div>
               {isAdmin && (

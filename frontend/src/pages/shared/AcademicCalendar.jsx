@@ -62,7 +62,11 @@ const AcademicCalendar = () => {
       <PageHeader
         title="Akademik Takvim"
         subtitle="Önemli tarihler, sınav dönemleri ve tatiller"
-        action={isAdmin ? { label: 'Yeni Etkinlik', icon: Plus, onClick: () => { reset(); setIsModalOpen(true); } } : undefined}
+        action={isAdmin ? (
+                  <button className="btn btn-primary" onClick={() => { reset(); setIsModalOpen(true); }}>
+                    <Plus size={16} /> Yeni Etkinlik
+                  </button>
+                ) : undefined}
       />
 
       <FilterBar>
@@ -112,8 +116,8 @@ const AcademicCalendar = () => {
                     </td>
                     <td style={{ fontWeight: 600 }}>{item.title}</td>
                     <td>
-                      <span className={`badge ${typeColor[item.type] || 'badge-gray'}`}>
-                        {typeLabel[item.type] || item.type}
+                      <span className={`badge ${typeColor[item.category] || 'badge-gray'}`}>
+                        {typeLabel[item.category] || item.category}
                       </span>
                     </td>
                     {isAdmin && (

@@ -61,7 +61,11 @@ const UserList = () => {
       <PageHeader
         title="Kullanıcı Yönetimi"
         subtitle="Sistemdeki tüm hesapları ve rollerini yönetin"
-        action={{ label: 'Yeni Kullanıcı', icon: UserPlus, onClick: () => { reset(); setIsModalOpen(true); } }}
+        action={(
+                  <button className="btn btn-primary" onClick={() => { reset(); setIsModalOpen(true); }}>
+                    <UserPlus size={16} /> Yeni Kullanıcı
+                  </button>
+                )}
       />
 
       <FilterBar>

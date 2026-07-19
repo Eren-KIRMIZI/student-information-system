@@ -17,6 +17,6 @@ export const updateCourseSectionValidator = [
   body('academicYear').optional().trim().notEmpty(),
   body('semester').optional().isIn(['FALL', 'SPRING', 'SUMMER']),
   body('quota').optional().isInt({ min: 1 }),
-  body('lecturerId').optional({ values: 'null' }).isUUID().nullable(),
+  body('lecturerId').optional({ values: 'null' }).isUUID(),
   body('classroom').optional().trim().isLength({ max: 50 }),
 ];
