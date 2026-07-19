@@ -1,68 +1,190 @@
 import { Router } from 'express';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { authorize } from '../middlewares/role.middleware.js';
-import { successResponse } from '../utils/response.util.js';
-import prisma from '../config/prisma.js';
-import bcrypt from 'bcryptjs';
+import { validate } from '../middlewares/validate.middleware.js';
+import * as ctrl from '../controllers/lecturer.controller.js';
+import { createLecturerValidator, updateLecturerValidator } from '../validators/lecturer.validator.js';
 
 const router = Router();
-const paginate = (p=1, l=20) => ({ skip:(Number(p)-1)*Number(l), take:Number(l) });
 
-router.get('/', authenticate, async (req, res, next) => {
-  try {
-    const { page=1, limit=20, search, departmentId, sortBy='createdAt', order='desc' } = req.query;
-    const { skip, take } = paginate(page, limit);
-    const where = {};
-    if (departmentId) where.departmentId = departmentId;
-    if (search) where.OR = [{ firstName:{contains:search,mode:'insensitive'} },{ lastName:{contains:search,mode:'insensitive'} },{ title:{contains:search,mode:'insensitive'} }];
-    const [data, total] = await Promise.all([
-      prisma.lecturer.findMany({ where, skip, take, orderBy:{[sortBy]:order}, include:{ department:{include:{faculty:true}}, user:{select:{email:true,isActive:true,lastLoginAt:true}} } }),
-      prisma.lecturer.count({ where }),
-    ]);
-    return successResponse(res, { data, pagination:{ page:Number(page),limit:Number(limit),total,totalPages:Math.ceil(total/limit) } });
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/lecturers/:
+ *   get:
+ *     tags: [Lecturers]
+ *     summary: Tüm akademisyenleri listeleme
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Sayfa numarası
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Sayfa başına kayıt sayısı
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Arama filtresi
+ *       - in: query
+ *         name: departmentId
+ *         schema:
+ *           type: string
+ *         description: Bölüm ID ile filtreleme
+ *     responses:
+ *       200:
+ *         description: Akademisyen listesi döner
+ *       401:
+ *         description: Yetkilendirme gerekli
+ */
+router.get('/', authenticate, ctrl.listLecturers);
 
-router.get('/:id', authenticate, async (req, res, next) => {
-  try {
-    const lecturer = await prisma.lecturer.findUnique({ where:{id:req.params.id}, include:{ department:{include:{faculty:true}}, user:{select:{email:true,isActive:true}}, sections:{include:{course:true},take:5,orderBy:{createdAt:'desc'}} } });
-    if (!lecturer) return next({statusCode:404,message:'Akademisyen bulunamadı',isOperational:true});
-    return successResponse(res, lecturer);
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/lecturers/{id}:
+ *   get:
+ *     tags: [Lecturers]
+ *     summary: Akademisyen detayını getirme
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Akademisyen ID
+ *     responses:
+ *       200:
+ *         description: Akademisyen detayı döner
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       404:
+ *         description: Akademisyen bulunamadı
+ */
+router.get('/:id', authenticate, ctrl.getLecturerById);
 
-router.post('/', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const { email, password, firstName, lastName, title, departmentId, phone } = req.body;
-    const role = await prisma.role.findUnique({ where:{name:'ACADEMICIAN'} });
-    const result = await prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({ data:{ email, password:await bcrypt.hash(password,12), roleId:role.id } });
-      return tx.lecturer.create({ data:{ userId:user.id, firstName, lastName, title, departmentId, phone }, include:{ department:true, user:{select:{email:true}} } });
-    });
-    return successResponse(res, result, 'Akademisyen oluşturuldu', 201);
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/lecturers/:
+ *   post:
+ *     tags: [Lecturers]
+ *     summary: Yeni akademisyen oluşturma (admin)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId, departmentId]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               departmentId:
+ *                 type: string
+ *               title:
+ *                 type: string
+ *                 enum: [PROFESSOR, ASSOCIATE_PROFESSOR, ASSISTANT_PROFESSOR, LECTURER]
+ *               specialization:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Akademisyen oluşturuldu
+ *       400:
+ *         description: Geçersiz istek
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       403:
+ *         description: Yetkiniz yok
+ */
+router.post('/', authenticate, authorize('ADMIN'), createLecturerValidator, validate, ctrl.createLecturer);
 
-router.put('/:id', authenticate, async (req, res, next) => {
-  try {
-    const lecturer = await prisma.lecturer.findUnique({where:{id:req.params.id},select:{id:true,userId:true}});
-    if (!lecturer) return next({statusCode:404,message:'Akademisyen bulunamadı',isOperational:true});
-    const isOwner = req.user.role==='ACADEMICIAN' && (await prisma.lecturer.findUnique({where:{userId:req.user.id},select:{id:true}}))?.id===lecturer.id;
-    const isAdmin = req.user.role==='ADMIN';
-    if (!isOwner && !isAdmin) return next({statusCode:403,message:'Yetki yok',isOperational:true});
-    const allowedFields = isAdmin ? req.body : { phone:req.body.phone };
-    const updated = await prisma.lecturer.update({ where:{id:req.params.id}, data:allowedFields, include:{department:true} });
-    return successResponse(res, updated, 'Akademisyen güncellendi');
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/lecturers/{id}:
+ *   put:
+ *     tags: [Lecturers]
+ *     summary: Akademisyen güncelleme
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Akademisyen ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               departmentId:
+ *                 type: string
+ *               title:
+ *                 type: string
+ *                 enum: [PROFESSOR, ASSOCIATE_PROFESSOR, ASSISTANT_PROFESSOR, LECTURER]
+ *               specialization:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Akademisyen güncellendi
+ *       400:
+ *         description: Geçersiz istek
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       404:
+ *         description: Akademisyen bulunamadı
+ */
+router.put('/:id', authenticate, updateLecturerValidator, validate, ctrl.updateLecturer);
 
-router.put('/:id/status', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const lecturer = await prisma.lecturer.findUnique({where:{id:req.params.id},select:{userId:true}});
-    if (!lecturer) return next({statusCode:404,message:'Akademisyen bulunamadı',isOperational:true});
-    await prisma.user.update({where:{id:lecturer.userId},data:{isActive:req.body.isActive}});
-    return successResponse(res, null, `Akademisyen ${req.body.isActive?'aktif':'pasif'} edildi`);
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/lecturers/{id}/status:
+ *   put:
+ *     tags: [Lecturers]
+ *     summary: Akademisyen durumunu güncelleme (admin)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Akademisyen ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [ACTIVE, INACTIVE, ON_LEAVE, RETIRED]
+ *     responses:
+ *       200:
+ *         description: Akademisyen durumu güncellendi
+ *       400:
+ *         description: Geçersiz istek
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       403:
+ *         description: Yetkiniz yok
+ *       404:
+ *         description: Akademisyen bulunamadı
+ */
+router.put('/:id/status', authenticate, authorize('ADMIN'), ctrl.updateLecturerStatus);
 
 export default router;

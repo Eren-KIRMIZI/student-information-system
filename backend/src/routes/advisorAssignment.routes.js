@@ -1,53 +1,107 @@
 import { Router } from 'express';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { authorize } from '../middlewares/role.middleware.js';
-import { successResponse } from '../utils/response.util.js';
-import { AppError } from '../utils/appError.util.js';
-import prisma from '../config/prisma.js';
+import { validate } from '../middlewares/validate.middleware.js';
+import * as ctrl from '../controllers/advisorAssignment.controller.js';
+import { createAdvisorAssignmentValidator } from '../validators/advisorAssignment.validator.js';
 
 const router = Router();
-const paginate = (p=1, l=20) => ({ skip:(Number(p)-1)*Number(l), take:Number(l) });
 
-router.get('/', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const { page=1, limit=20, lecturerId, studentId } = req.query;
-    const { skip, take } = paginate(page, limit);
-    const where = {};
-    if (lecturerId) where.lecturerId = lecturerId;
-    if (studentId)  where.studentId  = studentId;
-    const [data, total] = await Promise.all([
-      prisma.advisorAssignment.findMany({ where, skip, take, orderBy:{assignedAt:'desc'}, include:{ student:true, lecturer:true } }),
-      prisma.advisorAssignment.count({ where }),
-    ]);
-    return successResponse(res, { data, pagination:{page:Number(page),limit:Number(limit),total,totalPages:Math.ceil(total/limit)} });
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/advisor-assignments:
+ *   get:
+ *     tags: [Advisor Assignments]
+ *     summary: Tüm danışman atamalarını listele
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Danışman atamaları başarıyla getirildi
+ *       401:
+ *         description: Yetkilendirme hatası
+ */
+router.get('/', authenticate, authorize('ADMIN'), ctrl.listAssignments);
 
-// Academician — get own advisees
-router.get('/lecturer/:id/students', authenticate, authorize('ADMIN','ACADEMICIAN'), async (req, res, next) => {
-  try {
-    const assignments = await prisma.advisorAssignment.findMany({
-      where: { lecturerId: req.params.id, isActive: true },
-      include: { student: { include: { department:true, user:{select:{email:true}} } } },
-    });
-    return successResponse(res, assignments.map(a => a.student));
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/advisor-assignments/lecturer/{id}/students:
+ *   get:
+ *     tags: [Advisor Assignments]
+ *     summary: Danışmanın öğrencilerini listele
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Danışman (öğretim üyesi) ID'si
+ *     responses:
+ *       200:
+ *         description: Danışmanın öğrencileri başarıyla getirildi
+ *       401:
+ *         description: Yetkilendirme hatası
+ *       404:
+ *         description: Danışman bulunamadı
+ */
+router.get('/lecturer/:id/students', authenticate, authorize('ADMIN', 'ACADEMICIAN'), ctrl.getAdvisees);
 
-router.post('/', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const assignment = await prisma.advisorAssignment.create({
-      data: req.body, include:{ student:true, lecturer:true }
-    });
-    return successResponse(res, assignment, 'Danışman ataması yapıldı', 201);
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/advisor-assignments:
+ *   post:
+ *     tags: [Advisor Assignments]
+ *     summary: Yeni danışman ataması oluştur
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - studentId
+ *               - lecturerId
+ *             properties:
+ *               studentId:
+ *                 type: string
+ *               lecturerId:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Danışman ataması başarıyla oluşturuldu
+ *       400:
+ *         description: Geçersiz veri
+ *       401:
+ *         description: Yetkilendirme hatası
+ */
+router.post('/', authenticate, authorize('ADMIN'), createAdvisorAssignmentValidator, validate, ctrl.createAssignment);
 
-router.put('/:id/deactivate', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const a = await prisma.advisorAssignment.update({ where:{id:req.params.id}, data:{isActive:false} });
-    return successResponse(res, a, 'Atama pasif edildi');
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/advisor-assignments/{id}/deactivate:
+ *   put:
+ *     tags: [Advisor Assignments]
+ *     summary: Danışman atamasını pasifleştir
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Danışman ataması başarıyla pasifleştirildi
+ *       401:
+ *         description: Yetkilendirme hatası
+ *       404:
+ *         description: Atama bulunamadı
+ */
+router.put('/:id/deactivate', authenticate, authorize('ADMIN'), ctrl.deactivateAssignment);
 
 export default router;

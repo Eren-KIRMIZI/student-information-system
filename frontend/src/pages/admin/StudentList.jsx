@@ -7,11 +7,11 @@ import {
   PageHeader, SearchInput, StatusBadge, TableSkeleton,
   EmptyState, ErrorState, Pagination, Modal,
 } from '../../components/ui/index';
-import { Plus, ExternalLink, Users, ToggleLeft, ToggleRight } from 'lucide-react';
+import { PersonRow } from '../../components/feature/index';
+import { CLASS_YEAR_OPTIONS } from '../../utils/constants';
+import { Plus, Users, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-
-const CLASS_YEARS = [1, 2, 3, 4, 5];
 
 const StudentList = () => {
   const qc = useQueryClient();
@@ -90,7 +90,7 @@ const StudentList = () => {
           onChange={(e) => { setClassYear(e.target.value); setPage(1); }}
         >
           <option value="">Tüm Sınıflar</option>
-          {CLASS_YEARS.map((y) => <option key={y} value={y}>{y}. Sınıf</option>)}
+          {CLASS_YEAR_OPTIONS.map((y) => <option key={y} value={y}>{y}. Sınıf</option>)}
         </select>
       </div>
 
@@ -123,10 +123,13 @@ const StudentList = () => {
                   {data.data.map((s) => (
                     <tr key={s.id}>
                       <td>
-                        <div style={{ fontWeight: 600 }}>{s.firstName} {s.lastName}</div>
-                        <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{s.user?.email}</div>
+                        <PersonRow
+                          firstName={s.firstName}
+                          lastName={s.lastName}
+                          email={s.user?.email}
+                          subtitle={s.studentNumber}
+                        />
                       </td>
-                      <td><span className="badge badge-gray">{s.studentNumber}</span></td>
                       <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
                         {s.department?.name ?? '—'}
                       </td>
@@ -139,7 +142,7 @@ const StudentList = () => {
                             onClick={() => navigate(`/admin/students/${s.id}`)}
                             title="Detay"
                           >
-                            <ExternalLink size={14} />
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                           </button>
                           <button
                             className="btn btn-ghost btn-sm"
@@ -161,7 +164,6 @@ const StudentList = () => {
         )}
       </div>
 
-      {/* Create Student Modal */}
       <Modal open={formOpen} onClose={() => setFormOpen(false)} title="Yeni Öğrenci" maxWidth={600}>
         <form onSubmit={handleSubmit((d) => createMutation.mutate(d))} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -214,7 +216,7 @@ const StudentList = () => {
             <div className="input-wrapper">
               <label className="input-label">Sınıf</label>
               <select {...register('classYear')} className="input">
-                {CLASS_YEARS.map((y) => <option key={y} value={y}>{y}. Sınıf</option>)}
+                {CLASS_YEAR_OPTIONS.map((y) => <option key={y} value={y}>{y}. Sınıf</option>)}
               </select>
             </div>
           </div>

@@ -11,18 +11,14 @@ import {
   PageHeader, StatusBadge, Skeleton, ErrorState, Tabs,
   EmptyState,
 } from '../../components/ui/index';
+import { ScheduleGrid, ExamListItem } from '../../components/feature/index';
+import { DAY_LABELS, EXAM_TYPE_LABELS, LETTER_GRADES, ATTENDANCE_STATUSES, ATTENDANCE_LABELS } from '../../utils/constants';
 import {
   ArrowLeft, BookOpen, ClipboardCheck, Calendar, Clock,
   FileText, Upload, Trash2, Check, Lock,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import dayjs from 'dayjs';
-
-const DAY_LABELS = { MONDAY: 'Pazartesi', TUESDAY: 'Salı', WEDNESDAY: 'Çarşamba', THURSDAY: 'Perşembe', FRIDAY: 'Cuma', SATURDAY: 'Cumartesi' };
-const EXAM_LABELS = { MIDTERM: 'Vize', FINAL: 'Final', MAKEUP: 'Bütünleme' };
-const LETTER_GRADES = ['AA', 'BA', 'BB', 'CB', 'CC', 'DC', 'DD', 'FD', 'FF', 'NA'];
-const ATT_STATUSES = ['PRESENT', 'ABSENT', 'EXCUSED'];
-const ATT_LABELS = { PRESENT: 'Katıldı', ABSENT: 'Devamsız', EXCUSED: 'İzinli' };
 
 // ===== Grade Entry Tab =====
 const GradeEntryTab = ({ sectionId }) => {
@@ -162,7 +158,7 @@ const AttendanceTab = ({ sectionId }) => {
     queryFn: () => getSectionGrades(sectionId),
   });
 
-  const { data: attData, isLoading: aLoading, refetch } = useQuery({
+  const { data: attData, isLoading: aLoading } = useQuery({
     queryKey: ['section-attendance', sectionId, date],
     queryFn: () => getSectionAttendance(sectionId, { date }),
   });
@@ -223,7 +219,7 @@ const AttendanceTab = ({ sectionId }) => {
             <thead>
               <tr>
                 <th>Öğrenci</th>
-                {ATT_STATUSES.map((s) => <th key={s} style={{ width: 110 }}>{ATT_LABELS[s]}</th>)}
+                {ATTENDANCE_STATUSES.map((s) => <th key={s} style={{ width: 110 }}>{ATTENDANCE_LABELS[s]}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -235,7 +231,7 @@ const AttendanceTab = ({ sectionId }) => {
                       <div style={{ fontWeight: 600 }}>{e.student?.firstName} {e.student?.lastName}</div>
                       <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{e.student?.studentNumber}</div>
                     </td>
-                    {ATT_STATUSES.map((s) => (
+                    {ATTENDANCE_STATUSES.map((s) => (
                       <td key={s}>
                         <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 13 }}>
                           <input
@@ -246,7 +242,7 @@ const AttendanceTab = ({ sectionId }) => {
                             onChange={() => setStatuses((prev) => ({ ...prev, [e.id]: s }))}
                             style={{ accentColor: s === 'PRESENT' ? 'var(--color-success)' : s === 'ABSENT' ? 'var(--color-danger)' : 'var(--color-warning)' }}
                           />
-                          {ATT_LABELS[s]}
+                          {ATTENDANCE_LABELS[s]}
                         </label>
                       </td>
                     ))}
@@ -370,22 +366,7 @@ const ReadOnlyWeeklyTab = ({ sectionId }) => {
   });
   if (isLoading) return <Skeleton height={150} />;
   if (!slots.length) return <EmptyState icon={Clock} title="Haftalık program girilmemiş" />;
-  return (
-    <div className="table-container">
-      <table className="table">
-        <thead><tr><th>Gün</th><th>Saat</th><th>Derslik</th></tr></thead>
-        <tbody>
-          {slots.map((s) => (
-            <tr key={s.id}>
-              <td><span className="badge badge-blue">{DAY_LABELS[s.dayOfWeek]}</span></td>
-              <td style={{ fontSize: 13 }}>{s.startTime} – {s.endTime}</td>
-              <td style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>{s.classroom || '—'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  return <ScheduleGrid slots={slots} />;
 };
 
 const ReadOnlyExamTab = ({ sectionId }) => {
@@ -402,7 +383,7 @@ const ReadOnlyExamTab = ({ sectionId }) => {
         <tbody>
           {exams.map((e) => (
             <tr key={e.id}>
-              <td><span className="badge badge-purple">{EXAM_LABELS[e.examType]}</span></td>
+              <td><span className="badge badge-purple">{EXAM_TYPE_LABELS[e.examType]}</span></td>
               <td style={{ fontSize: 13 }}>{dayjs(e.examDate).format('DD.MM.YYYY')}</td>
               <td style={{ fontSize: 13 }}>{e.startTime}</td>
               <td style={{ fontSize: 13 }}>{e.duration} dk</td>

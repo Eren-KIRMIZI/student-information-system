@@ -1,49 +1,158 @@
 import { Router } from 'express';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { authorize } from '../middlewares/role.middleware.js';
-import { successResponse } from '../utils/response.util.js';
-import prisma from '../config/prisma.js';
+import { validate } from '../middlewares/validate.middleware.js';
+import * as ctrl from '../controllers/academicCalendar.controller.js';
+import { createCalendarEventValidator, updateCalendarEventValidator } from '../validators/academicCalendar.validator.js';
 
 const router = Router();
-const paginate = (p=1, l=20) => ({ skip:(Number(p)-1)*Number(l), take:Number(l) });
 
-router.get('/', authenticate, async (req, res, next) => {
-  try {
-    const { page=1, limit=50, category } = req.query;
-    const { skip, take } = paginate(page, limit);
-    const where = category ? { category } : {};
-    const [data, total] = await Promise.all([
-      prisma.academicCalendar.findMany({ where, skip, take, orderBy:{startDate:'asc'} }),
-      prisma.academicCalendar.count({ where }),
-    ]);
-    return successResponse(res, { data, pagination:{page:Number(page),limit:Number(limit),total,totalPages:Math.ceil(total/limit)} });
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/academic-calendar:
+ *   get:
+ *     tags: [Academic Calendar]
+ *     summary: Tüm akademik takvim olaylarını listele
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Akademik takvim olayları başarıyla getirildi
+ *       401:
+ *         description: Yetkilendirme hatası
+ */
+router.get('/', authenticate, ctrl.getCalendarEvents);
 
-router.post('/', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const event = await prisma.academicCalendar.create({
-      data:{ ...req.body, startDate: new Date(req.body.startDate), endDate: new Date(req.body.endDate) }
-    });
-    return successResponse(res, event, 'Etkinlik oluşturuldu', 201);
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/academic-calendar/{id}:
+ *   get:
+ *     tags: [Academic Calendar]
+ *     summary: Akademik takvim olayını ID ile getir
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Akademik takvim olayı başarıyla getirildi
+ *       401:
+ *         description: Yetkilendirme hatası
+ *       404:
+ *         description: Olay bulunamadı
+ */
+router.get('/:id', authenticate, ctrl.getCalendarEventById);
 
-router.put('/:id', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const d = { ...req.body };
-    if (d.startDate) d.startDate = new Date(d.startDate);
-    if (d.endDate)   d.endDate   = new Date(d.endDate);
-    const event = await prisma.academicCalendar.update({ where:{id:req.params.id}, data:d });
-    return successResponse(res, event, 'Etkinlik güncellendi');
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/academic-calendar:
+ *   post:
+ *     tags: [Academic Calendar]
+ *     summary: Yeni akademik takvim olayı oluştur
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - startDate
+ *               - endDate
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date
+ *               endDate:
+ *                 type: string
+ *                 format: date
+ *               type:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Akademik takvim olayı başarıyla oluşturuldu
+ *       400:
+ *         description: Geçersiz veri
+ *       401:
+ *         description: Yetkilendirme hatası
+ */
+router.post('/', authenticate, authorize('ADMIN'), createCalendarEventValidator, validate, ctrl.createCalendarEvent);
 
-router.delete('/:id', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    await prisma.academicCalendar.delete({ where:{id:req.params.id} });
-    return successResponse(res, null, 'Etkinlik silindi');
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/academic-calendar/{id}:
+ *   put:
+ *     tags: [Academic Calendar]
+ *     summary: Akademik takvim olayını güncelle
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date
+ *               endDate:
+ *                 type: string
+ *                 format: date
+ *               type:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Akademik takvim olayı başarıyla güncellendi
+ *       401:
+ *         description: Yetkilendirme hatası
+ *       404:
+ *         description: Olay bulunamadı
+ */
+router.put('/:id', authenticate, authorize('ADMIN'), updateCalendarEventValidator, validate, ctrl.updateCalendarEvent);
+
+/**
+ * @swagger
+ * /api/v1/academic-calendar/{id}:
+ *   delete:
+ *     tags: [Academic Calendar]
+ *     summary: Akademik takvim olayını sil
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Akademik takvim olayı başarıyla silindi
+ *       401:
+ *         description: Yetkilendirme hatası
+ *       404:
+ *         description: Olay bulunamadı
+ */
+router.delete('/:id', authenticate, authorize('ADMIN'), ctrl.deleteCalendarEvent);
 
 export default router;

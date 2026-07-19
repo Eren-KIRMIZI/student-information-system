@@ -1,79 +1,192 @@
 import { Router } from 'express';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { authorize } from '../middlewares/role.middleware.js';
-import { successResponse } from '../utils/response.util.js';
-import prisma from '../config/prisma.js';
-import bcrypt from 'bcryptjs';
+import { validate } from '../middlewares/validate.middleware.js';
+import * as ctrl from '../controllers/student.controller.js';
+import { createStudentValidator, updateStudentValidator } from '../validators/student.validator.js';
 
 const router = Router();
 
-const paginate = (p=1, l=20) => ({ skip:(Number(p)-1)*Number(l), take:Number(l) });
+/**
+ * @swagger
+ * /api/v1/students/:
+ *   get:
+ *     tags: [Students]
+ *     summary: Tüm öğrencileri listeleme
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Sayfa numarası
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Sayfa başına kayıt sayısı
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Arama filtresi
+ *       - in: query
+ *         name: departmentId
+ *         schema:
+ *           type: string
+ *         description: Bölüm ID ile filtreleme
+ *     responses:
+ *       200:
+ *         description: Öğrenci listesi döner
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       403:
+ *         description: Yetkiniz yok
+ */
+router.get('/', authenticate, authorize('ADMIN', 'ACADEMICIAN'), ctrl.listStudents);
 
-// Student routes
-router.get('/', authenticate, authorize('ADMIN','ACADEMICIAN'), async (req, res, next) => {
-  try {
-    const { page=1, limit=20, search, departmentId, classYear, sortBy='createdAt', order='desc' } = req.query;
-    const { skip, take } = paginate(page, limit);
-    const where = {};
-    if (departmentId) where.departmentId = departmentId;
-    if (classYear) where.classYear = Number(classYear);
-    if (search) where.OR = [{ firstName:{contains:search,mode:'insensitive'} },{ lastName:{contains:search,mode:'insensitive'} },{ studentNumber:{contains:search} }];
-    const [data, total] = await Promise.all([
-      prisma.student.findMany({ where, skip, take, orderBy:{[sortBy]:order}, include:{ department:{include:{faculty:true}}, user:{select:{email:true,isActive:true,lastLoginAt:true}} } }),
-      prisma.student.count({ where }),
-    ]);
-    return successResponse(res, { data, pagination:{ page:Number(page),limit:Number(limit),total,totalPages:Math.ceil(total/limit) } });
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/students/{id}:
+ *   get:
+ *     tags: [Students]
+ *     summary: Öğrenci detayını getirme
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Öğrenci ID
+ *     responses:
+ *       200:
+ *         description: Öğrenci detayı döner
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       404:
+ *         description: Öğrenci bulunamadı
+ */
+router.get('/:id', authenticate, ctrl.getStudentById);
 
-router.get('/:id', authenticate, async (req, res, next) => {
-  try {
-    const student = await prisma.student.findUnique({ where:{id:req.params.id}, include:{ department:{include:{faculty:true}}, user:{select:{email:true,isActive:true}}, advisorHistory:{include:{lecturer:true},where:{isActive:true}}, enrollments:{include:{courseSection:{include:{course:true}}},take:5,orderBy:{createdAt:'desc'}} } });
-    if (!student) return next({statusCode:404,message:'Öğrenci bulunamadı',isOperational:true});
-    // STUDENT kendisi kontrolü
-    if (req.user.role === 'STUDENT') {
-      const me = await prisma.student.findUnique({where:{userId:req.user.id},select:{id:true}});
-      if (me?.id !== student.id) return next({statusCode:403,message:'Bu kayda erişim yetkiniz yok',isOperational:true});
-    }
-    return successResponse(res, student);
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/students/:
+ *   post:
+ *     tags: [Students]
+ *     summary: Yeni öğrenci oluşturma (admin)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId, studentNumber, departmentId]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               studentNumber:
+ *                 type: string
+ *               departmentId:
+ *                 type: string
+ *               enrollmentYear:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Öğrenci oluşturuldu
+ *       400:
+ *         description: Geçersiz istek
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       403:
+ *         description: Yetkiniz yok
+ *       409:
+ *         description: Öğrenci numarası zaten mevcut
+ */
+router.post('/', authenticate, authorize('ADMIN'), createStudentValidator, validate, ctrl.createStudent);
 
-router.post('/', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const { email, password, firstName, lastName, studentNumber, nationalId, departmentId, classYear, phone, address, birthDate, roleId } = req.body;
-    // Rol bul
-    const role = await prisma.role.findUnique({ where:{name:'STUDENT'} });
-    const result = await prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({ data:{ email, password: await bcrypt.hash(password,12), roleId: role.id } });
-      const student = await tx.student.create({ data:{ userId:user.id, firstName, lastName, studentNumber, nationalId, departmentId, classYear:Number(classYear)||1, phone, address, birthDate:birthDate?new Date(birthDate):null }, include:{ department:true, user:{select:{email:true}} } });
-      return student;
-    });
-    return successResponse(res, result, 'Öğrenci oluşturuldu', 201);
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/students/{id}:
+ *   put:
+ *     tags: [Students]
+ *     summary: Öğrenci güncelleme
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Öğrenci ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               studentNumber:
+ *                 type: string
+ *               departmentId:
+ *                 type: string
+ *               enrollmentYear:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Öğrenci güncellendi
+ *       400:
+ *         description: Geçersiz istek
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       404:
+ *         description: Öğrenci bulunamadı
+ */
+router.put('/:id', authenticate, updateStudentValidator, validate, ctrl.updateStudent);
 
-router.put('/:id', authenticate, async (req, res, next) => {
-  try {
-    const student = await prisma.student.findUnique({where:{id:req.params.id},select:{id:true,userId:true}});
-    if (!student) return next({statusCode:404,message:'Öğrenci bulunamadı',isOperational:true});
-    // STUDENT sadece kendi telefon/adres bilgisini güncelleyebilir
-    const isOwner = req.user.role==='STUDENT' && (await prisma.student.findUnique({where:{userId:req.user.id},select:{id:true}}))?.id===student.id;
-    const isAdmin = req.user.role==='ADMIN';
-    if (!isOwner && !isAdmin) return next({statusCode:403,message:'Yetki yok',isOperational:true});
-    const allowedFields = isAdmin ? req.body : { phone:req.body.phone, address:req.body.address };
-    const updated = await prisma.student.update({ where:{id:req.params.id}, data:allowedFields, include:{department:true} });
-    return successResponse(res, updated, 'Öğrenci güncellendi');
-  } catch (e) { next(e); }
-});
-
-router.put('/:id/status', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const student = await prisma.student.findUnique({where:{id:req.params.id},select:{userId:true}});
-    if (!student) return next({statusCode:404,message:'Öğrenci bulunamadı',isOperational:true});
-    await prisma.user.update({where:{id:student.userId},data:{isActive:req.body.isActive}});
-    return successResponse(res, null, `Öğrenci ${req.body.isActive?'aktif':'pasif'} edildi`);
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/students/{id}/status:
+ *   put:
+ *     tags: [Students]
+ *     summary: Öğrenci durumunu güncelleme (admin)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Öğrenci ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [ACTIVE, INACTIVE, GRADUATED, SUSPENDED]
+ *     responses:
+ *       200:
+ *         description: Öğrenci durumu güncellendi
+ *       400:
+ *         description: Geçersiz istek
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       403:
+ *         description: Yetkiniz yok
+ *       404:
+ *         description: Öğrenci bulunamadı
+ */
+router.put('/:id/status', authenticate, authorize('ADMIN'), ctrl.updateStudentStatus);
 
 export default router;

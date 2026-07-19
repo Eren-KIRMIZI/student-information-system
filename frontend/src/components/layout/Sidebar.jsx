@@ -66,11 +66,11 @@ const Sidebar = ({ role, isOpen, onClose }) => {
       {/* Mobile overlay */}
       {isOpen && (
         <div
+          className="sidebar-overlay"
           style={{
             position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
-            zIndex: 39, display: 'none',
+            zIndex: 39,
           }}
-          className="mobile-overlay"
           onClick={onClose}
         />
       )}
@@ -93,12 +93,12 @@ const Sidebar = ({ role, isOpen, onClose }) => {
           </div>
           <button
             onClick={onClose}
+            className="sidebar-close-btn"
             style={{
-              display: 'none', background: 'none', border: 'none',
+              background: 'none', border: 'none',
               cursor: 'pointer', color: 'var(--color-text-muted)',
               padding: 4, borderRadius: 6,
             }}
-            className="sidebar-close-btn"
           >
             <X size={18} />
           </button>

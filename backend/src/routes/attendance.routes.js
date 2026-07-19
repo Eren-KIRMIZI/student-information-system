@@ -1,23 +1,24 @@
 import { Router } from 'express';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { authorize } from '../middlewares/role.middleware.js';
-import { successResponse } from '../utils/response.util.js';
-import { AppError } from '../utils/appError.util.js';
-import prisma from '../config/prisma.js';
+import * as ctrl from '../controllers/attendance.controller.js';
 
 const router = Router();
 
-router.get('/me', authenticate, authorize('STUDENT'), async (req, res, next) => {
-  try {
-    const student = await prisma.student.findUnique({where:{userId:req.user.id},select:{id:true}});
-    if (!student) return next(new AppError('Profil bulunamadı', 404));
-    const data = await prisma.attendance.findMany({
-      where: { enrollment: { studentId: student.id } },
-      include: { enrollment: { include: { courseSection: { include: { course: true } } } } },
-      orderBy: { date: 'desc' },
-    });
-    return successResponse(res, data);
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/attendance/me:
+ *   get:
+ *     tags: [Attendance]
+ *     summary: Öğrencinin kendi devam kaydını getir
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Devam kaydı başarıyla getirildi
+ *       401:
+ *         description: Yetkilendirme hatası
+ */
+router.get('/me', authenticate, authorize('STUDENT'), ctrl.getMyAttendance);
 
 export default router;

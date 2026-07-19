@@ -1,54 +1,62 @@
 import { Router } from 'express';
-import * as dashboardService from '../services/dashboard.service.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { authorize } from '../middlewares/role.middleware.js';
-import { successResponse } from '../utils/response.util.js';
+import * as ctrl from '../controllers/dashboard.controller.js';
 
 const router = Router();
 
 /**
  * @swagger
- * /dashboard/student:
+ * /api/v1/dashboard/student:
  *   get:
- *     summary: Öğrenci dashboard verisi
  *     tags: [Dashboard]
+ *     summary: Öğrenci dashboard verilerini getirme
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: GPA, AKTS, yaklaşan sınavlar, duyurular
+ *         description: Öğrenci dashboard verileri döner
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       403:
+ *         description: Yetkiniz yok
  */
-router.get('/student', authenticate, authorize('STUDENT'), async (req, res, next) => {
-  try {
-    const data = await dashboardService.getStudentDashboard(req.user.id);
-    return successResponse(res, data);
-  } catch (err) { next(err); }
-});
+router.get('/student', authenticate, authorize('STUDENT'), ctrl.getStudentDashboard);
 
 /**
  * @swagger
- * /dashboard/academician:
+ * /api/v1/dashboard/academician:
  *   get:
- *     summary: Akademisyen dashboard verisi
  *     tags: [Dashboard]
+ *     summary: Akademisyen dashboard verilerini getirme
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Akademisyen dashboard verileri döner
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       403:
+ *         description: Yetkiniz yok
  */
-router.get('/academician', authenticate, authorize('ACADEMICIAN'), async (req, res, next) => {
-  try {
-    const data = await dashboardService.getAcademicianDashboard(req.user.id);
-    return successResponse(res, data);
-  } catch (err) { next(err); }
-});
+router.get('/academician', authenticate, authorize('ACADEMICIAN'), ctrl.getAcademicianDashboard);
 
 /**
  * @swagger
- * /dashboard/admin:
+ * /api/v1/dashboard/admin:
  *   get:
- *     summary: Admin dashboard verisi
  *     tags: [Dashboard]
+ *     summary: Admin dashboard verilerini getirme
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Admin dashboard verileri döner
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       403:
+ *         description: Yetkiniz yok
  */
-router.get('/admin', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const data = await dashboardService.getAdminDashboard();
-    return successResponse(res, data);
-  } catch (err) { next(err); }
-});
+router.get('/admin', authenticate, authorize('ADMIN'), ctrl.getAdminDashboard);
 
 export default router;

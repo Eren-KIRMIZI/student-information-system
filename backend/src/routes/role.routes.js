@@ -1,23 +1,63 @@
 import { Router } from 'express';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { authorize } from '../middlewares/role.middleware.js';
-import { successResponse } from '../utils/response.util.js';
-import prisma from '../config/prisma.js';
+import { validate } from '../middlewares/validate.middleware.js';
+import * as ctrl from '../controllers/role.controller.js';
+import { updateRoleValidator } from '../validators/role.validator.js';
 
 const router = Router();
 
-router.get('/', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const roles = await prisma.role.findMany({ include: { _count: { select: { users: true } } } });
-    return successResponse(res, roles);
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/roles:
+ *   get:
+ *     tags: [Roles]
+ *     summary: Tüm rolleri listele
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Rol listesi başarıyla getirildi
+ *       401:
+ *         description: Yetkilendirme hatası
+ */
+router.get('/', authenticate, authorize('ADMIN'), ctrl.getRoles);
 
-router.put('/:id', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const role = await prisma.role.update({ where:{id:req.params.id}, data:{ description: req.body.description } });
-    return successResponse(res, role, 'Rol güncellendi');
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/roles/{id}:
+ *   put:
+ *     tags: [Roles]
+ *     summary: Rolü güncelle
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               permissions:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       200:
+ *         description: Rol başarıyla güncellendi
+ *       401:
+ *         description: Yetkilendirme hatası
+ *       404:
+ *         description: Rol bulunamadı
+ */
+router.put('/:id', authenticate, authorize('ADMIN'), updateRoleValidator, validate, ctrl.updateRole);
 
 export default router;

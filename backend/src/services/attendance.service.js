@@ -1,0 +1,26 @@
+import * as repo from '../repositories/attendance.repository.js';
+import { AppError } from '../utils/appError.util.js';
+
+export const getMyAttendance = async (userId) => {
+  const student = await repo.studentFindByUserId(userId);
+  if (!student) throw new AppError('Profil bulunamadı', 404);
+  return repo.attendanceFindByStudent(student.id);
+};
+
+export const getSectionAttendance = async (courseSectionId, date) => {
+  return repo.attendanceFindBySection(courseSectionId, date);
+};
+
+export const recordAttendance = async (courseSectionId, data, reqUser) => {
+  const { date, records } = data;
+  if (!date || !Array.isArray(records) || !records.length) {
+    throw new AppError('Tarih ve en az bir kayıt gerekli');
+  }
+  let recordedById = null;
+  if (reqUser.role === 'ACADEMICIAN') {
+    const lecturer = await repo.lecturerFindByUserId(reqUser.id);
+    recordedById = lecturer?.id;
+  }
+  const payload = records.map(r => ({ enrollmentId: r.enrollmentId, date, status: r.status }));
+  return repo.attendanceBulkUpsert(payload, recordedById);
+};

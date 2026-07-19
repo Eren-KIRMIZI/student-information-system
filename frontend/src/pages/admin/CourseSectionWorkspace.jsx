@@ -11,6 +11,8 @@ import {
   PageHeader, StatusBadge, Skeleton, ErrorState, Tabs,
   Modal, ConfirmDialog, EmptyState,
 } from '../../components/ui/index';
+import { ScheduleGrid } from '../../components/feature/index';
+import { SEMESTERS, SEMESTER_LABELS, DAY_LABELS_SHORT, EXAM_TYPE_LABELS, ATTENDANCE_STATUSES, ATTENDANCE_LABELS } from '../../utils/constants';
 import {
   ArrowLeft, Calendar, ClipboardList, Users, Clock,
   Plus, Trash2, Info,
@@ -20,11 +22,8 @@ import toast from 'react-hot-toast';
 import dayjs from 'dayjs';
 
 const DAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-const DAY_LABELS = { MONDAY: 'Pzt', TUESDAY: 'Sal', WEDNESDAY: 'Çar', THURSDAY: 'Per', FRIDAY: 'Cum', SATURDAY: 'Cmt' };
 const EXAM_TYPES = ['MIDTERM', 'FINAL', 'MAKEUP'];
-const EXAM_LABELS = { MIDTERM: 'Vize', FINAL: 'Final', MAKEUP: 'Bütünleme' };
 
-// ===== General Info Tab =====
 const GeneralTab = ({ section }) => (
   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
     {[
@@ -32,7 +31,7 @@ const GeneralTab = ({ section }) => (
       ['Şube Kodu', section.sectionCode],
       ['Akademisyen', section.lecturer ? `${section.lecturer.firstName} ${section.lecturer.lastName}` : '—'],
       ['Akademik Yıl', section.academicYear],
-      ['Yarıyıl', section.semester],
+      ['Yarıyıl', SEMESTER_LABELS[section.semester] ?? section.semester],
       ['Kontenjan', `${(section.quota - (section.remainingQuota ?? 0))} / ${section.quota} (${section.remainingQuota ?? 0} boş)`],
       ['Derslik', section.classroom || '—'],
       ['Bölüm', section.course?.department?.name || '—'],
@@ -45,7 +44,6 @@ const GeneralTab = ({ section }) => (
   </div>
 );
 
-// ===== Weekly Schedule Tab (Admin CRUD) =====
 const WeeklyScheduleTab = ({ sectionId }) => {
   const qc = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);
@@ -89,28 +87,7 @@ const WeeklyScheduleTab = ({ sectionId }) => {
       {!slots.length ? (
         <EmptyState icon={Clock} title="Haftalık program slotu yok" />
       ) : (
-        <div className="table-container">
-          <table className="table">
-            <thead>
-              <tr><th>Gün</th><th>Başlangıç</th><th>Bitiş</th><th>Derslik</th><th style={{ width: 60 }}></th></tr>
-            </thead>
-            <tbody>
-              {slots.map((s) => (
-                <tr key={s.id}>
-                  <td><span className="badge badge-blue">{DAY_LABELS[s.dayOfWeek]}</span></td>
-                  <td>{s.startTime}</td>
-                  <td>{s.endTime}</td>
-                  <td>{s.classroom || '—'}</td>
-                  <td>
-                    <button className="btn btn-ghost btn-sm" style={{ color: 'var(--color-danger)' }} onClick={() => setDeleteItem(s)}>
-                      <Trash2 size={13} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ScheduleGrid slots={slots} />
       )}
 
       <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Program Slotu Ekle" maxWidth={420}>
@@ -119,7 +96,7 @@ const WeeklyScheduleTab = ({ sectionId }) => {
             <label className="input-label">Gün</label>
             <select {...register('dayOfWeek', { required: 'Zorunlu' })} className={`input ${errors.dayOfWeek ? 'error' : ''}`}>
               <option value="">Seçin...</option>
-              {DAYS.map((d) => <option key={d} value={d}>{DAY_LABELS[d]}</option>)}
+              {DAYS.map((d) => <option key={d} value={d}>{DAY_LABELS_SHORT[d]}</option>)}
             </select>
             {errors.dayOfWeek && <span className="input-error">{errors.dayOfWeek.message}</span>}
           </div>
@@ -151,7 +128,7 @@ const WeeklyScheduleTab = ({ sectionId }) => {
       <ConfirmDialog
         open={!!deleteItem}
         title="Slot Sil"
-        message={`${DAY_LABELS[deleteItem?.dayOfWeek]} ${deleteItem?.startTime}–${deleteItem?.endTime} slotunu silmek istediğinizden emin misiniz?`}
+        message={`${DAY_LABELS_SHORT[deleteItem?.dayOfWeek]} ${deleteItem?.startTime}–${deleteItem?.endTime} slotunu silmek istediğinizden emin misiniz?`}
         onConfirm={() => deleteMutation.mutate(deleteItem.id)}
         onCancel={() => setDeleteItem(null)}
       />
@@ -159,7 +136,6 @@ const WeeklyScheduleTab = ({ sectionId }) => {
   );
 };
 
-// ===== Exam Schedule Tab =====
 const ExamScheduleTab = ({ sectionId }) => {
   const qc = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);
@@ -234,7 +210,7 @@ const ExamScheduleTab = ({ sectionId }) => {
             <label className="input-label">Sınav Türü</label>
             <select {...register('examType', { required: 'Zorunlu' })} className={`input ${errors.examType ? 'error' : ''}`}>
               <option value="">Seçin...</option>
-              {EXAM_TYPES.map((t) => <option key={t} value={t}>{EXAM_LABELS[t]}</option>)}
+              {EXAM_TYPES.map((t) => <option key={t} value={t}>{EXAM_TYPE_LABELS[t]}</option>)}
             </select>
             {errors.examType && <span className="input-error">{errors.examType.message}</span>}
           </div>
@@ -273,7 +249,7 @@ const ExamScheduleTab = ({ sectionId }) => {
       <ConfirmDialog
         open={!!deleteItem}
         title="Sınav Sil"
-        message={`${EXAM_LABELS[deleteItem?.examType] ?? ''} sınavını silmek istediğinizden emin misiniz?`}
+        message={`${EXAM_TYPE_LABELS[deleteItem?.examType] ?? ''} sınavını silmek istediğinizden emin misiniz?`}
         onConfirm={() => deleteMutation.mutate(deleteItem.id)}
         onCancel={() => setDeleteItem(null)}
       />
@@ -281,7 +257,6 @@ const ExamScheduleTab = ({ sectionId }) => {
   );
 };
 
-// ===== Enrolled Students Tab =====
 const EnrolledStudentsTab = ({ sectionId }) => {
   const { data, isLoading } = useQuery({
     queryKey: ['section-enrollments', sectionId],
@@ -322,7 +297,6 @@ const EnrolledStudentsTab = ({ sectionId }) => {
   );
 };
 
-// ===== Main Component =====
 const AdminCourseSectionWorkspace = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -334,10 +308,10 @@ const AdminCourseSectionWorkspace = () => {
   });
 
   const TABS = [
-    { id: 'general', label: 'Genel Bilgi', icon: Info },
-    { id: 'schedule', label: 'Haftalık Program', icon: Clock },
-    { id: 'exams', label: 'Sınav Programı', icon: Calendar },
-    { id: 'students', label: 'Kayıtlı Öğrenciler', icon: Users },
+    { id: 'general', label: 'Genel Bilgi' },
+    { id: 'schedule', label: 'Haftalık Program' },
+    { id: 'exams', label: 'Sınav Programı' },
+    { id: 'students', label: 'Kayıtlı Öğrenciler' },
   ];
 
   if (isLoading) {
@@ -365,7 +339,7 @@ const AdminCourseSectionWorkspace = () => {
 
       <div className="card" style={{ padding: 0 }}>
         <div style={{ padding: '0 24px', borderBottom: '1px solid var(--color-border)' }}>
-          <Tabs tabs={TABS.map((t) => ({ id: t.id, label: t.label }))} active={activeTab} onChange={setActiveTab} />
+          <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
         </div>
         <div style={{ padding: 24 }}>
           {activeTab === 'general' && <GeneralTab section={section} />}

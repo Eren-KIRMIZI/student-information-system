@@ -1,14 +1,25 @@
-import { useQuery } from '@tanstack/react-query';
-import { getMyTranscript } from '../../api/records.api';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { getMyTranscript, getMyTranscriptPDF } from '../../api/records.api';
 import { PageHeader, TableSkeleton, ErrorState, EmptyState } from '../../components/ui/index';
+import { GradeBadge } from '../../components/feature/index';
 import { FileText, Award, BookOpen, GraduationCap } from 'lucide-react';
-
-const gradeColor = { FF:'#ef4444', FD:'#f97316', DD:'#f59e0b', DC:'#eab308', CC:'#84cc16', CB:'#22c55e', BB:'#10b981', BA:'#14b8a6', AA:'#2563eb' };
 
 const Transcript = () => {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['transcript', 'me'],
     queryFn: getMyTranscript,
+  });
+
+  const pdfMutation = useMutation({
+    mutationFn: getMyTranscriptPDF,
+    onSuccess: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'transkript.pdf';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    },
   });
 
   const groupedBySemester = {};
@@ -29,8 +40,8 @@ const Transcript = () => {
         title="Transkriptim"
         subtitle="Tüm dönemlere ait akademik geçmişiniz"
         action={
-          <button className="btn btn-secondary" onClick={() => window.print()}>
-            <FileText size={15} /> PDF Olarak İndir
+          <button className="btn btn-secondary" onClick={() => pdfMutation.mutate()} disabled={pdfMutation.isPending}>
+            <FileText size={15} /> {pdfMutation.isPending ? 'İndiriliyor...' : 'PDF Olarak İndir'}
           </button>
         }
       />
@@ -93,31 +104,21 @@ const Transcript = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {grades.map(g => {
-                      const letter = g.letterGrade;
-                      return (
-                        <tr key={g.id}>
-                          <td>
-                            <div style={{ fontWeight:600 }}>{g.enrollment.courseSection.course.name}</div>
-                            <div style={{ fontSize:12, color:'var(--color-text-muted)' }}>{g.enrollment.courseSection.course.code}</div>
-                          </td>
-                          <td>{g.enrollment.courseSection.course.credit}</td>
-                          <td style={{ textAlign:'center' }}>{g.midtermScore ?? '—'}</td>
-                          <td style={{ textAlign:'center' }}>{g.makeupScore ?? g.finalScore ?? '—'}</td>
-                          <td style={{ textAlign:'center' }}>
-                            {letter ? (
-                              <span style={{
-                                display:'inline-block', padding:'2px 10px', borderRadius:20,
-                                fontWeight:800, fontSize:13,
-                                background:(gradeColor[letter]||'#94a3b8')+'22',
-                                color:gradeColor[letter]||'#94a3b8',
-                              }}>{letter}</span>
-                            ) : '—'}
-                          </td>
-                          <td style={{ textAlign:'center', fontWeight:700 }}>{g.gradePoint?.toFixed(1) ?? '—'}</td>
-                        </tr>
-                      );
-                    })}
+                    {grades.map(g => (
+                      <tr key={g.id}>
+                        <td>
+                          <div style={{ fontWeight:600 }}>{g.enrollment.courseSection.course.name}</div>
+                          <div style={{ fontSize:12, color:'var(--color-text-muted)' }}>{g.enrollment.courseSection.course.code}</div>
+                        </td>
+                        <td>{g.enrollment.courseSection.course.credit}</td>
+                        <td style={{ textAlign:'center' }}>{g.midtermScore ?? '—'}</td>
+                        <td style={{ textAlign:'center' }}>{g.makeupScore ?? g.finalScore ?? '—'}</td>
+                        <td style={{ textAlign:'center' }}>
+                          <GradeBadge letter={g.letterGrade} />
+                        </td>
+                        <td style={{ textAlign:'center', fontWeight:700 }}>{g.gradePoint?.toFixed(1) ?? '—'}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

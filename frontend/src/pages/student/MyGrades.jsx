@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getMyEnrollments } from '../../api/records.api';
-import { PageHeader, TableSkeleton, EmptyState, ErrorState, StatusBadge, Tabs } from '../../components/ui/index';
-import { BookOpen, Award } from 'lucide-react';
-
-const gradeColor = { FF:'#ef4444', FD:'#f97316', DD:'#f59e0b', DC:'#eab308', CC:'#84cc16', CB:'#22c55e', BB:'#10b981', BA:'#14b8a6', AA:'#2563eb' };
+import { PageHeader, TableSkeleton, EmptyState, ErrorState, Tabs } from '../../components/ui/index';
+import { GradeBadge } from '../../components/feature/index';
+import { BookOpen } from 'lucide-react';
 
 const MyGrades = () => {
   const [tab, setTab] = useState('active');
-  
+
   const { data: enrollments, isLoading, isError, refetch } = useQuery({
     queryKey: ['enrollments', 'me'],
     queryFn: getMyEnrollments,
@@ -71,16 +70,7 @@ const MyGrades = () => {
                       <td style={{ textAlign:'center', fontWeight:600 }}>{g?.midtermScore ?? '—'}</td>
                       <td style={{ textAlign:'center', fontWeight:600 }}>{g?.makeupScore ?? g?.finalScore ?? '—'}</td>
                       <td style={{ textAlign:'center' }}>
-                        {letter ? (
-                          <span style={{
-                            display: 'inline-block', padding: '3px 12px', borderRadius: 20,
-                            fontWeight: 800, fontSize: 14,
-                            background: (gradeColor[letter] || '#94a3b8') + '22',
-                            color: gradeColor[letter] || '#94a3b8',
-                          }}>
-                            {letter}
-                          </span>
-                        ) : '—'}
+                        <GradeBadge letter={letter} />
                       </td>
                       <td style={{ textAlign:'center' }}>
                         {g?.isFinalized

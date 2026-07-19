@@ -11,6 +11,7 @@ export const dropEnrollment   = (id)     => axiosInstance.put(`/enrollments/${id
 // ====== Grades ======
 export const getMyGrades     = (params) => axiosInstance.get('/grades/me', { params }).then(r => r.data.data);
 export const getMyTranscript = ()       => axiosInstance.get('/grades/transcript/me').then(r => r.data.data);
+export const getMyTranscriptPDF = ()    => axiosInstance.get('/grades/transcript/me/pdf', { responseType: 'blob' }).then(r => r.data);
 export const getSectionGrades= (id)    => axiosInstance.get(`/course-sections/${id}/grades`).then(r => r.data);
 export const updateGrade     = (enrollmentId, data) => axiosInstance.put(`/grades/${enrollmentId}`, data).then(r => r.data);
 export const finalizeGrade   = (enrollmentId)       => axiosInstance.put(`/grades/${enrollmentId}/finalize`).then(r => r.data);

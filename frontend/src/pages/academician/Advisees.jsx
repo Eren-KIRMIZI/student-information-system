@@ -7,14 +7,13 @@ import { getLecturers } from '../../api/people.api';
 import {
   PageHeader, StatusBadge, TableSkeleton, EmptyState, ErrorState, Tabs,
 } from '../../components/ui/index';
-import { Users, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { PersonRow } from '../../components/feature/index';
+import { Users, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-// ===== Pending Approvals Panel =====
 const PendingApprovalsTab = ({ lecturerId }) => {
   const qc = useQueryClient();
 
-  // Get advisee IDs first
   const { data: advisees = [], isLoading: advLoading } = useQuery({
     queryKey: ['advisees', lecturerId],
     queryFn: () => getAdviseesByLecturer(lecturerId),
@@ -23,7 +22,6 @@ const PendingApprovalsTab = ({ lecturerId }) => {
 
   const adviseeIds = advisees.map((s) => s.id);
 
-  // Get all PENDING enrollments for any student (filter by advisees on client side)
   const { data: enrollData, isLoading: enLoading, isError, refetch } = useQuery({
     queryKey: ['pending-enrollments', lecturerId],
     queryFn: () => getEnrollments({ status: 'PENDING', limit: 100 }),
@@ -81,8 +79,11 @@ const PendingApprovalsTab = ({ lecturerId }) => {
           {pendingEnrollments.map((e) => (
             <tr key={e.id}>
               <td>
-                <div style={{ fontWeight: 600 }}>{e.student?.firstName} {e.student?.lastName}</div>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{e.student?.studentNumber}</div>
+                <PersonRow
+                  firstName={e.student?.firstName}
+                  lastName={e.student?.lastName}
+                  subtitle={e.student?.studentNumber}
+                />
               </td>
               <td>
                 <div style={{ fontWeight: 600, fontSize: 13 }}>{e.courseSection?.course?.name}</div>
@@ -119,7 +120,6 @@ const PendingApprovalsTab = ({ lecturerId }) => {
   );
 };
 
-// ===== All Advisees Panel =====
 const AdviseesTab = ({ lecturerId }) => {
   const { data: students = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['advisees', lecturerId],
@@ -147,10 +147,13 @@ const AdviseesTab = ({ lecturerId }) => {
           {students.map((s) => (
             <tr key={s.id}>
               <td>
-                <div style={{ fontWeight: 600 }}>{s.firstName} {s.lastName}</div>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{s.user?.email}</div>
+                <PersonRow
+                  firstName={s.firstName}
+                  lastName={s.lastName}
+                  email={s.user?.email}
+                  subtitle={s.studentNumber}
+                />
               </td>
-              <td><span className="badge badge-gray">{s.studentNumber}</span></td>
               <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{s.department?.name ?? '—'}</td>
               <td style={{ fontSize: 13 }}>{s.classYear}. Sınıf</td>
               <td><StatusBadge status={s.user?.isActive} /></td>
@@ -162,23 +165,19 @@ const AdviseesTab = ({ lecturerId }) => {
   );
 };
 
-// ===== Main =====
 const Advisees = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('pending');
 
-  // Get the lecturer record for this user
   const { data: lecturerData } = useQuery({
     queryKey: ['lecturers-mine'],
     queryFn: () => getLecturers({ limit: 1 }),
-    // We use this to find our own lecturer ID
   });
 
-  // Find this user's lecturer ID by matching email or getting from user object
   const lecturerId = user?.lecturerId ?? lecturerData?.data?.[0]?.id;
 
   const TABS = [
-    { id: 'pending', label: 'Onay Bekleyenler', badge: undefined },
+    { id: 'pending', label: 'Onay Bekleyenler' },
     { id: 'all', label: 'Tüm Danışmanlarım' },
   ];
 

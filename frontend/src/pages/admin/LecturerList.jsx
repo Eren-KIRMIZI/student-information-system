@@ -7,11 +7,11 @@ import {
   PageHeader, SearchInput, StatusBadge, TableSkeleton,
   EmptyState, ErrorState, Pagination, Modal,
 } from '../../components/ui/index';
-import { Plus, ExternalLink, Users, ToggleLeft, ToggleRight } from 'lucide-react';
+import { PersonRow } from '../../components/feature/index';
+import { LECTURER_TITLES } from '../../utils/constants';
+import { Plus, Users, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-
-const TITLES = ['Dr.', 'Dr. Öğr. Üyesi', 'Doç. Dr.', 'Prof. Dr.', 'Arş. Gör.', 'Öğr. Gör.'];
 
 const LecturerList = () => {
   const qc = useQueryClient();
@@ -112,8 +112,12 @@ const LecturerList = () => {
                   {data.data.map((l) => (
                     <tr key={l.id}>
                       <td>
-                        <div style={{ fontWeight: 600 }}>{l.firstName} {l.lastName}</div>
-                        <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{l.user?.email}</div>
+                        <PersonRow
+                          firstName={l.firstName}
+                          lastName={l.lastName}
+                          email={l.user?.email}
+                          subtitle={l.user?.email}
+                        />
                       </td>
                       <td><span className="badge badge-blue">{l.title ?? '—'}</span></td>
                       <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
@@ -130,7 +134,7 @@ const LecturerList = () => {
                             onClick={() => navigate(`/admin/lecturers/${l.id}`)}
                             title="Detay"
                           >
-                            <ExternalLink size={14} />
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                           </button>
                           <button
                             className="btn btn-ghost btn-sm"
@@ -152,7 +156,6 @@ const LecturerList = () => {
         )}
       </div>
 
-      {/* Create Lecturer Modal */}
       <Modal open={formOpen} onClose={() => setFormOpen(false)} title="Yeni Akademisyen" maxWidth={600}>
         <form onSubmit={handleSubmit((d) => createMutation.mutate(d))} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -186,7 +189,7 @@ const LecturerList = () => {
               <label className="input-label">Ünvan</label>
               <select {...register('title')} className="input">
                 <option value="">Seçin (opsiyonel)</option>
-                {TITLES.map((t) => <option key={t} value={t}>{t}</option>)}
+                {LECTURER_TITLES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
             <div className="input-wrapper">

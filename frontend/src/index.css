@@ -450,6 +450,15 @@ body {
 .empty-state h3, .error-state h3 { font-size: 16px; font-weight: 700; color: var(--color-text-secondary); }
 .empty-state p, .error-state p { font-size: 14px; }
 
+/* ==================== SIDEBAR RESPONSIVE ==================== */
+.sidebar-close-btn { display: none; }
+.sidebar-overlay { display: none; }
+
+@media (max-width: 768px) {
+  .sidebar-close-btn { display: flex; }
+  .sidebar-overlay { display: block; }
+}
+
 /* ==================== RESPONSIVE & UTILS ==================== */
 .grid-auto-fit {
   display: grid;
@@ -486,6 +495,19 @@ body {
   }
   .filter-bar .input, .filter-bar .btn, .filter-bar select {
     width: 100%;
+  }
+  .detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .modal-box {
+    max-width: calc(100vw - 32px) !important;
+    margin: 16px;
+  }
+  .stat-card {
+    padding: 16px;
+  }
+  .stat-value {
+    font-size: 22px;
   }
 }
 
@@ -524,3 +546,65 @@ body {
 .confirm-dialog .modal-header { flex-direction: column; gap: 12px; }
 .confirm-dialog p { color: var(--color-text-secondary); font-size: 14px; line-height: 1.6; }
 .confirm-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
+
+/* ==================== DETAIL GRID ==================== */
+.detail-grid {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ==================== MICRO-ANIMATIONS ==================== */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+}
+
+@keyframes toastSlideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+/* Toast container override for entrance animation */
+.toast-enter {
+  animation: toastSlideIn 0.3s ease both;
+}
+
+/* Badge hover pop */
+.badge {
+  transition: transform 0.15s ease;
+}
+.badge:hover {
+  transform: scale(1.05);
+}
+
+/* Button press effect */
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Nav item hover slide */
+.nav-item {
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.nav-item:hover {
+  transform: translateX(2px);
+}
+
+/* Skeleton pulse variation */
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.skeleton-pulse {
+  animation: skeletonPulse 1.5s ease infinite;
+}
+
+/* Focus ring for accessibility */
+.btn:focus-visible, .input:focus-visible, .nav-item:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}

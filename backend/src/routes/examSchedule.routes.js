@@ -1,44 +1,90 @@
 import { Router } from 'express';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { authorize } from '../middlewares/role.middleware.js';
-import { successResponse } from '../utils/response.util.js';
-import { AppError } from '../utils/appError.util.js';
-import prisma from '../config/prisma.js';
+import { validate } from '../middlewares/validate.middleware.js';
+import * as ctrl from '../controllers/examSchedule.controller.js';
+import { updateExamSlotValidator } from '../validators/examSchedule.validator.js';
 
 const router = Router();
 
-router.get('/me', authenticate, async (req, res, next) => {
-  try {
-    let where = {};
-    if (req.user.role === 'STUDENT') {
-      const student = await prisma.student.findUnique({where:{userId:req.user.id},select:{id:true}});
-      where = { courseSection: { enrollments: { some: { studentId: student.id, status: { in: ['ACTIVE','APPROVED'] } } } } };
-    } else if (req.user.role === 'ACADEMICIAN') {
-      const lecturer = await prisma.lecturer.findUnique({where:{userId:req.user.id},select:{id:true}});
-      where = { courseSection: { lecturerId: lecturer.id } };
-    }
-    const { examType } = req.query;
-    if (examType) where.examType = examType;
-    const exams = await prisma.examSchedule.findMany({
-      where, include: { courseSection: { include: { course: true, lecturer: true } } },
-      orderBy: { examDate: 'asc' },
-    });
-    return successResponse(res, exams);
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/exam-schedule/me:
+ *   get:
+ *     tags: [Exam Schedule]
+ *     summary: Öğrencinin sınav programını getir
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Sınav programı başarıyla getirildi
+ *       401:
+ *         description: Yetkilendirme hatası
+ */
+router.get('/me', authenticate, ctrl.getMyExamSchedule);
 
-router.put('/:id', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const slot = await prisma.examSchedule.update({ where:{id:req.params.id}, data:{ ...req.body, examDate: req.body.examDate ? new Date(req.body.examDate) : undefined } });
-    return successResponse(res, slot, 'Sınav slotu güncellendi');
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/exam-schedule/{id}:
+ *   put:
+ *     tags: [Exam Schedule]
+ *     summary: Sınav zaman dilimini güncelle
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               date:
+ *                 type: string
+ *                 format: date
+ *               startTime:
+ *                 type: string
+ *               endTime:
+ *                 type: string
+ *               location:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Sınav zaman dilimi başarıyla güncellendi
+ *       401:
+ *         description: Yetkilendirme hatası
+ *       404:
+ *         description: Sınav zaman dilimi bulunamadı
+ */
+router.put('/:id', authenticate, authorize('ADMIN'), updateExamSlotValidator, validate, ctrl.updateExamSlot);
 
-router.delete('/:id', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    await prisma.examSchedule.delete({ where:{id:req.params.id} });
-    return successResponse(res, null, 'Sınav slotu silindi');
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/exam-schedule/{id}:
+ *   delete:
+ *     tags: [Exam Schedule]
+ *     summary: Sınav zaman dilimini sil
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Sınav zaman dilimi başarıyla silindi
+ *       401:
+ *         description: Yetkilendirme hatası
+ *       404:
+ *         description: Sınav zaman dilimi bulunamadı
+ */
+router.delete('/:id', authenticate, authorize('ADMIN'), ctrl.deleteExamSlot);
 
 export default router;

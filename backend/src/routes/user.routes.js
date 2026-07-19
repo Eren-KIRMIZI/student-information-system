@@ -1,108 +1,232 @@
 import { Router } from 'express';
-import * as userRepository from '../repositories/user.repository.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { authorize } from '../middlewares/role.middleware.js';
-import { successResponse } from '../utils/response.util.js';
-import { AppError } from '../utils/appError.util.js';
-import { logEvent } from '../utils/logger.js';
-import bcrypt from 'bcryptjs';
-import prisma from '../config/prisma.js';
+import { validate } from '../middlewares/validate.middleware.js';
+import * as ctrl from '../controllers/user.controller.js';
+import { createUserValidator, updateUserValidator, updateUserStatusValidator, updateMeValidator } from '../validators/user.validator.js';
 
 const router = Router();
-const paginate = (p=1, l=20) => ({ skip:(Number(p)-1)*Number(l), take:Number(l) });
 
 /**
- * GET /users/me — Oturum açan kullanıcının profili
+ * @swagger
+ * /api/v1/users/me:
+ *   get:
+ *     tags: [Users]
+ *     summary: Mevcut kullanıcı bilgilerini getirme
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Kullanıcı bilgileri döner
+ *       401:
+ *         description: Yetkilendirme gerekli
  */
-router.get('/me', authenticate, async (req, res, next) => {
-  try {
-    const user = await userRepository.findById(req.user.id);
-    if (!user) return next(new AppError('Kullanıcı bulunamadı', 404));
-    const { password: _, ...safe } = user;
-    return successResponse(res, {
-      id: safe.id,
-      email: safe.email,
-      role: safe.role.name,
-      isActive: safe.isActive,
-      lastLoginAt: safe.lastLoginAt,
-      profile: safe.student ?? safe.lecturer ?? null,
-    });
-  } catch (e) { next(e); }
-});
+router.get('/me', authenticate, ctrl.getMe);
 
 /**
- * PUT /users/me — Profil güncelleme
+ * @swagger
+ * /api/v1/users/me:
+ *   put:
+ *     tags: [Users]
+ *     summary: Mevcut kullanıcı bilgilerini güncelleme
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: Kullanıcı bilgileri güncellendi
+ *       400:
+ *         description: Geçersiz istek
+ *       401:
+ *         description: Yetkilendirme gerekli
  */
-router.put('/me', authenticate, async (req, res, next) => {
-  try {
-    const { phone, address } = req.body;
-    if (req.user.role === 'STUDENT') {
-      await prisma.student.updateMany({ where:{ userId:req.user.id }, data: { phone, address } });
-    } else if (req.user.role === 'ACADEMICIAN') {
-      await prisma.lecturer.updateMany({ where:{ userId:req.user.id }, data: { phone } });
-    }
-    const updated = await userRepository.findById(req.user.id);
-    const { password: _, ...safe } = updated;
-    return successResponse(res, safe, 'Profil güncellendi');
-  } catch (e) { next(e); }
-});
+router.put('/me', authenticate, updateMeValidator, validate, ctrl.updateMe);
 
 /**
- * GET /users — Admin: kullanıcı listesi
+ * @swagger
+ * /api/v1/users/:
+ *   get:
+ *     tags: [Users]
+ *     summary: Tüm kullanıcıları listeleme (admin)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Sayfa numarası
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Sayfa başına kayıt sayısı
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Arama filtresi
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *         description: Rol filtresi
+ *     responses:
+ *       200:
+ *         description: Kullanıcı listesi döner
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       403:
+ *         description: Yetkiniz yok
  */
-router.get('/', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const { page=1, limit=20, search, roleId, isActive } = req.query;
-    const { skip, take } = paginate(page, limit);
-    const where = {};
-    if (roleId) where.roleId = roleId;
-    if (isActive !== undefined) where.isActive = isActive === 'true';
-    if (search) where.email = { contains: search, mode: 'insensitive' };
-    const [data, total] = await Promise.all([
-      prisma.user.findMany({ where, skip, take, orderBy:{createdAt:'desc'}, include:{ role:true } }),
-      prisma.user.count({ where }),
-    ]);
-    const safe = data.map(({ password: _, ...u }) => u);
-    return successResponse(res, { data: safe, pagination:{page:Number(page),limit:Number(limit),total,totalPages:Math.ceil(total/limit)} });
-  } catch (e) { next(e); }
-});
+router.get('/', authenticate, authorize('ADMIN'), ctrl.getUsers);
 
 /**
- * POST /users — Admin: kullanıcı oluştur
+ * @swagger
+ * /api/v1/users/:
+ *   post:
+ *     tags: [Users]
+ *     summary: Yeni kullanıcı oluşturma (admin)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password, firstName, lastName, role]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 format: password
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [STUDENT, ACADEMICIAN, ADMIN]
+ *     responses:
+ *       201:
+ *         description: Kullanıcı oluşturuldu
+ *       400:
+ *         description: Geçersiz istek
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       403:
+ *         description: Yetkiniz yok
+ *       409:
+ *         description: E-posta zaten kayıtlı
  */
-router.post('/', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const { email, password, roleId } = req.body;
-    const exists = await prisma.user.findUnique({ where:{ email } });
-    if (exists) return next(new AppError('Bu e-posta adresi zaten kullanımda', 409));
-    const hashed = await bcrypt.hash(password, 12);
-    const user = await prisma.user.create({ data:{ email, password:hashed, roleId }, include:{ role:true } });
-    const { password: _, ...safe } = user;
-    await logEvent({ userId:req.user.id, action:'USER_CREATED', entity:'User', entityId:user.id });
-    return successResponse(res, safe, 'Kullanıcı oluşturuldu', 201);
-  } catch (e) { next(e); }
-});
+router.post('/', authenticate, authorize('ADMIN'), createUserValidator, validate, ctrl.createUser);
 
 /**
- * PUT /users/:id — Admin: kullanıcı güncelle
+ * @swagger
+ * /api/v1/users/{id}:
+ *   put:
+ *     tags: [Users]
+ *     summary: Kullanıcı güncelleme (admin)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Kullanıcı ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               role:
+ *                 type: string
+ *                 enum: [STUDENT, ACADEMICIAN, ADMIN]
+ *     responses:
+ *       200:
+ *         description: Kullanıcı güncellendi
+ *       400:
+ *         description: Geçersiz istek
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       403:
+ *         description: Yetkiniz yok
+ *       404:
+ *         description: Kullanıcı bulunamadı
  */
-router.put('/:id', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    const user = await prisma.user.update({ where:{id:req.params.id}, data:{ roleId: req.body.roleId }, include:{role:true} });
-    const { password: _, ...safe } = user;
-    return successResponse(res, safe, 'Kullanıcı güncellendi');
-  } catch (e) { next(e); }
-});
+router.put('/:id', authenticate, authorize('ADMIN'), updateUserValidator, validate, ctrl.updateUser);
 
 /**
- * PUT /users/:id/status — Admin: aktif/pasif
+ * @swagger
+ * /api/v1/users/{id}/status:
+ *   put:
+ *     tags: [Users]
+ *     summary: Kullanıcı durumunu güncelleme (admin)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Kullanıcı ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [ACTIVE, INACTIVE, SUSPENDED]
+ *     responses:
+ *       200:
+ *         description: Kullanıcı durumu güncellendi
+ *       400:
+ *         description: Geçersiz istek
+ *       401:
+ *         description: Yetkilendirme gerekli
+ *       403:
+ *         description: Yetkiniz yok
+ *       404:
+ *         description: Kullanıcı bulunamadı
  */
-router.put('/:id/status', authenticate, authorize('ADMIN'), async (req, res, next) => {
-  try {
-    await prisma.user.update({ where:{id:req.params.id}, data:{ isActive: req.body.isActive } });
-    await logEvent({ userId:req.user.id, action: req.body.isActive ? 'USER_ACTIVATED' : 'USER_DEACTIVATED', entity:'User', entityId:req.params.id });
-    return successResponse(res, null, `Kullanıcı ${req.body.isActive ? 'aktif' : 'pasif'} edildi`);
-  } catch (e) { next(e); }
-});
+router.put('/:id/status', authenticate, authorize('ADMIN'), updateUserStatusValidator, validate, ctrl.updateUserStatus);
 
 export default router;

@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAnnouncements, createAnnouncement, deleteAnnouncement } from '../../api/system.api';
-import { PageHeader, FilterBar, TableSkeleton, ErrorState, EmptyState, ConfirmDialog, Modal } from '../../components/ui/index';
-import { Megaphone, Search, Trash2, Calendar, ChevronRight } from 'lucide-react';
+import { PageHeader, SearchInput, FilterBar, TableSkeleton, ErrorState, EmptyState, ConfirmDialog, Modal } from '../../components/ui/index';
+import { AnnouncementCard } from '../../components/feature/index';
+import { Megaphone, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../context/AuthContext';
-import dayjs from 'dayjs';
-import 'dayjs/locale/tr';
-dayjs.locale('tr');
+import { Pagination } from '../../components/ui/index';
 
 const AnnouncementList = () => {
   const qc = useQueryClient();
@@ -20,7 +19,6 @@ const AnnouncementList = () => {
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
@@ -65,17 +63,12 @@ const AnnouncementList = () => {
       />
 
       <FilterBar>
-        <div style={{ position: 'relative', flex: 1, maxWidth: 400 }}>
-          <Search size={16} style={{ position: 'absolute', left: 12, top: 12, color: 'var(--color-text-muted)' }} />
-          <input
-            type="text"
-            className="input"
-            placeholder="Duyurularda ara..."
-            style={{ paddingLeft: 36 }}
-            value={search}
-            onChange={e => { setSearch(e.target.value); setPage(1); }}
-          />
-        </div>
+        <SearchInput
+          value={search}
+          onChange={(v) => { setSearch(v); setPage(1); }}
+          placeholder="Duyurularda ara..."
+          style={{ maxWidth: 400 }}
+        />
       </FilterBar>
 
       {isLoading ? (
@@ -87,41 +80,28 @@ const AnnouncementList = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {data.data.map(item => (
-            <div key={item.id} className="card" style={{ display: 'flex', gap: 16, alignItems: 'flex-start', cursor: 'pointer', transition: 'all 0.2s', padding: 20 }} onClick={() => navigate(`/announcements/${item.id}`)}>
-              <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--color-primary-50)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Megaphone size={20} color="var(--color-primary-600)" />
-              </div>
+            <div key={item.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
               <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 6px' }}>{item.title}</h3>
-                <p style={{ fontSize: 14, color: 'var(--color-text-secondary)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', margin: 0 }}>
-                  {item.content}
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 12, fontSize: 12, color: 'var(--color-text-muted)' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <Calendar size={12} /> {dayjs(item.publishedAt).format('DD MMMM YYYY, HH:mm')}
-                  </span>
-                </div>
+                <AnnouncementCard
+                  announcement={item}
+                  onClick={() => navigate(`/announcements/${item.id}`)}
+                />
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                {isAdmin && (
-                  <button
-                    className="btn btn-ghost btn-sm"
-                    onClick={(e) => { e.stopPropagation(); setDeleteConfirm(item); }}
-                  >
-                    <Trash2 size={16} color="var(--color-danger)" />
-                  </button>
-                )}
-                <ChevronRight size={20} color="var(--color-text-muted)" />
-              </div>
+              {isAdmin && (
+                <button
+                  className="btn btn-ghost btn-sm"
+                  style={{ marginTop: 8, color: 'var(--color-danger)', flexShrink: 0 }}
+                  onClick={() => setDeleteConfirm(item)}
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
             </div>
           ))}
 
-          {/* Pagination */}
           {data.pagination && data.pagination.totalPages > 1 && (
-            <div style={{ display: 'flex', gap: 10, padding: 16, justifyContent: 'center' }}>
-              <button className="btn btn-secondary btn-sm" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Önceki</button>
-              <div style={{ padding: '6px 12px', fontSize: 13, fontWeight: 600 }}>{page} / {data.pagination.totalPages}</div>
-              <button className="btn btn-secondary btn-sm" disabled={page === data.pagination.totalPages} onClick={() => setPage(p => p + 1)}>Sonraki</button>
+            <div className="card" style={{ padding: 0 }}>
+              <Pagination {...data.pagination} onPageChange={setPage} />
             </div>
           )}
         </div>

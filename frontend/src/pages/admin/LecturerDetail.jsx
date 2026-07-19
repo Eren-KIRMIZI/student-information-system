@@ -76,7 +76,7 @@ const LecturerDetail = () => {
         }
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 20, alignItems: 'start' }}>
+      <div className="detail-grid" style={{ gridTemplateColumns: '320px 1fr' }}>
         {/* Sol — Profil kartı */}
         <div className="card">
           <div style={{ textAlign: 'center', padding: '8px 0 20px' }}>

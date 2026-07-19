@@ -16,7 +16,7 @@ export const studentFindMany = (params) => {
     prisma.student.count({ where }),
   ]);
 };
-export const studentFindById      = (id) => prisma.student.findUnique({ where: { id }, include: { department: { include: { faculty: true } }, user: { select: { email: true, isActive: true } }, advisorHistory: { include: { lecturer: true }, where: { isActive: true } } } });
+export const studentFindById      = (id) => prisma.student.findUnique({ where: { id }, include: { department: { include: { faculty: true } }, user: { select: { email: true, isActive: true } }, advisorHistory: { include: { lecturer: true }, where: { isActive: true } }, enrollments: { include: { courseSection: { include: { course: true } } }, take: 5, orderBy: { createdAt: 'desc' } } } });
 export const studentFindByUserId  = (userId) => prisma.student.findUnique({ where: { userId } });
 export const studentCreate        = (data) => prisma.student.create({ data, include: { department: true, user: { select: { email: true } } } });
 export const studentUpdate        = (id, data) => prisma.student.update({ where: { id }, data, include: { department: true } });
@@ -37,7 +37,7 @@ export const lecturerFindMany    = (params) => {
     prisma.lecturer.count({ where }),
   ]);
 };
-export const lecturerFindById    = (id) => prisma.lecturer.findUnique({ where: { id }, include: { department: { include: { faculty: true } }, user: { select: { email: true, isActive: true } } } });
+export const lecturerFindById    = (id) => prisma.lecturer.findUnique({ where: { id }, include: { department: { include: { faculty: true } }, user: { select: { email: true, isActive: true } }, sections: { include: { course: true }, take: 5, orderBy: { createdAt: 'desc' } } } });
 export const lecturerFindByUserId= (userId) => prisma.lecturer.findUnique({ where: { userId } });
 export const lecturerCreate      = (data) => prisma.lecturer.create({ data, include: { department: true, user: { select: { email: true } } } });
 export const lecturerUpdate      = (id, data) => prisma.lecturer.update({ where: { id }, data, include: { department: true } });

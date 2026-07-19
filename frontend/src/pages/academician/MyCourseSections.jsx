@@ -8,10 +8,9 @@ import {
   PageHeader, StatusBadge, TableSkeleton, CardSkeleton,
   EmptyState, ErrorState, Pagination, SearchInput,
 } from '../../components/ui/index';
-import { BookOpen, Users, ArrowRight, Layers } from 'lucide-react';
-
-const SEMESTERS = ['FALL', 'SPRING', 'SUMMER'];
-const SEM_LABELS = { FALL: 'Güz', SPRING: 'Bahar', SUMMER: 'Yaz' };
+import { CourseSectionCard } from '../../components/feature/index';
+import { SEMESTERS, SEMESTER_LABELS, ACADEMIC_YEAR_OPTIONS } from '../../utils/constants';
+import { Users, ArrowRight, Layers } from 'lucide-react';
 
 const MyCourseSections = () => {
   const navigate = useNavigate();
@@ -19,16 +18,10 @@ const MyCourseSections = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [semester, setSemester] = useState('');
-  const [viewMode, setViewMode] = useState('card'); // 'table' | 'card'
+  const [viewMode, setViewMode] = useState('card');
 
-  const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 4 }, (_, i) => {
-    const y = currentYear - 1 + i;
-    return `${y}-${y + 1}`;
-  });
-  const [academicYear, setAcademicYear] = useState(`${currentYear}-${currentYear + 1}`);
+  const [academicYear, setAcademicYear] = useState(`${new Date().getFullYear()}-${new Date().getFullYear() + 1}`);
 
-  // Get the lecturer record for this user
   const { data: lecturerData } = useQuery({
     queryKey: ['lecturers-mine'],
     queryFn: () => getLecturers({ limit: 1 }),
@@ -85,7 +78,7 @@ const MyCourseSections = () => {
           onChange={(e) => { setAcademicYear(e.target.value); setPage(1); }}
         >
           <option value="">Tüm Yıllar</option>
-          {yearOptions.map((y) => <option key={y} value={y}>{y}</option>)}
+          {ACADEMIC_YEAR_OPTIONS.map((y) => <option key={y} value={y}>{y}</option>)}
         </select>
         <select
           className="input"
@@ -94,7 +87,7 @@ const MyCourseSections = () => {
           onChange={(e) => { setSemester(e.target.value); setPage(1); }}
         >
           <option value="">Tüm Yarıyıllar</option>
-          {SEMESTERS.map((s) => <option key={s} value={s}>{SEM_LABELS[s]}</option>)}
+          {SEMESTERS.map((s) => <option key={s} value={s}>{SEMESTER_LABELS[s]}</option>)}
         </select>
       </div>
 
@@ -112,35 +105,15 @@ const MyCourseSections = () => {
         </div>
       ) : viewMode === 'card' ? (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-            {sections.map((s) => {
-              const enrolled = s._count?.enrollments ?? 0;
-              return (
-                <div
-                  key={s.id}
-                  className="card"
-                  style={{ cursor: 'pointer', transition: 'transform 0.15s, box-shadow 0.15s' }}
-                  onClick={() => navigate(`/academician/course-sections/${s.id}`)}
-                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                    <span className="badge badge-blue">{s.course?.code}</span>
-                    <StatusBadge status={s.semester} />
-                  </div>
-                  <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4, lineHeight: 1.4 }}>{s.course?.name}</div>
-                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 16 }}>
-                    Şube {s.sectionCode} · {s.academicYear}
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, paddingTop: 12, borderTop: '1px solid var(--color-border)' }}>
-                    <span style={{ color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <Users size={14} /> {enrolled} Kayıtlı Öğrenci
-                    </span>
-                    <ArrowRight size={14} style={{ color: 'var(--color-primary)' }} />
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid-auto-fill">
+            {sections.map((s) => (
+              <CourseSectionCard
+                key={s.id}
+                section={s}
+                onClick={() => navigate(`/academician/course-sections/${s.id}`)}
+                actionLabel="Workspace"
+              />
+            ))}
           </div>
           {data?.pagination && data.pagination.totalPages > 1 && (
             <div style={{ marginTop: 16 }}>

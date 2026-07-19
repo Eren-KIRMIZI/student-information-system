@@ -1,0 +1,78 @@
+import * as repo from '../repositories/enrollment.repository.js';
+import { AppError } from '../utils/appError.util.js';
+
+const MAX_ECTS = Number(process.env.MAX_ECTS_PER_SEMESTER) || 45;
+
+const paginate = (page, limit) => ({ skip: (Number(page) - 1) * Number(limit), take: Number(limit) });
+
+export const listEnrollments = async ({ page = 1, limit = 20, status, courseSectionId, studentId, sortBy, order }) => {
+  const [data, total] = await repo.enrollmentFindMany({ ...paginate(page, limit), status, courseSectionId, studentId, sortBy, order });
+  return { data, pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) } };
+};
+
+export const getMyEnrollments = async (userId) => {
+  const student = await repo.studentFindByUserId(userId);
+  if (!student) throw new AppError('Öğrenci profili bulunamadı', 404);
+  return repo.enrollmentFindForStudent(student.id);
+};
+
+export const createEnrollment = async (userId, courseSectionId) => {
+  const student = await repo.studentFindByUserId(userId);
+  if (!student) throw new AppError('Öğrenci profili bulunamadı', 404);
+
+  const section = await import('../config/prisma.js').then(m => m.default.courseSection.findUnique({
+    where: { id: courseSectionId },
+    include: { _count: { select: { enrollments: true } }, course: true },
+  }));
+  if (!section) throw new AppError('Ders şubesi bulunamadı', 404);
+
+  // Rule 1: Section closed/archived
+  if (section.isArchived) throw new AppError('Bu şube arşivlenmiş', 400, null, 'SECTION_CLOSED');
+
+  // Rule 2: Quota full
+  const activeCount = await repo.enrollmentCountActive(courseSectionId);
+  if (activeCount >= section.quota) throw new AppError('Kontenjan dolu', 400, null, 'QUOTA_FULL');
+
+  // Rule 3: Already enrolled
+  const exists = await repo.enrollmentFindDuplicate(student.id, courseSectionId);
+  if (exists) throw new AppError('Bu derse zaten kayıtlısınız', 409, null, 'ALREADY_ENROLLED');
+
+  // Rule 4: ECTS limit
+  const currentEcts = await repo.enrollmentSumEcts(student.id, section.academicYear, section.semester);
+  if (currentEcts + section.course.ects > MAX_ECTS) {
+    throw new AppError(`Maksimum AKTS sınırı (${MAX_ECTS}) aşılıyor`, 400, null, 'ECTS_LIMIT_EXCEEDED');
+  }
+
+  // Rule 5: Schedule conflict
+  const mySlots = await repo.enrollmentGetStudentSlots(student.id);
+  const newSlots = await repo.enrollmentGetSectionSlots(courseSectionId);
+  for (const ns of newSlots) {
+    for (const ms of mySlots) {
+      if (ns.dayOfWeek === ms.dayOfWeek) {
+        const conflict = !(ns.endTime <= ms.startTime || ns.startTime >= ms.endTime);
+        if (conflict) throw new AppError('Ders programı çakışması var', 409, null, 'SCHEDULE_CONFLICT');
+      }
+    }
+  }
+
+  return repo.enrollmentCreate({ studentId: student.id, courseSectionId, status: 'PENDING' });
+};
+
+export const approveEnrollment = async (id) => {
+  const e = await repo.enrollmentFindByIdSimple(id);
+  if (!e) throw new AppError('Kayıt bulunamadı', 404);
+  return repo.enrollmentUpdate(id, { status: 'ACTIVE' });
+};
+
+export const rejectEnrollment = async (id) => {
+  const e = await repo.enrollmentFindByIdSimple(id);
+  if (!e) throw new AppError('Kayıt bulunamadı', 404);
+  return repo.enrollmentUpdate(id, { status: 'REJECTED' });
+};
+
+export const dropEnrollment = async (id) => {
+  const e = await repo.enrollmentFindByIdSimple(id);
+  if (!e) throw new AppError('Kayıt bulunamadı', 404);
+  if (e.status === 'COMPLETED') throw new AppError('Tamamlanmış ders bırakılamaz', 400);
+  return repo.enrollmentUpdate(id, { status: 'DROPPED' });
+};

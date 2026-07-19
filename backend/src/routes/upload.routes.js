@@ -2,10 +2,10 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import { authenticate } from '../middlewares/auth.middleware.js';
-import { authorize } from '../middlewares/role.middleware.js';
-import { successResponse } from '../utils/response.util.js';
+import { validate } from '../middlewares/validate.middleware.js';
 import { AppError } from '../utils/appError.util.js';
-import prisma from '../config/prisma.js';
+import * as ctrl from '../controllers/upload.controller.js';
+import { deleteUploadValidator } from '../validators/upload.validator.js';
 
 const router = Router();
 
@@ -18,63 +18,95 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowed = ['image/jpeg','image/png','image/webp','application/pdf','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.openxmlformats-officedocument.presentationml.presentation'];
+  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'];
   if (allowed.includes(file.mimetype)) cb(null, true);
   else cb(new AppError('Desteklenmeyen dosya türü', 400), false);
 };
 
-const upload = multer({ storage, fileFilter, limits:{ fileSize: 10 * 1024 * 1024 } }); // 10MB
+const upload = multer({ storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } });
 
-router.post('/', authenticate, upload.single('file'), async (req, res, next) => {
-  try {
-    if (!req.file) return next(new AppError('Dosya yüklenmedi', 400));
-    const { purpose='OTHER', courseSectionId } = req.body;
-    const record = await prisma.upload.create({
-      data:{
-        uploaderId: req.user.id,
-        fileName: req.file.filename,
-        originalName: req.file.originalname,
-        mimeType: req.file.mimetype,
-        size: req.file.size,
-        path: req.file.path.replace(/\\/g, '/'),
-        purpose,
-        courseSectionId: courseSectionId || null,
-      },
-    });
-    return successResponse(res, record, 'Dosya yüklendi', 201);
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/uploads:
+ *   post:
+ *     tags: [Uploads]
+ *     summary: Dosya yükle
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - file
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Dosya başarıyla yüklendi
+ *       400:
+ *         description: Desteklenmeyen dosya türü
+ *       401:
+ *         description: Yetkilendirme hatası
+ */
+router.post('/', authenticate, upload.single('file'), ctrl.createUpload);
 
-// Profile photo upload
-router.put('/me/photo', authenticate, upload.single('photo'), async (req, res, next) => {
-  try {
-    if (!req.file) return next(new AppError('Fotoğraf yüklenmedi', 400));
-    const path_ = req.file.path.replace(/\\/g, '/');
+/**
+ * @swagger
+ * /api/v1/uploads/me/photo:
+ *   put:
+ *     tags: [Uploads]
+ *     summary: Profil fotoğrafını güncelle
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - photo
+ *             properties:
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Profil fotoğrafı başarıyla güncellendi
+ *       400:
+ *         description: Desteklenmeyen dosya türü
+ *       401:
+ *         description: Yetkilendirme hatası
+ */
+router.put('/me/photo', authenticate, upload.single('photo'), ctrl.updateProfilePhoto);
 
-    await prisma.upload.create({
-      data:{ uploaderId:req.user.id, fileName:req.file.filename, originalName:req.file.originalname, mimeType:req.file.mimetype, size:req.file.size, path:path_, purpose:'PROFILE_PHOTO' },
-    });
-
-    // Update profile
-    if (req.user.role === 'STUDENT') {
-      await prisma.student.updateMany({ where:{userId:req.user.id}, data:{photoUrl:path_} });
-    } else if (req.user.role === 'ACADEMICIAN') {
-      await prisma.lecturer.updateMany({ where:{userId:req.user.id}, data:{photoUrl:path_} });
-    }
-    return successResponse(res, { photoUrl: path_ }, 'Profil fotoğrafı güncellendi');
-  } catch (e) { next(e); }
-});
-
-router.delete('/:id', authenticate, async (req, res, next) => {
-  try {
-    const record = await prisma.upload.findUnique({ where:{id:req.params.id} });
-    if (!record) return next(new AppError('Dosya bulunamadı', 404));
-    if (record.uploaderId !== req.user.id && req.user.role !== 'ADMIN') {
-      return next(new AppError('Bu dosyayı silme yetkiniz yok', 403));
-    }
-    await prisma.upload.delete({ where:{id:req.params.id} });
-    return successResponse(res, null, 'Dosya silindi');
-  } catch (e) { next(e); }
-});
+/**
+ * @swagger
+ * /api/v1/uploads/{id}:
+ *   delete:
+ *     tags: [Uploads]
+ *     summary: Dosyayı sil
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Dosya başarıyla silindi
+ *       401:
+ *         description: Yetkilendirme hatası
+ *       404:
+ *         description: Dosya bulunamadı
+ */
+router.delete('/:id', authenticate, deleteUploadValidator, validate, ctrl.deleteUpload);
 
 export default router;
