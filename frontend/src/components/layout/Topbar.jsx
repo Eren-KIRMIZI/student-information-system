@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Sun, Moon, Menu, User, KeyRound, LogOut, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import NotificationCenter from '../ui/NotificationCenter';
 
 const roleLabel = { ADMIN: 'Yönetici', ACADEMICIAN: 'Akademisyen', STUDENT: 'Öğrenci' };
 const roleColor = { ADMIN: 'badge-red', ACADEMICIAN: 'badge-blue', STUDENT: 'badge-green' };
@@ -53,10 +54,14 @@ const Topbar = ({ onMenuClick }) => {
       {/* Spacer */}
       <div style={{ flex: 1 }} />
 
-      {/* Theme toggle */}
-      <button
-        onClick={toggleTheme}
-        title={theme === 'light' ? 'Karanlık mod' : 'Aydınlık mod'}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {/* Notification Center */}
+        <NotificationCenter />
+
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          title={theme === 'light' ? 'Karanlık mod' : 'Aydınlık mod'}
         style={{
           background: 'var(--color-surface-2)', border: '1px solid var(--color-border)',
           borderRadius: 8, padding: '7px 8px', cursor: 'pointer',
@@ -141,6 +146,7 @@ const Topbar = ({ onMenuClick }) => {
             </button>
           </div>
         )}
+      </div>
       </div>
     </header>
   );

@@ -45,7 +45,8 @@ export const getRoles  = ()      => axiosInstance.get('/roles').then(r => r.data
 export const updateRole= (id,d)  => axiosInstance.put(`/roles/${id}`, d).then(r => r.data);
 
 // ====== Logs ======
-export const getLogs   = (params)=> axiosInstance.get('/logs', { params }).then(r => r.data);
+export const getLogs       = (params)=> axiosInstance.get('/logs', { params }).then(r => r.data);
+export const getAuditLogs  = (params)=> axiosInstance.get('/logs/audit', { params }).then(r => r.data);
 
 // ====== Uploads ======
 export const uploadFile     = (form)    => axiosInstance.post('/uploads', form, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data);

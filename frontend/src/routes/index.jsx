@@ -58,6 +58,7 @@ const CourseSectionList       = lazy(() => import('../pages/admin/CourseSectionL
 const CourseSectionWorkspaceAdmin = lazy(() => import('../pages/admin/CourseSectionWorkspace'));
 const AdvisorAssignmentList   = lazy(() => import('../pages/admin/AdvisorAssignmentList'));
 const LogList                 = lazy(() => import('../pages/admin/LogList'));
+const AuditViewer             = lazy(() => import('../pages/admin/AuditViewer'));
 
 // ---- Shared Pages ----
 const AnnouncementList   = lazy(() => import('../pages/shared/AnnouncementList'));
@@ -145,6 +146,7 @@ const AppRoutes = () => (
           <Route path="/admin/course-sections/:id"      element={<CourseSectionWorkspaceAdmin />} />
           <Route path="/admin/advisor-assignments"      element={<AdvisorAssignmentList />} />
           <Route path="/admin/logs"                     element={<LogList />} />
+          <Route path="/admin/audit-logs"               element={<AuditViewer />} />
         </Route>
       </Route>
 

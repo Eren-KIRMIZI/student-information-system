@@ -1,6 +1,8 @@
 import prisma from '../config/prisma.js';
 import { getCorrelationId } from '../utils/correlation.js';
 import { isFeatureEnabled } from '../config/featureFlags.js';
+import { auditLogger } from '../utils/winstonLogger.js';
+import { getTraceId, getRequestId } from '../utils/tracer.js';
 
 export const auditLog = async ({
   userId,
@@ -39,6 +41,22 @@ export const auditLog = async ({
   } catch (err) {
     console.error('[AUDIT] Audit log kaydedilemedi:', err.message);
   }
+
+  // Ayrıca Winston audit log dosyasına yaz
+  auditLogger.info('audit_event', {
+    userId,
+    action,
+    entity,
+    entityId,
+    method,
+    path,
+    ipAddress,
+    statusCode,
+    durationMs,
+    traceId:   getTraceId(),
+    requestId: getRequestId(),
+    correlationId: getCorrelationId(),
+  });
 };
 
 export const auditMiddleware = (req, res, next) => {

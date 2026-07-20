@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "C:\\Users\\Eren\\Desktop\\Bozok\\student-information-system\\logs\\.07335de64251233a321e8ac4d761b5f4b7dcc3a0-audit.json",
+    "files": [
+        {
+            "date": 1784572861756,
+            "name": "C:\\Users\\Eren\\Desktop\\Bozok\\student-information-system\\logs\\2026-07-20-http.log",
+            "hash": "c0b035aa6eaf47cb00e861c9cb48c5cd6e10c352486e13f4c6c75e35cf1d3801"
+        }
+    ],
+    "hashType": "sha256"
+}

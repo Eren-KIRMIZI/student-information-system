@@ -21,4 +21,18 @@ const router = Router();
  */
 router.get('/', authenticate, authorize('ADMIN'), ctrl.getLogs);
 
+/**
+ * @swagger
+ * /api/v1/logs/audit:
+ *   get:
+ *     tags: [Logs]
+ *     summary: Audit loglarını listele
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Audit log listesi
+ */
+router.get('/audit', authenticate, authorize('ADMIN'), ctrl.getAuditLogs);
+
 export default router;

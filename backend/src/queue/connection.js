@@ -10,3 +10,17 @@ export const createQueueConnection = () => {
     },
   });
 };
+
+// Used by health check endpoint
+let _statusClient = null;
+export const getQueueStatus = async () => {
+  if (!_statusClient) {
+    _statusClient = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', {
+      maxRetriesPerRequest: 1,
+      enableReadyCheck: false,
+      connectTimeout: 3000,
+    });
+  }
+  const pong = await _statusClient.ping();
+  if (pong !== 'PONG') throw new Error('Queue Redis PING failed');
+};

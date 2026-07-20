@@ -7,13 +7,13 @@ export const getScheduleConflicts = async (userId) => {
 
   const enrollments = await prisma.enrollment.findMany({
     where: { studentId: student.id, status: { in: ['ACTIVE', 'APPROVED', 'PENDING'] } },
-    include: { courseSection: { include: { course: true, weeklySlots: true, lecturer: { include: { user: { select: { firstName: true, lastName: true } } } } } } },
+    include: { courseSection: { include: { course: true, weeklySlots: true, lecturer: { select: { firstName: true, lastName: true } } } } },
   });
 
   const slots = [];
   for (const e of enrollments) {
     for (const slot of e.courseSection.weeklySlots) {
-      slots.push({ ...slot, courseName: e.courseSection.course.name, courseCode: e.courseSection.course.code, lecturerName: `${e.courseSection.lecturer.user.firstName} ${e.courseSection.lecturer.user.lastName}` });
+      slots.push({ ...slot, courseName: e.courseSection.course.name, courseCode: e.courseSection.course.code, lecturerName: `${e.courseSection.lecturer.firstName} ${e.courseSection.lecturer.lastName}` });
     }
   }
 
@@ -48,7 +48,7 @@ export const getAvailableSections = async (userId, courseId) => {
 
   const sections = await prisma.courseSection.findMany({
     where: { courseId, status: 'ACTIVE' },
-    include: { course: true, lecturer: { include: { user: { select: { firstName: true, lastName: true } } } }, weeklySlots: true, _count: { select: { enrollments: { where: { status: { in: ['ACTIVE', 'APPROVED', 'PENDING'] } } } } } },
+    include: { course: true, lecturer: { select: { firstName: true, lastName: true } }, weeklySlots: true, _count: { select: { enrollments: { where: { status: { in: ['ACTIVE', 'APPROVED', 'PENDING'] } } } } } },
   });
 
   const mySlots = [];
@@ -63,6 +63,6 @@ export const getAvailableSections = async (userId, courseId) => {
   return sections.map(s => {
     const hasConflict = s.weeklySlots.some(slot => mySlots.some(ms => ms.dayOfWeek === slot.dayOfWeek && !(slot.endTime <= ms.startTime || slot.startTime >= ms.endTime)));
     const hasQuota = s._count.enrollments < s.quota;
-    return { id: s.id, courseCode: s.course.code, lecturerName: `${s.lecturer.user.firstName} ${s.lecturer.user.lastName}`, quota: s.quota, enrolled: s._count.enrollments, available: hasQuota, conflict: hasConflict, schedule: s.weeklySlots.map(sl => ({ dayOfWeek: sl.dayOfWeek, startTime: sl.startTime, endTime: sl.endTime, room: sl.room })) };
+    return { id: s.id, courseCode: s.course.code, lecturerName: `${s.lecturer.firstName} ${s.lecturer.lastName}`, quota: s.quota, enrolled: s._count.enrollments, available: hasQuota, conflict: hasConflict, schedule: s.weeklySlots.map(sl => ({ dayOfWeek: sl.dayOfWeek, startTime: sl.startTime, endTime: sl.endTime, room: sl.room })) };
   });
 };

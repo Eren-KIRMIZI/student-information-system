@@ -35,9 +35,14 @@ const options = {
           type: 'object',
           properties: {
             success: { type: 'boolean', example: false },
-            message: { type: 'string', example: 'Hata mesajı' },
-            code: { type: 'string', nullable: true },
-            errors: { type: 'array', nullable: true },
+            message: { type: 'string', example: 'Doğrulama hatası' },
+            code: { type: 'string', example: 'VALIDATION_ERROR', nullable: true },
+            errors: { 
+              type: 'array', 
+              nullable: true,
+              items: { type: 'object', properties: { field: { type: 'string' }, message: { type: 'string' } } },
+              example: [{ field: 'email', message: 'Geçerli bir email adresi giriniz' }]
+            },
           },
         },
         PaginationMeta: {
@@ -50,6 +55,28 @@ const options = {
           },
         },
       },
+      responses: {
+        BadRequest: {
+          description: 'Geçersiz veri veya doğrulama hatası',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        Unauthorized: {
+          description: 'Oturum açılmamış veya token geçersiz',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        Forbidden: {
+          description: 'Yetki yetersiz (Örn: Sadece ADMIN rolü erişebilir)',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        NotFound: {
+          description: 'İstenen kaynak bulunamadı',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        InternalError: {
+          description: 'Sunucu tarafında beklenmeyen hata',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
     },
     security: [{ bearerAuth: [] }],
   },

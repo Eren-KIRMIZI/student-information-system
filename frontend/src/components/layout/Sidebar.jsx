@@ -3,7 +3,7 @@ import {
   LayoutDashboard, BookOpen, Calendar, ClipboardList, Award, GraduationCap,
   BookMarked, UserCheck, Megaphone, CalendarDays, Users, Building2,
   BookCopy, ScrollText, UserCog, ClipboardCheck, FileText, ChevronRight,
-  Layers, UserSquare, LogOut, X, BarChart3, QrCode, AlertTriangle, PieChart, TrendingUp,
+  Layers, UserSquare, LogOut, X, BarChart3, QrCode, AlertTriangle, PieChart, TrendingUp, Shield
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -54,6 +54,7 @@ const adminNav = [
   { to: '/academic-calendar',           icon: CalendarDays,    label: 'Akademik Takvim' },
   { label: 'SİSTEM',                    isGroup: true },
   { to: '/admin/logs',                  icon: FileText,        label: 'Sistem Logları' },
+  { to: '/admin/audit-logs',            icon: Shield,          label: 'Audit (Denetim İzi)' },
 ];
 
 const navMap = { STUDENT: studentNav, ACADEMICIAN: academicianNav, ADMIN: adminNav };

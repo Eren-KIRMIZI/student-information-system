@@ -2,7 +2,6 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './src/swagger/swagger.config.js';
@@ -14,8 +13,13 @@ import { maintenanceCheck } from './src/middlewares/maintenance.middleware.js';
 import { etagMiddleware } from './src/middlewares/etag.middleware.js';
 import { auditMiddleware } from './src/utils/audit.js';
 import { tracingMiddleware } from './src/middlewares/tracing.middleware.js';
+import { httpLogger } from './src/middlewares/httpLogger.middleware.js';
+import { metricsMiddleware } from './src/middlewares/metrics.middleware.js';
 import { setupScheduledJobs } from './src/queue/scheduler.js';
 import { authenticate } from './src/middlewares/auth.middleware.js';
+import { logger } from './src/utils/winstonLogger.js';
+import healthRoutes from './src/routes/health.routes.js';
+import metricsRoutes from './src/routes/metrics.routes.js';
 
 // Routes
 import authRoutes from './src/routes/auth.routes.js';
@@ -48,6 +52,8 @@ import studentAnalyticsRoutes from './src/routes/studentAnalytics.routes.js';
 import advisorAnalyticsRoutes from './src/routes/advisorAnalytics.routes.js';
 import scheduleOptimizerRoutes from './src/routes/scheduleOptimizer.routes.js';
 import adminDashboardRoutes from './src/routes/adminDashboard.routes.js';
+import exportRoutes from './src/routes/export.routes.js';
+import importRoutes from './src/routes/import.routes.js';
 import { idempotencyMiddleware } from './src/middlewares/idempotency.middleware.js';
 
 const app = express();
@@ -82,7 +88,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
   maxAge: 86400,
 }));
-app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+app.use(httpLogger);
+app.use(metricsMiddleware);
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -92,6 +99,10 @@ app.use(tracingMiddleware);
 
 // Static uploads — auth required
 app.use('/uploads', authenticate, express.static('uploads'));
+
+// Health check & Metrics — auth gerektirmez
+app.use('/health', healthRoutes);
+app.use('/metrics', metricsRoutes);
 
 // Swagger Docs — production'da devre dışı bırakılabilir
 if (process.env.NODE_ENV !== 'production') {
@@ -129,6 +140,8 @@ app.use('/api/v1/student-analytics',   studentAnalyticsRoutes);
 app.use('/api/v1/advisor-analytics',   advisorAnalyticsRoutes);
 app.use('/api/v1/schedule-optimizer',  scheduleOptimizerRoutes);
 app.use('/api/v1/admin-dashboard',     adminDashboardRoutes);
+app.use('/api/v1/export',              exportRoutes);
+app.use('/api/v1/import',              importRoutes);
 
 // Idempotency — route'lardan SONRA mount et, handler içinde çalışır
 app.use(['/api/v1/enrollments', '/api/v1/grades', '/api/v1/announcements'], idempotencyMiddleware);
@@ -137,10 +150,13 @@ app.use(['/api/v1/enrollments', '/api/v1/grades', '/api/v1/announcements'], idem
 app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📚 Swagger UI: http://localhost:${PORT}/api-docs`);
-  }
+  logger.info(`🚀 Server started on port ${PORT}`, {
+    port: PORT,
+    env: process.env.NODE_ENV || 'development',
+    swagger: `http://localhost:${PORT}/api-docs`,
+    health:  `http://localhost:${PORT}/health`,
+    metrics: `http://localhost:${PORT}/metrics`,
+  });
 });
 
 initSocket(server);
