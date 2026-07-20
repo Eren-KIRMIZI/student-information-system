@@ -40,6 +40,14 @@ import logRoutes from './src/routes/log.routes.js';
 import roleRoutes from './src/routes/role.routes.js';
 import settingRoutes from './src/routes/setting.routes.js';
 import searchRoutes from './src/routes/search.routes.js';
+import prerequisiteRoutes from './src/routes/prerequisite.routes.js';
+import waitlistRoutes from './src/routes/waitlist.routes.js';
+import qrAttendanceRoutes from './src/routes/qrAttendance.routes.js';
+import graduationRoutes from './src/routes/graduation.routes.js';
+import studentAnalyticsRoutes from './src/routes/studentAnalytics.routes.js';
+import advisorAnalyticsRoutes from './src/routes/advisorAnalytics.routes.js';
+import scheduleOptimizerRoutes from './src/routes/scheduleOptimizer.routes.js';
+import adminDashboardRoutes from './src/routes/adminDashboard.routes.js';
 import { idempotencyMiddleware } from './src/middlewares/idempotency.middleware.js';
 
 const app = express();
@@ -113,6 +121,14 @@ app.use('/api/v1/logs',               logRoutes);
 app.use('/api/v1/roles',              roleRoutes);
 app.use('/api/v1/settings',           settingRoutes);
 app.use('/api/v1/search',             searchRoutes);
+app.use('/api/v1/prerequisites',       prerequisiteRoutes);
+app.use('/api/v1/waitlist',            waitlistRoutes);
+app.use('/api/v1/qr-attendance',       qrAttendanceRoutes);
+app.use('/api/v1/academic',            graduationRoutes);
+app.use('/api/v1/student-analytics',   studentAnalyticsRoutes);
+app.use('/api/v1/advisor-analytics',   advisorAnalyticsRoutes);
+app.use('/api/v1/schedule-optimizer',  scheduleOptimizerRoutes);
+app.use('/api/v1/admin-dashboard',     adminDashboardRoutes);
 
 // Idempotency — route'lardan SONRA mount et, handler içinde çalışır
 app.use(['/api/v1/enrollments', '/api/v1/grades', '/api/v1/announcements'], idempotencyMiddleware);

@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
 import { getAdviseesByLecturer } from '../../api/system.api';
 import { getEnrollments, approveEnrollment, rejectEnrollment } from '../../api/records.api';
-import { getLecturers } from '../../api/people.api';
 import {
   PageHeader, StatusBadge, TableSkeleton, EmptyState, ErrorState, Tabs,
 } from '../../components/ui/index';
@@ -169,12 +168,7 @@ const Advisees = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('pending');
 
-  const { data: lecturerData } = useQuery({
-    queryKey: ['lecturers-mine'],
-    queryFn: () => getLecturers({ limit: 1 }),
-  });
-
-  const lecturerId = user?.lecturerId ?? lecturerData?.data?.[0]?.id;
+  const lecturerId = user?.lecturer?.id;
 
   const TABS = [
     { id: 'pending', label: 'Onay Bekleyenler' },

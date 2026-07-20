@@ -227,96 +227,120 @@ async function main() {
 
   console.log('✅ Dersler oluşturuldu');
 
-  // 6. COURSE SECTIONS
+  // 6. COURSE SECTIONS (current academic year)
+  const AY = '2026-2027';
   const cs101 = courses.find((c) => c.code === 'CS101');
   const cs201 = courses.find((c) => c.code === 'CS201');
   const cs301 = courses.find((c) => c.code === 'CS301');
   const cs302 = courses.find((c) => c.code === 'CS302');
   const cs401 = courses.find((c) => c.code === 'CS401');
   const ee101 = courses.find((c) => c.code === 'EE101');
+  const ee201 = courses.find((c) => c.code === 'EE201');
+  const mgmt101 = courses.find((c) => c.code === 'MGMT101');
+  const mgmt201 = courses.find((c) => c.code === 'MGMT201');
+  const econ101 = courses.find((c) => c.code === 'ECON101');
+  const econ201 = courses.find((c) => c.code === 'ECON201');
 
   const section1 = await prisma.courseSection.upsert({
-    where: { courseId_academicYear_semester_lecturerId: { courseId: cs101.id, academicYear: '2024-2025', semester: 'FALL', lecturerId: lec1.id } },
+    where: { courseId_academicYear_semester_lecturerId: { courseId: cs101.id, academicYear: AY, semester: 'FALL', lecturerId: lec1.id } },
     update: {},
-    create: { courseId: cs101.id, lecturerId: lec1.id, academicYear: '2024-2025', semester: 'FALL', quota: 30, classroom: 'D101' },
+    create: { courseId: cs101.id, lecturerId: lec1.id, academicYear: AY, semester: 'FALL', quota: 30, classroom: 'D101' },
   });
   const section2 = await prisma.courseSection.upsert({
-    where: { courseId_academicYear_semester_lecturerId: { courseId: cs201.id, academicYear: '2024-2025', semester: 'FALL', lecturerId: lec1.id } },
+    where: { courseId_academicYear_semester_lecturerId: { courseId: cs201.id, academicYear: AY, semester: 'FALL', lecturerId: lec1.id } },
     update: {},
-    create: { courseId: cs201.id, lecturerId: lec1.id, academicYear: '2024-2025', semester: 'FALL', quota: 25, classroom: 'D102' },
+    create: { courseId: cs201.id, lecturerId: lec1.id, academicYear: AY, semester: 'FALL', quota: 25, classroom: 'D102' },
   });
   const section3 = await prisma.courseSection.upsert({
-    where: { courseId_academicYear_semester_lecturerId: { courseId: cs301.id, academicYear: '2024-2025', semester: 'FALL', lecturerId: lec2.id } },
+    where: { courseId_academicYear_semester_lecturerId: { courseId: cs301.id, academicYear: AY, semester: 'FALL', lecturerId: lec2.id } },
     update: {},
-    create: { courseId: cs301.id, lecturerId: lec2.id, academicYear: '2024-2025', semester: 'FALL', quota: 20, classroom: 'D201' },
+    create: { courseId: cs301.id, lecturerId: lec2.id, academicYear: AY, semester: 'FALL', quota: 20, classroom: 'D201' },
   });
   const section4 = await prisma.courseSection.upsert({
-    where: { courseId_academicYear_semester_lecturerId: { courseId: cs302.id, academicYear: '2024-2025', semester: 'FALL', lecturerId: lec2.id } },
+    where: { courseId_academicYear_semester_lecturerId: { courseId: cs302.id, academicYear: AY, semester: 'FALL', lecturerId: lec2.id } },
     update: {},
-    create: { courseId: cs302.id, lecturerId: lec2.id, academicYear: '2024-2025', semester: 'FALL', quota: 20, classroom: 'D202' },
+    create: { courseId: cs302.id, lecturerId: lec2.id, academicYear: AY, semester: 'FALL', quota: 20, classroom: 'D202' },
   });
   const section5 = await prisma.courseSection.upsert({
-    where: { courseId_academicYear_semester_lecturerId: { courseId: cs401.id, academicYear: '2024-2025', semester: 'FALL', lecturerId: lec1.id } },
+    where: { courseId_academicYear_semester_lecturerId: { courseId: cs401.id, academicYear: AY, semester: 'FALL', lecturerId: lec1.id } },
     update: {},
-    create: { courseId: cs401.id, lecturerId: lec1.id, academicYear: '2024-2025', semester: 'FALL', quota: 15, classroom: 'D301' },
+    create: { courseId: cs401.id, lecturerId: lec1.id, academicYear: AY, semester: 'FALL', quota: 15, classroom: 'D301' },
   });
   const section6 = await prisma.courseSection.upsert({
-    where: { courseId_academicYear_semester_lecturerId: { courseId: ee101.id, academicYear: '2024-2025', semester: 'FALL', lecturerId: lec3.id } },
+    where: { courseId_academicYear_semester_lecturerId: { courseId: ee101.id, academicYear: AY, semester: 'FALL', lecturerId: lec3.id } },
     update: {},
-    create: { courseId: ee101.id, lecturerId: lec3.id, academicYear: '2024-2025', semester: 'FALL', quota: 25, classroom: 'E101' },
+    create: { courseId: ee101.id, lecturerId: lec3.id, academicYear: AY, semester: 'FALL', quota: 25, classroom: 'E101' },
+  });
+  const section7 = await prisma.courseSection.upsert({
+    where: { courseId_academicYear_semester_lecturerId: { courseId: ee201.id, academicYear: AY, semester: 'FALL', lecturerId: lec3.id } },
+    update: {},
+    create: { courseId: ee201.id, lecturerId: lec3.id, academicYear: AY, semester: 'FALL', quota: 20, classroom: 'E102' },
+  });
+  const section8 = await prisma.courseSection.upsert({
+    where: { courseId_academicYear_semester_lecturerId: { courseId: mgmt101.id, academicYear: AY, semester: 'FALL', lecturerId: lec1.id } },
+    update: {},
+    create: { courseId: mgmt101.id, lecturerId: lec1.id, academicYear: AY, semester: 'FALL', quota: 35, classroom: 'A101' },
+  });
+  const section9 = await prisma.courseSection.upsert({
+    where: { courseId_academicYear_semester_lecturerId: { courseId: mgmt201.id, academicYear: AY, semester: 'FALL', lecturerId: lec2.id } },
+    update: {},
+    create: { courseId: mgmt201.id, lecturerId: lec2.id, academicYear: AY, semester: 'FALL', quota: 30, classroom: 'A102' },
+  });
+  const section10 = await prisma.courseSection.upsert({
+    where: { courseId_academicYear_semester_lecturerId: { courseId: econ101.id, academicYear: AY, semester: 'FALL', lecturerId: lec3.id } },
+    update: {},
+    create: { courseId: econ101.id, lecturerId: lec3.id, academicYear: AY, semester: 'FALL', quota: 30, classroom: 'A201' },
+  });
+  const section11 = await prisma.courseSection.upsert({
+    where: { courseId_academicYear_semester_lecturerId: { courseId: econ201.id, academicYear: AY, semester: 'FALL', lecturerId: lec2.id } },
+    update: {},
+    create: { courseId: econ201.id, lecturerId: lec2.id, academicYear: AY, semester: 'FALL', quota: 25, classroom: 'A202' },
   });
 
   console.log('✅ Ders şubeleri oluşturuldu');
 
-  // 7. WEEKLY SCHEDULE (Faz 3 çakışma testi için)
-  await prisma.weeklySchedule.upsert({
-    where: { id: 'ws-section1-mon' },
-    update: {},
-    create: { id: 'ws-section1-mon', courseSectionId: section1.id, dayOfWeek: 'MONDAY', startTime: '09:00', endTime: '11:00', classroom: 'D101' },
-  }).catch(() => prisma.weeklySchedule.create({ data: { courseSectionId: section1.id, dayOfWeek: 'MONDAY', startTime: '09:00', endTime: '11:00', classroom: 'D101' } }));
-
-  await prisma.weeklySchedule.create({
-    data: { courseSectionId: section1.id, dayOfWeek: 'WEDNESDAY', startTime: '09:00', endTime: '10:00', classroom: 'D101' },
-  }).catch(() => {});
-
-  await prisma.weeklySchedule.create({
-    data: { courseSectionId: section2.id, dayOfWeek: 'TUESDAY', startTime: '13:00', endTime: '15:00', classroom: 'D102' },
-  }).catch(() => {});
-
-  await prisma.weeklySchedule.create({
-    data: { courseSectionId: section3.id, dayOfWeek: 'THURSDAY', startTime: '10:00', endTime: '12:00', classroom: 'D201' },
-  }).catch(() => {});
-
-  await prisma.weeklySchedule.create({
-    data: { courseSectionId: section4.id, dayOfWeek: 'FRIDAY', startTime: '09:00', endTime: '11:00', classroom: 'D202' },
-  }).catch(() => {});
-
-  await prisma.weeklySchedule.create({
-    data: { courseSectionId: section5.id, dayOfWeek: 'MONDAY', startTime: '14:00', endTime: '16:00', classroom: 'D301' },
-  }).catch(() => {});
-
-  await prisma.weeklySchedule.create({
-    data: { courseSectionId: section6.id, dayOfWeek: 'WEDNESDAY', startTime: '13:00', endTime: '15:00', classroom: 'E101' },
-  }).catch(() => {});
+  // 7. WEEKLY SCHEDULE
+  const wsData = [
+    { courseSectionId: section1.id, dayOfWeek: 'MONDAY', startTime: '09:00', endTime: '11:00', classroom: 'D101' },
+    { courseSectionId: section1.id, dayOfWeek: 'WEDNESDAY', startTime: '09:00', endTime: '10:00', classroom: 'D101' },
+    { courseSectionId: section2.id, dayOfWeek: 'TUESDAY', startTime: '13:00', endTime: '15:00', classroom: 'D102' },
+    { courseSectionId: section2.id, dayOfWeek: 'THURSDAY', startTime: '13:00', endTime: '14:00', classroom: 'D102' },
+    { courseSectionId: section3.id, dayOfWeek: 'THURSDAY', startTime: '10:00', endTime: '12:00', classroom: 'D201' },
+    { courseSectionId: section4.id, dayOfWeek: 'FRIDAY', startTime: '09:00', endTime: '11:00', classroom: 'D202' },
+    { courseSectionId: section5.id, dayOfWeek: 'MONDAY', startTime: '14:00', endTime: '16:00', classroom: 'D301' },
+    { courseSectionId: section6.id, dayOfWeek: 'WEDNESDAY', startTime: '13:00', endTime: '15:00', classroom: 'E101' },
+    { courseSectionId: section7.id, dayOfWeek: 'TUESDAY', startTime: '10:00', endTime: '12:00', classroom: 'E102' },
+    { courseSectionId: section8.id, dayOfWeek: 'TUESDAY', startTime: '09:00', endTime: '11:00', classroom: 'A101' },
+    { courseSectionId: section9.id, dayOfWeek: 'WEDNESDAY', startTime: '11:00', endTime: '13:00', classroom: 'A102' },
+    { courseSectionId: section10.id, dayOfWeek: 'THURSDAY', startTime: '14:00', endTime: '16:00', classroom: 'A201' },
+    { courseSectionId: section11.id, dayOfWeek: 'FRIDAY', startTime: '14:00', endTime: '16:00', classroom: 'A202' },
+  ];
+  for (const ws of wsData) {
+    await prisma.weeklySchedule.create({ data: ws }).catch(() => {});
+  }
 
   console.log('✅ Haftalık programlar oluşturuldu');
 
-  // 8. ADVISOR ASSIGNMENTS
-  await prisma.advisorAssignment.upsert({
-    where: { studentId_lecturerId_academicYear: { studentId: students[0].id, lecturerId: lec1.id, academicYear: '2024-2025' } },
-    update: {},
-    create: { studentId: students[0].id, lecturerId: lec1.id, academicYear: '2024-2025', isActive: true },
-  });
-  await prisma.advisorAssignment.upsert({
-    where: { studentId_lecturerId_academicYear: { studentId: students[1].id, lecturerId: lec1.id, academicYear: '2024-2025' } },
-    update: {},
-    create: { studentId: students[1].id, lecturerId: lec1.id, academicYear: '2024-2025', isActive: true },
-  });
-  await prisma.advisorAssignment.upsert({
-    where: { studentId_lecturerId_academicYear: { studentId: students[2].id, lecturerId: lec2.id, academicYear: '2024-2025' } },
-    update: {},
-    create: { studentId: students[2].id, lecturerId: lec2.id, academicYear: '2024-2025', isActive: true },
-  });
+  // 8. ADVISOR ASSIGNMENTS (all 3 lecturers have advisees)
+  const advisorData = [
+    { studentId: students[0].id, lecturerId: lec1.id },
+    { studentId: students[1].id, lecturerId: lec1.id },
+    { studentId: students[2].id, lecturerId: lec1.id },
+    { studentId: students[3].id, lecturerId: lec2.id },
+    { studentId: students[4].id, lecturerId: lec2.id },
+    { studentId: students[5].id, lecturerId: lec2.id },
+    { studentId: students[6].id, lecturerId: lec3.id },
+    { studentId: students[7].id, lecturerId: lec3.id },
+    { studentId: students[8].id, lecturerId: lec3.id },
+    { studentId: students[9].id, lecturerId: lec3.id },
+  ];
+  for (const a of advisorData) {
+    await prisma.advisorAssignment.upsert({
+      where: { studentId_lecturerId_academicYear: { studentId: a.studentId, lecturerId: a.lecturerId, academicYear: AY } },
+      update: {},
+      create: { studentId: a.studentId, lecturerId: a.lecturerId, academicYear: AY, isActive: true },
+    });
+  }
 
   console.log('✅ Danışman atamaları oluşturuldu');
 
@@ -340,6 +364,36 @@ async function main() {
     where: { studentId_courseSectionId: { studentId: students[2].id, courseSectionId: section2.id } },
     update: {},
     create: { studentId: students[2].id, courseSectionId: section2.id, status: 'PENDING' },
+  });
+  const enroll5 = await prisma.enrollment.upsert({
+    where: { studentId_courseSectionId: { studentId: students[3].id, courseSectionId: section6.id } },
+    update: {},
+    create: { studentId: students[3].id, courseSectionId: section6.id, status: 'ACTIVE' },
+  });
+  const enroll6 = await prisma.enrollment.upsert({
+    where: { studentId_courseSectionId: { studentId: students[4].id, courseSectionId: section7.id } },
+    update: {},
+    create: { studentId: students[4].id, courseSectionId: section7.id, status: 'ACTIVE' },
+  });
+  const enroll7 = await prisma.enrollment.upsert({
+    where: { studentId_courseSectionId: { studentId: students[5].id, courseSectionId: section8.id } },
+    update: {},
+    create: { studentId: students[5].id, courseSectionId: section8.id, status: 'PENDING' },
+  });
+  const enroll8 = await prisma.enrollment.upsert({
+    where: { studentId_courseSectionId: { studentId: students[6].id, courseSectionId: section9.id } },
+    update: {},
+    create: { studentId: students[6].id, courseSectionId: section9.id, status: 'ACTIVE' },
+  });
+  const enroll9 = await prisma.enrollment.upsert({
+    where: { studentId_courseSectionId: { studentId: students[7].id, courseSectionId: section10.id } },
+    update: {},
+    create: { studentId: students[7].id, courseSectionId: section10.id, status: 'ACTIVE' },
+  });
+  const enroll10 = await prisma.enrollment.upsert({
+    where: { studentId_courseSectionId: { studentId: students[8].id, courseSectionId: section1.id } },
+    update: {},
+    create: { studentId: students[8].id, courseSectionId: section1.id, status: 'ACTIVE' },
   });
 
   // Grades
@@ -377,32 +431,58 @@ async function main() {
 
   console.log('✅ Kayıtlar, notlar ve devamsızlıklar oluşturuldu');
 
-  // 10. EXAM SCHEDULE
-  const examDate = new Date('2025-01-15');
+  // 10. EXAM SCHEDULE (future dates)
+  const nextWeek = new Date(today);
+  nextWeek.setDate(today.getDate() + 7);
+  const nextMonth = new Date(today);
+  nextMonth.setDate(today.getDate() + 30);
+  const nextMonthPlus = new Date(today);
+  nextMonthPlus.setDate(today.getDate() + 45);
+  const twoMonthsLater = new Date(today);
+  twoMonthsLater.setDate(today.getDate() + 60);
+
   await prisma.examSchedule.create({
-    data: { courseSectionId: section1.id, examType: 'MIDTERM', examDate, startTime: '10:00', endTime: '12:00', classroom: 'B101', supervisorId: lec1.id },
+    data: { courseSectionId: section1.id, examType: 'MIDTERM', examDate: nextWeek, startTime: '10:00', endTime: '12:00', classroom: 'B101', supervisorId: lec1.id },
   }).catch(() => {});
   await prisma.examSchedule.create({
-    data: { courseSectionId: section3.id, examType: 'MIDTERM', examDate: new Date('2025-01-17'), startTime: '14:00', endTime: '16:00', classroom: 'B201', supervisorId: lec2.id },
+    data: { courseSectionId: section3.id, examType: 'MIDTERM', examDate: nextMonth, startTime: '14:00', endTime: '16:00', classroom: 'B201', supervisorId: lec2.id },
+  }).catch(() => {});
+  await prisma.examSchedule.create({
+    data: { courseSectionId: section6.id, examType: 'MIDTERM', examDate: nextMonthPlus, startTime: '10:00', endTime: '12:00', classroom: 'B102', supervisorId: lec3.id },
+  }).catch(() => {});
+  await prisma.examSchedule.create({
+    data: { courseSectionId: section1.id, examType: 'FINAL', examDate: twoMonthsLater, startTime: '10:00', endTime: '12:00', classroom: 'B101', supervisorId: lec1.id },
+  }).catch(() => {});
+  await prisma.examSchedule.create({
+    data: { courseSectionId: section2.id, examType: 'MIDTERM', examDate: nextMonth, startTime: '09:00', endTime: '11:00', classroom: 'B202', supervisorId: lec1.id },
+  }).catch(() => {});
+  await prisma.examSchedule.create({
+    data: { courseSectionId: section8.id, examType: 'MIDTERM', examDate: nextWeek, startTime: '14:00', endTime: '16:00', classroom: 'B301', supervisorId: lec1.id },
   }).catch(() => {});
 
   console.log('✅ Sınav programı oluşturuldu');
 
-  // 11. ACADEMIC CALENDAR
+  // 11. ACADEMIC CALENDAR (current year)
   await prisma.academicCalendar.create({
-    data: { title: '2024-2025 Güz Dönemi Başlangıcı', startDate: new Date('2024-09-23'), endDate: new Date('2024-09-23'), category: 'SEMESTER_START' },
+    data: { title: '2026-2027 Güz Dönemi Başlangıcı', startDate: new Date('2026-09-14'), endDate: new Date('2026-09-14'), category: 'SEMESTER_START' },
   }).catch(() => {});
   await prisma.academicCalendar.create({
-    data: { title: 'Vize Sınavları Haftası', startDate: new Date('2024-11-11'), endDate: new Date('2024-11-15'), category: 'EXAM' },
+    data: { title: 'Vize Sınavları Haftası', startDate: new Date('2026-11-02'), endDate: new Date('2026-11-06'), category: 'EXAM' },
   }).catch(() => {});
   await prisma.academicCalendar.create({
-    data: { title: 'Final Sınavları', startDate: new Date('2025-01-13'), endDate: new Date('2025-01-24'), category: 'EXAM' },
+    data: { title: 'Final Sınavları', startDate: new Date('2027-01-11'), endDate: new Date('2027-01-22'), category: 'EXAM' },
   }).catch(() => {});
   await prisma.academicCalendar.create({
-    data: { title: 'Ders Kayıt Dönemi', startDate: new Date('2024-09-09'), endDate: new Date('2024-09-20'), category: 'REGISTRATION' },
+    data: { title: 'Ders Kayıt Dönemi', startDate: new Date('2026-09-01'), endDate: new Date('2026-09-12'), category: 'REGISTRATION' },
   }).catch(() => {});
   await prisma.academicCalendar.create({
-    data: { title: 'Cumhuriyet Bayramı', startDate: new Date('2024-10-29'), endDate: new Date('2024-10-29'), category: 'HOLIDAY', description: 'Cumhuriyet Bayramı tatili' },
+    data: { title: '29 Ekim Cumhuriyet Bayramı', startDate: new Date('2026-10-29'), endDate: new Date('2026-10-29'), category: 'HOLIDAY', description: 'Cumhuriyet Bayramı tatili' },
+  }).catch(() => {});
+  await prisma.academicCalendar.create({
+    data: { title: 'Ara Tatil', startDate: new Date('2026-11-16'), endDate: new Date('2026-11-20'), category: 'HOLIDAY', description: 'Güz dönemi ara tatili' },
+  }).catch(() => {});
+  await prisma.academicCalendar.create({
+    data: { title: 'Bütünleme Sınavları', startDate: new Date('2027-02-01'), endDate: new Date('2027-02-05'), category: 'EXAM' },
   }).catch(() => {});
 
   console.log('✅ Akademik takvim oluşturuldu');
@@ -410,8 +490,8 @@ async function main() {
   // 12. ANNOUNCEMENTS
   await prisma.announcement.create({
     data: {
-      title: 'Güz Dönemi Ders Kayıt Duyurusu',
-      content: '2024-2025 Güz dönemi ders kayıtları 9-20 Eylül tarihleri arasında gerçekleştirilecektir. Danışmanınız ile görüşmeyi unutmayınız.',
+      title: '2026-2027 Güz Dönemi Ders Kayıt Duyurusu',
+      content: '2026-2027 Güz dönemi ders kayıtları 1-12 Eylül tarihleri arasında gerçekleştirilecektir. Danışmanınız ile görüşmeyi unutmayınız.',
       category: 'ACADEMIC',
       targetRole: 'STUDENT',
       publishedById: adminUser.id,
@@ -420,7 +500,7 @@ async function main() {
   await prisma.announcement.create({
     data: {
       title: 'Vize Sınavı Duyurusu',
-      content: 'Vize sınavları 11-15 Kasım haftasında gerçekleştirilecektir. Sınav programları öğrenci bilgi sisteminden takip edilebilir.',
+      content: 'Vize sınavları 2-6 Kasım haftasında gerçekleştirilecektir. Sınav programları öğrenci bilgi sisteminden takip edilebilir.',
       category: 'EXAM',
       targetRole: 'ALL',
       publishedById: adminUser.id,
@@ -429,14 +509,87 @@ async function main() {
   await prisma.announcement.create({
     data: {
       title: 'Sistem Bakım Duyurusu',
-      content: 'OBS sistemi 25 Ekim Cuma günü saat 22:00-02:00 arası bakım nedeniyle hizmet dışı olacaktır.',
+      content: 'OBS sistemi 15 Ekim Cuma günü saat 22:00-02:00 arası bakım nedeniyle hizmet dışı olacaktır.',
       category: 'GENERAL',
       targetRole: 'ALL',
       publishedById: adminUser.id,
     },
   }).catch(() => {});
+  await prisma.announcement.create({
+    data: {
+      title: 'Akademisyen Toplantı Duyurusu',
+      content: 'Bu dönem akademisyen toplantısı 20 Ekim Pazartesi günü saat 14:00\'de konferans salonunda yapılacaktır.',
+      category: 'GENERAL',
+      targetRole: 'ACADEMICIAN',
+      publishedById: adminUser.id,
+    },
+  }).catch(() => {});
+  await prisma.announcement.create({
+    data: {
+      title: 'Staj Başvuruları Başladı',
+      content: '2026-2027 Güz dönemi staj başvuruları başlamıştır. Son başvuru tarihi 30 Kasım 2026.',
+      category: 'ACADEMIC',
+      targetRole: 'STUDENT',
+      publishedById: adminUser.id,
+    },
+  }).catch(() => {});
 
   console.log('✅ Duyurular oluşturuldu');
+
+  // ====== PREREQUISITES ======
+  const allCourses = await prisma.course.findMany();
+  const courseMap = Object.fromEntries(allCourses.map(c => [c.code, c.id]));
+
+  if (courseMap['MAT101'] && courseMap['MAT102']) {
+    await prisma.prerequisite.upsert({
+      where: { courseId_prereqCourseId: { courseId: courseMap['MAT102'], prereqCourseId: courseMap['MAT101'] } },
+      update: {},
+      create: { courseId: courseMap['MAT102'], prereqCourseId: courseMap['MAT101'], minGradePoint: 1.0 },
+    }).catch(() => {});
+  }
+  if (courseMap['MAT102'] && courseMap['MAT201']) {
+    await prisma.prerequisite.upsert({
+      where: { courseId_prereqCourseId: { courseId: courseMap['MAT201'], prereqCourseId: courseMap['MAT102'] } },
+      update: {},
+      create: { courseId: courseMap['MAT201'], prereqCourseId: courseMap['MAT102'], minGradePoint: 1.0 },
+    }).catch(() => {});
+  }
+  if (courseMap['BIL101'] && courseMap['BIL102']) {
+    await prisma.prerequisite.upsert({
+      where: { courseId_prereqCourseId: { courseId: courseMap['BIL102'], prereqCourseId: courseMap['BIL101'] } },
+      update: {},
+      create: { courseId: courseMap['BIL102'], prereqCourseId: courseMap['BIL101'], minGradePoint: 1.0 },
+    }).catch(() => {});
+  }
+  if (courseMap['BIL102'] && courseMap['BIL201']) {
+    await prisma.prerequisite.upsert({
+      where: { courseId_prereqCourseId: { courseId: courseMap['BIL201'], prereqCourseId: courseMap['BIL102'] } },
+      update: {},
+      create: { courseId: courseMap['BIL201'], prereqCourseId: courseMap['BIL102'], minGradePoint: 1.5 },
+    }).catch(() => {});
+  }
+
+  console.log('✅ Ön koşullar oluşturuldu');
+
+  // ====== GRADUATION REQUIREMENTS ======
+  const departments = await prisma.department.findMany();
+  for (const dept of departments) {
+    await prisma.graduationRequirement.upsert({
+      where: { departmentId: dept.id },
+      update: {},
+      create: {
+        departmentId: dept.id,
+        totalEcts: 240,
+        minGpa: 2.0,
+        maxFfCount: 0,
+        requiredCredits: 120,
+        maxRetakes: 3,
+        description: `${dept.name} bölümü mezuniyet koşulları`,
+      },
+    }).catch(() => {});
+  }
+
+  console.log('✅ Mezuniyet gereksinimleri oluşturuldu');
 
   console.log('\n🎉 Seed tamamlandı!');
   console.log('\n📋 Test Hesapları:');

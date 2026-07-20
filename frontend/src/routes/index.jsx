@@ -17,6 +17,7 @@ const AuthLayout        = lazy(() => import('../layouts/AuthLayout'));
 const StudentLayout     = lazy(() => import('../layouts/StudentLayout'));
 const AcademicianLayout = lazy(() => import('../layouts/AcademicianLayout'));
 const AdminLayout       = lazy(() => import('../layouts/AdminLayout'));
+const SharedLayout      = lazy(() => import('../layouts/SharedLayout'));
 
 // ---- Student Pages ----
 const StudentDashboard  = lazy(() => import('../pages/student/Dashboard'));
@@ -27,6 +28,10 @@ const Transcript        = lazy(() => import('../pages/student/Transcript'));
 const CourseCatalog     = lazy(() => import('../pages/student/CourseCatalog'));
 const CourseSelection   = lazy(() => import('../pages/student/CourseSelection'));
 const MyAttendance      = lazy(() => import('../pages/student/MyAttendance'));
+const GraduationCheck   = lazy(() => import('../pages/student/GraduationCheck'));
+const StudentAnalytics  = lazy(() => import('../pages/student/Analytics'));
+const QRScan            = lazy(() => import('../pages/student/QRScan'));
+const ScheduleOptimizer = lazy(() => import('../pages/student/ScheduleOptimizer'));
 
 // ---- Academician Pages ----
 const AcademicianDashboard = lazy(() => import('../pages/academician/Dashboard'));
@@ -34,9 +39,12 @@ const MyCourseSections     = lazy(() => import('../pages/academician/MyCourseSec
 const CourseSectionWorkspaceAcademician = lazy(() => import('../pages/academician/CourseSectionWorkspace'));
 const Advisees             = lazy(() => import('../pages/academician/Advisees'));
 const MyTeachingSchedule   = lazy(() => import('../pages/academician/MyTeachingSchedule'));
+const AdvisorAnalytics     = lazy(() => import('../pages/academician/AdvisorAnalytics'));
+const QRGenerator          = lazy(() => import('../pages/academician/QRGenerator'));
 
 // ---- Admin Pages ----
 const AdminDashboard          = lazy(() => import('../pages/admin/Dashboard'));
+const AdminDashboardEnhanced  = lazy(() => import('../pages/admin/DashboardEnhanced'));
 const UserList                = lazy(() => import('../pages/admin/UserList'));
 const RoleList                = lazy(() => import('../pages/admin/RoleList'));
 const FacultyList             = lazy(() => import('../pages/admin/FacultyList'));
@@ -78,6 +86,16 @@ const AppRoutes = () => (
         <Route path="/"        element={<RoleRedirect />} />
       </Route>
 
+      {/* Shared (all roles) */}
+      <Route element={<ProtectedRoute allowedRoles={['STUDENT', 'ACADEMICIAN', 'ADMIN']} />}>
+        <Route element={<SharedLayout />}>
+          <Route path="/announcements"            element={<AnnouncementList />} />
+          <Route path="/announcements/:id"        element={<AnnouncementDetail />} />
+          <Route path="/academic-calendar"        element={<AcademicCalendar />} />
+          <Route path="/profile"                  element={<Profile />} />
+        </Route>
+      </Route>
+
       {/* Student */}
       <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
         <Route element={<StudentLayout />}>
@@ -89,10 +107,10 @@ const AppRoutes = () => (
           <Route path="/student/course-catalog"   element={<CourseCatalog />} />
           <Route path="/student/course-selection" element={<CourseSelection />} />
           <Route path="/student/attendance"       element={<MyAttendance />} />
-          <Route path="/announcements"            element={<AnnouncementList />} />
-          <Route path="/announcements/:id"        element={<AnnouncementDetail />} />
-          <Route path="/academic-calendar"        element={<AcademicCalendar />} />
-          <Route path="/profile"                  element={<Profile />} />
+          <Route path="/student/graduation"       element={<GraduationCheck />} />
+          <Route path="/student/analytics"        element={<StudentAnalytics />} />
+          <Route path="/student/qr-scan"          element={<QRScan />} />
+          <Route path="/student/schedule-analysis" element={<ScheduleOptimizer />} />
         </Route>
       </Route>
 
@@ -104,10 +122,8 @@ const AppRoutes = () => (
           <Route path="/academician/course-sections/:id"  element={<CourseSectionWorkspaceAcademician />} />
           <Route path="/academician/advisees"             element={<Advisees />} />
           <Route path="/academician/my-schedule"          element={<MyTeachingSchedule />} />
-          <Route path="/announcements"                    element={<AnnouncementList />} />
-          <Route path="/announcements/:id"               element={<AnnouncementDetail />} />
-          <Route path="/academic-calendar"               element={<AcademicCalendar />} />
-          <Route path="/profile"                         element={<Profile />} />
+          <Route path="/academician/advisor-analytics"    element={<AdvisorAnalytics />} />
+          <Route path="/academician/qr-generator"         element={<QRGenerator />} />
         </Route>
       </Route>
 
@@ -115,6 +131,7 @@ const AppRoutes = () => (
       <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
         <Route element={<AdminLayout />}>
           <Route path="/admin/dashboard"                element={<AdminDashboard />} />
+          <Route path="/admin/dashboard-enhanced"       element={<AdminDashboardEnhanced />} />
           <Route path="/admin/users"                    element={<UserList />} />
           <Route path="/admin/roles"                    element={<RoleList />} />
           <Route path="/admin/faculties"                element={<FacultyList />} />
@@ -128,10 +145,6 @@ const AppRoutes = () => (
           <Route path="/admin/course-sections/:id"      element={<CourseSectionWorkspaceAdmin />} />
           <Route path="/admin/advisor-assignments"      element={<AdvisorAssignmentList />} />
           <Route path="/admin/logs"                     element={<LogList />} />
-          <Route path="/announcements"                  element={<AnnouncementList />} />
-          <Route path="/announcements/:id"              element={<AnnouncementDetail />} />
-          <Route path="/academic-calendar"              element={<AcademicCalendar />} />
-          <Route path="/profile"                        element={<Profile />} />
         </Route>
       </Route>
 

@@ -92,6 +92,20 @@ enum UploadPurpose {
   OTHER
 }
 
+enum CourseType {
+  REQUIRED
+  ELECTIVE
+  COMMON
+  DEPARTMENT_ELECTIVE
+}
+
+enum WaitlistStatus {
+  WAITING
+  PROMOTED
+  CANCELLED
+  EXPIRED
+}
+
 // ==================== AUTH ====================
 
 model Role {
@@ -120,6 +134,7 @@ model User {
   uploads       Upload[]
   logs          Log[]
   announcements Announcement[]
+  qrTokens      QRToken[]
 
   @@map("users")
 }
@@ -159,6 +174,8 @@ model Department {
   students  Student[]
   lecturers Lecturer[]
   courses   Course[]
+  graduationRequirement GraduationRequirement?
+  courseGroups CourseGroup[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
@@ -186,6 +203,8 @@ model Student {
   department     Department          @relation(fields: [departmentId], references: [id], onDelete: Restrict)
   enrollments    Enrollment[]
   advisorHistory AdvisorAssignment[]
+  waitlist       Waitlist[]
+  qrScans        QRScan[]
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
 
@@ -245,8 +264,12 @@ model Course {
   departmentId String
   department   Department      @relation(fields: [departmentId], references: [id], onDelete: Restrict)
   description  String?
+  courseType   CourseType      @default(REQUIRED)
   sections     CourseSection[]
-  createdAt    DateTime        @default(now())
+  prerequisites  Prerequisite[]  @relation("RequiredCourse")
+  requiredBy     Prerequisite[]  @relation("PrereqCourse")
+  groupItems     CourseGroupItem[]
+  createdAt      DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
   @@index([departmentId])
@@ -268,6 +291,8 @@ model CourseSection {
   weeklySlots  WeeklySchedule[]
   examSlots    ExamSchedule[]
   materials    Upload[]
+  waitlist     Waitlist[]
+  qrTokens     QRToken[]
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
@@ -490,4 +515,115 @@ model IdempotencyRecord {
   @@index([key])
   @@index([expiresAt])
   @@map("idempotency_records")
+}
+
+// ==================== ADVANCED: PREREQUISITES ====================
+
+model Prerequisite {
+  id              String  @id @default(cuid())
+  courseId         String
+  requiredCourse   Course           @relation("RequiredCourse", fields: [courseId], references: [id], onDelete: Cascade)
+  prereqCourseId   String
+  prereqCourse     Course           @relation("PrereqCourse", fields: [prereqCourseId], references: [id], onDelete: Cascade)
+  minGradePoint    Float?
+
+  @@unique([courseId, prereqCourseId])
+  @@map("prerequisites")
+}
+
+// ==================== ADVANCED: WAITLIST ====================
+
+model Waitlist {
+  id              String         @id @default(cuid())
+  studentId       String
+  student         Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseSectionId String
+  courseSection   CourseSection  @relation(fields: [courseSectionId], references: [id], onDelete: Cascade)
+  position        Int
+  status          WaitlistStatus @default(WAITING)
+  enrolledAt      DateTime       @default(now())
+  promotedAt      DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([studentId, courseSectionId])
+  @@index([courseSectionId, status])
+  @@map("waitlist")
+}
+
+// ==================== ADVANCED: QR ATTENDANCE ====================
+
+model QRToken {
+  id              String        @id @default(cuid())
+  courseSectionId String
+  courseSection   CourseSection @relation(fields: [courseSectionId], references: [id], onDelete: Cascade)
+  token           String        @unique
+  expiresAt       DateTime
+  isActive        Boolean       @default(true)
+  createdBy       String
+  createdByUser   User          @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  scans           QRScan[]
+  createdAt       DateTime      @default(now())
+
+  @@index([token])
+  @@index([courseSectionId, isActive])
+  @@map("qr_tokens")
+}
+
+model QRScan {
+  id        String   @id @default(cuid())
+  tokenId   String
+  token     QRToken  @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  scannedAt DateTime @default(now())
+
+  @@unique([tokenId, studentId])
+  @@map("qr_scans")
+}
+
+// ==================== ADVANCED: GRADUATION REQUIREMENTS ====================
+
+model GraduationRequirement {
+  id             String   @id @default(cuid())
+  departmentId   String
+  department     Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  totalEcts      Int      @default(240)
+  minGpa         Float    @default(2.0)
+  maxFfCount     Int      @default(0)
+  requiredCredits Int     // zorunlu ders kredisi
+  maxRetakes     Int      @default(3)
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([departmentId])
+  @@map("graduation_requirements")
+}
+
+// ==================== ADVANCED: COURSE PREREQUISITE GROUPS ====================
+
+model CourseGroup {
+  id          String          @id @default(cuid())
+  name        String
+  departmentId String
+  department  Department      @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  minCredits  Int
+  courses     CourseGroupItem[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@map("course_groups")
+}
+
+model CourseGroupItem {
+  id          String      @id @default(cuid())
+  groupId     String
+  group       CourseGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  courseId     String
+  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  isRequired  Boolean     @default(false)
+
+  @@unique([groupId, courseId])
+  @@map("course_group_items")
 }

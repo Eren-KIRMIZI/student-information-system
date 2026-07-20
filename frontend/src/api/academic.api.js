@@ -28,3 +28,7 @@ export const createCourseSection= (data)   => axiosInstance.post('/course-sectio
 export const updateCourseSection= (id, d)  => axiosInstance.put(`/course-sections/${id}`, d).then(r => r.data);
 export const archiveCourseSection=(id)     => axiosInstance.put(`/course-sections/${id}/archive`).then(r => r.data);
 export const deleteCourseSection = (id)    => axiosInstance.delete(`/course-sections/${id}`).then(r => r.data);
+
+// ====== Lecturer Sections ======
+export const getSectionsByLecturer = (lecturerId) =>
+  axiosInstance.get('/course-sections', { params: { lecturerId, status: 'ACTIVE' } }).then(r => r.data?.data || r.data);

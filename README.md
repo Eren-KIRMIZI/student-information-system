@@ -44,6 +44,8 @@ Fakulte > Bolum > Ders > Ders Subesi hiyerarsisi uzerinde tam CRUD islemi:
 - Kontenjan kontrolu: sube doluysa kayit reddedilir
 - AKTS limiti kontrolu: ogrencinin alabilecegi maksimum AKTS sinirli
 - Program cakismasi kontrolu: ayni saatte baska ders varsa kayit engellenir
+- **Onkosul kontrolu**: dersin onkosullari tamamlanmamissa kayit engellenir (otomatik kontrol)
+- **Bekleme listesi**: kontenjan doluysa ogrenci bekleme listesine alinir, bosaldiginda otomatik kayit
 - Danisman onayi: kayit talepleri akademisyen veya admin tarafindan onaylanir/reddedilir
 - Kayit durum akisi: PENDING > APPROVED/REJECTED > ACTIVE > COMPLETED/DROPPED
 
@@ -72,6 +74,68 @@ Fakulte > Bolum > Ders > Ders Subesi hiyerarsisi uzerinde tam CRUD islemi:
 - Maksimum dosya boyutu: 10 MB
 - Desteklenen formatlar: JPEG, PNG, WebP, PDF, DOCX, PPTX
 - Fiziksel dosya temizleme: silinen kayitlarla birlikte dosya diskten kaldirilir
+
+### Gelistirmis Ozellikler
+
+#### Onkosul Sistemi
+
+- Dersler arasi onkosul baglantilari: MAT101 -> MAT102 gibi zorunlu dersler
+- Minimum not kosulu: onkosul dersinde en az CC (2.0) alinmali
+- Kayit sirasinda otomatik kontrol: onkosul saglanmamissa kayit reddedilir
+- Admin panelinden onkosul yonetimi: ekleme, silme, listeleme
+
+#### Bekleme Listesi
+
+- Kontenjan dolu dersler icin bekleme listesi olusturma
+- Sira bazli yonetim: ogrenciler sirayla kaydedilir
+- Kontenjan bosaldiginda otomatik kayit: bekleme listesinden ilk ogrenci kaydedilir
+- Real-time bildirim: ogrenciye derse kaydedildigi bildirilir
+- Iptal etme: ogrenci bekleme listesinden cikabilir
+
+#### QR Kod Yoklama
+
+- Akademisyenler ders icin QR kod uretir (5 dakika gecerli)
+- Ogrenciler telefonla QR kodu tarar veya tokeni yapistirir
+- Anlik bildirim: akademisyene ogrenci tarandigi bildirilir
+- Coklu tarama engeli: ayni QR kodu ile ayni ogrenci yalnizca bir kez taranabilir
+- Sure dolusu kontrolu: QR kodunun suresi doluysa otomatik devre disi birakilir
+
+#### Program Analizi
+
+- Ogrenci ders programi uzerinde cakisma tespiti
+- Bos saatlerin gorunmesi: hangi saatler bos, hangileri dolu
+- Ders seciminde yardimci: baska bir ders sectiginde cakisma olup olmadigini gosterir
+- Kontenjan durumu: her sube icin kalan kontenjan bilgisi
+
+#### Transkript ve Mezuniyet
+
+- Gelismis transkript: donem bazli GPA, toplam kredi, AKTS bilgisi
+- Mezuniyet kontrolu: kredi, AKTS, GPA, FF sayisi gibi kosullarin kontrolu
+- Kalan dersler: mezuniyet icin alinmasi gereken derslerin listesi
+- Onkosul eksikleri: kalan derslerdeki onkosul eksiklerinin gosterilmesi
+- Admin panelinden mezuniyet kurali yonetimi
+
+#### Ogrenci Analizleri
+
+- Donemlik GPA trendi (cizgi grafigi ile)
+- Harf notu dagilimi (sutun grafigi ile)
+- Ders bazli devam durumu (yuzde ile)
+- Genel akademik durum ozeti
+
+#### Danismanlik Analizleri
+
+- Danisman ogrencilerinin risk analizi (yuksek/orta/dusuk)
+- GPA dagilimi grafigi
+- Riskli ogrencilerin tespiti (dusuk GPA, cok sayida basarisiz ders)
+- Ogrenci detay gorunumu
+
+#### Gelismis Admin Dashboard
+
+- Sistem genelinde KPI'lar: toplam ogrenci, akademisyen, ders, kayit
+- Harf notu dagilim grafigi
+- Bolum bazli GPA ortalamasi
+- Onay bekleyen kayit sayisi
+- Bolum istatistikleri tablosu
 
 ### Sistem Yonetimi
 
@@ -394,7 +458,7 @@ student-information-system/
 │   │   │   ├── redis.js           # ioredis baglanti konfigurasyonu
 │   │   │   ├── socket.js          # Socket.IO sunucu + JWT auth
 │   │   │   └── featureFlags.js    # ENV tabanli ozellik bayraklari
-│   │   ├── controllers/           # 22 controller dosyasi
+│   │   ├── controllers/           # 29 controller dosyasi
 │   │   │   ├── auth.controller.js
 │   │   │   ├── user.controller.js
 │   │   │   ├── faculty.controller.js
@@ -434,7 +498,7 @@ student-information-system/
 │   │   │   ├── producer.js        # Kuyruk uretici fonksiyonlari
 │   │   │   ├── worker.js          # Kuyruk isleyici fonksiyonlari
 │   │   │   └── scheduler.js       # Zamanlanmis isler (cron)
-│   │   ├── repositories/          # 18 repository dosyasi
+│   │   ├── repositories/          # 23 repository dosyasi
 │   │   │   ├── academic.repository.js
 │   │   │   ├── academicCalendar.repository.js
 │   │   │   ├── advisorAssignment.repository.js
@@ -453,8 +517,8 @@ student-information-system/
 │   │   │   ├── upload.repository.js
 │   │   │   ├── user.repository.js
 │   │   │   └── weeklySchedule.repository.js
-│   │   ├── routes/               # 22 route dosyasi (swagger annotasyonlu)
-│   │   ├── services/             # 18 service dosyasi
+│   │   ├── routes/               # 30 route dosyasi (swagger annotasyonlu)
+│   │   ├── services/             # 27 service dosyasi
 │   │   ├── swagger/
 │   │   │   └── swagger.config.js  # OpenAPI 3.0 konfigurasyonu
 │   │   ├── utils/
@@ -478,6 +542,7 @@ student-information-system/
 │       ├── api/                  # Axios servis fonksiyonlari
 │       │   ├── axiosInstance.js   # Axios ornegi (baseURL, interceptor)
 │       │   ├── academic.api.js   # Fakulte, bolum, ders, sube API
+│       │   ├── advanced.api.js   # Gelistmis ozellikler API (onkosul, bekleme, QR, transkript, analiz)
 │       │   ├── dashboard.api.js  # Dashboard istatistikleri API
 │       │   ├── people.api.js     # Ogrenci, akademisyen API
 │       │   ├── records.api.js    # Kayit, not, devamsizlik API
@@ -521,9 +586,9 @@ student-information-system/
 │       │   │   ├── Login.jsx
 │       │   │   ├── ForgotPassword.jsx
 │       │   │   └── ResetPassword.jsx
-│       │   ├── admin/            # 14 sayfa
-│       │   ├── academician/      # 5 sayfa
-│       │   ├── student/          # 8 sayfa
+│       │   ├── admin/            # 15 sayfa
+│       │   ├── academician/      # 7 sayfa
+│       │   ├── student/          # 12 sayfa
 │       │   ├── shared/           # 4 paylasilan sayfa
 │       │   ├── Forbidden.jsx     # 403 sayfasi
 │       │   ├── NotFound.jsx      # 404 sayfasi
@@ -689,6 +754,73 @@ Asagida modullere gore kategorize edilmis endpoint listesi yer almaktadir.
 | DELETE | /uploads/:id | Dosya sil | Giris yapan |
 | GET | /logs | Sistem loglari | Admin |
 
+### Onkosul — `/api/v1/prerequisites`
+
+| Method | Path | Aciklama | Yetki |
+|--------|------|----------|-------|
+| GET | /prerequisites | Tum onkosullar | Giris yapan |
+| GET | /prerequisites/course/:courseId | Dersin onkosullari | Giris yapan |
+| GET | /prerequisites/check/:courseId | Onkosul kontrolu | Ogrenci |
+| POST | /prerequisites | Onkosul ekle | Admin |
+| DELETE | /prerequisites/:id | Onkosul sil | Admin |
+
+### Bekleme Listesi — `/api/v1/waitlist`
+
+| Method | Path | Aciklama | Yetki |
+|--------|------|----------|-------|
+| POST | /waitlist | Bekleme listesine katil | Ogrenci |
+| DELETE | /waitlist/:courseSectionId | Bekleme listesinden cik | Ogrenci |
+| GET | /waitlist/me | Benim bekleme listelerim | Ogrenci |
+| GET | /waitlist/section/:courseSectionId | Sube bekleme listesi | Admin, Akademisyen |
+| POST | /waitlist/:id/promote | Beklemeden kayit et | Admin, Akademisyen |
+
+### QR Yoklama — `/api/v1/qr-attendance`
+
+| Method | Path | Aciklama | Yetki |
+|--------|------|----------|-------|
+| POST | /qr-attendance/generate | QR kod uret | Akademisyen |
+| GET | /qr-attendance/active/:courseSectionId | Aktif QR kodu getir | Akademisyen |
+| POST | /qr-attendance/scan | QR kodu tara | Ogrenci |
+| PUT | /qr-attendance/:id/deactivate | QR kodu devre disi birak | Akademisyen |
+| GET | /qr-attendance/section/:courseSectionId | Sube taramalari | Akademisyen |
+| GET | /qr-attendance/recent/:courseSectionId | Son taramalar | Akademisyen |
+
+### Akademik — `/api/v1/academic`
+
+| Method | Path | Aciklama | Yetki |
+|--------|------|----------|-------|
+| GET | /academic/transcript | Gelismis transkript | Ogrenci, Akademisyen |
+| GET | /academic/transcript/student/:studentId | Ogrenci transkripti | Admin, Akademisyen |
+| GET | /academic/graduation/my | Mezuniyet durumu | Ogrenci |
+| GET | /academic/graduation/student/:studentId | Ogrenci mezuniyet kontrolu | Admin, Akademisyen |
+| PUT | /academic/graduation/requirement/:departmentId | Mezuniyet kurali guncelle | Admin |
+
+### Ogrenci Analizleri — `/api/v1/student-analytics`
+
+| Method | Path | Aciklama | Yetki |
+|--------|------|----------|-------|
+| GET | /student-analytics/me | Benim analizlerim | Ogrenci |
+
+### Danismanlik Analizleri — `/api/v1/advisor-analytics`
+
+| Method | Path | Aciklama | Yetki |
+|--------|------|----------|-------|
+| GET | /advisor-analytics/students | Danisman ogrencileri + risk analizi | Akademisyen |
+| GET | /advisor-analytics/students/:studentId | Ogrenci detay analizi | Akademisyen |
+
+### Program Optimizasyonu — `/api/v1/schedule-optimizer`
+
+| Method | Path | Aciklama | Yetki |
+|--------|------|----------|-------|
+| GET | /schedule-optimizer/my-schedule | Program analizi + cakismalar | Ogrenci |
+| GET | /schedule-optimizer/available-sections/:courseId | Musait subeler | Ogrenci |
+
+### Gelismis Admin Dashboard — `/api/v1/admin-dashboard`
+
+| Method | Path | Aciklama | Yetki |
+|--------|------|----------|-------|
+| GET | /admin-dashboard/kpis | Sistem KPI'lari + bolum istatistikleri | Admin |
+
 ### Ayarlar — `/api/v1/settings`
 
 | Method | Path | Aciklama | Yetki |
@@ -712,7 +844,7 @@ Asagida modullere gore kategorize edilmis endpoint listesi yer almaktadir.
 
 ## Veritabani Semasi
 
-22 model ve 11 enum ile tam akademik yapi modellemesi:
+28 model ve 14 enum ile tam akademik yapi modellemesi:
 
 ### Ana Modeller
 
@@ -742,6 +874,16 @@ Asagida modullere gore kategorize edilmis endpoint listesi yer almaktadir.
 - **SystemSetting** — Sistem ayarlari (key-value, kategori, guncelleme zaman damgasi)
 - **IdempotencyRecord** — Tekrar islem Engellemesi (hash, yanit, sure)
 
+### Gelistmis Modeller
+
+- **Prerequisite** — Ders onkosullari (kaynak ders, gerekli ders, min not)
+- **Waitlist** — Bekleme listesi (ogrenci, ders subesi, sira, durum)
+- **QRToken** — QR kod tokenlari (token, suresi, aktiflik)
+- **QRScan** — QR taramalari (token, ogrenci, tarama zamani)
+- **GraduationRequirement** — Mezuniyet gereksinimleri (toplam AKTS, min GPA, max FF)
+- **CourseGroup** — Ders gruplari (kategori, min kredi)
+- **CourseGroupItem** — Ders grup elemanlari (grup, ders, zorunlu mu)
+
 ### Enum Turleri
 
 | Enum | Degerler |
@@ -757,6 +899,8 @@ Asagida modullere gore kategorize edilmis endpoint listesi yer almaktadir.
 | ExamType | MIDTERM, FINAL, MAKEUP |
 | DayOfWeek | MONDAY through SUNDAY |
 | UploadPurpose | PROFILE_PHOTO, COURSE_MATERIAL, OTHER |
+| CourseType | REQUIRED, ELECTIVE, COMMON, DEPARTMENT_ELECTIVE |
+| WaitlistStatus | WAITING, PROMOTED, CANCELLED, EXPIRED |
 
 ---
 
