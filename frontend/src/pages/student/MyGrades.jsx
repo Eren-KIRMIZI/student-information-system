@@ -4,8 +4,10 @@ import { getMyEnrollments } from '../../api/records.api';
 import { PageHeader, TableSkeleton, EmptyState, ErrorState, Tabs } from '../../components/ui/index';
 import { GradeBadge } from '../../components/feature/index';
 import { BookOpen } from 'lucide-react';
+import { useGradeSocket } from '../../hooks/useSocket';
 
 const MyGrades = () => {
+  useGradeSocket();
   const [tab, setTab] = useState('active');
 
   const { data: enrollments, isLoading, isError, refetch } = useQuery({

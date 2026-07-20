@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axiosInstance, { setAccessToken } from '../api/axiosInstance';
+import { connectSocket, disconnectSocket } from '../lib/socket';
 
 const AuthContext = createContext(null);
 
@@ -7,12 +8,12 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser]       = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Sayfa açılışında mevcut httpOnly cookie ile sessiz refresh denenir
   useEffect(() => {
     axiosInstance
       .post('/auth/refresh')
       .then(({ data }) => {
         setAccessToken(data.data.accessToken);
+        connectSocket();
         return axiosInstance.get('/users/me');
       })
       .then(({ data }) => setUser(data.data))
@@ -23,6 +24,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const { data } = await axiosInstance.post('/auth/login', { email, password });
     setAccessToken(data.data.accessToken);
+    connectSocket();
     setUser(data.data.user);
     return data.data.user;
   };
@@ -33,6 +35,7 @@ export const AuthProvider = ({ children }) => {
     } catch {
       // Ignore logout errors
     } finally {
+      disconnectSocket();
       setAccessToken(null);
       setUser(null);
     }

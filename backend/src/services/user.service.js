@@ -3,6 +3,7 @@ import { AppError } from '../utils/appError.util.js';
 import { logEvent } from '../utils/logger.js';
 import bcrypt from 'bcryptjs';
 import prisma from '../config/prisma.js';
+import { getIO } from '../config/socket.js';
 
 const paginate = (p = 1, l = 20) => ({ skip: (Number(p) - 1) * Number(l), take: Number(l) });
 
@@ -74,5 +75,6 @@ export const updateUser = async (id, data) => {
 export const updateUserStatus = async (id, isActive, adminId) => {
   await prisma.user.update({ where: { id }, data: { isActive } });
   await logEvent({ userId: adminId, action: isActive ? 'USER_ACTIVATED' : 'USER_DEACTIVATED', entity: 'User', entityId: id });
+  try { getIO().to(`student:${id}`).to(`lecturer:${id}`).to(`admin:${id}`).emit('user:statusChanged', { userId: id, isActive }); } catch {}
   return null;
 };

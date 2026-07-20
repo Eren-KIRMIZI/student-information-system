@@ -1,6 +1,7 @@
 import * as repo from '../repositories/enrollment.repository.js';
 import { AppError } from '../utils/appError.util.js';
 import { cache } from '../utils/cache.js';
+import { getIO } from '../config/socket.js';
 
 const MAX_ECTS = Number(process.env.MAX_ECTS_PER_SEMESTER) || 45;
 
@@ -58,6 +59,7 @@ export const createEnrollment = async (userId, courseSectionId) => {
 
   const result = await repo.enrollmentCreate({ studentId: student.id, courseSectionId, status: 'PENDING' });
   await cache.invalidatePattern('dash:*');
+  try { getIO().to('role:admin').to('role:academician').emit('enrollment:created', { enrollmentId: result.id, studentId: student.id }); } catch {}
   return result;
 };
 
@@ -66,6 +68,7 @@ export const approveEnrollment = async (id) => {
   if (!e) throw new AppError('Kayıt bulunamadı', 404);
   const result = await repo.enrollmentUpdate(id, { status: 'ACTIVE' });
   await cache.invalidatePattern('dash:*');
+  try { getIO().to(`student:${e.student.userId}`).emit('enrollment:updated', { enrollmentId: id, status: 'ACTIVE' }); } catch {}
   return result;
 };
 
@@ -74,6 +77,7 @@ export const rejectEnrollment = async (id) => {
   if (!e) throw new AppError('Kayıt bulunamadı', 404);
   const result = await repo.enrollmentUpdate(id, { status: 'REJECTED' });
   await cache.invalidatePattern('dash:*');
+  try { getIO().to(`student:${e.student.userId}`).emit('enrollment:updated', { enrollmentId: id, status: 'REJECTED' }); } catch {}
   return result;
 };
 

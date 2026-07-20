@@ -2,6 +2,8 @@ import * as repo from '../repositories/grade.repository.js';
 import { AppError } from '../utils/appError.util.js';
 import { computeLetterGrade, computeSemesterGPA, GRADE_POINT_MAP } from '../utils/gradeScale.js';
 import { cache } from '../utils/cache.js';
+import { getIO } from '../config/socket.js';
+import prisma from '../config/prisma.js';
 
 export const getMyGrades = async (userId) => {
   const student = await import('../config/prisma.js').then(m => m.default.student.findUnique({ where: { userId }, select: { id: true } }));
@@ -30,6 +32,15 @@ export const updateGrade = async (enrollmentId, data, reqUser) => {
     letterGrade: letter, gradePoint: point, enteredById,
   });
   await cache.invalidatePattern('dash:*');
+  try {
+    const enrollment = await prisma.enrollment.findUnique({
+      where: { id: enrollmentId },
+      select: { student: { select: { userId: true } } },
+    });
+    if (enrollment?.student?.userId) {
+      getIO().to(`student:${enrollment.student.userId}`).emit('grade:updated', { enrollmentId });
+    }
+  } catch {}
   return result;
 };
 
@@ -38,5 +49,14 @@ export const finalizeGrade = async (enrollmentId) => {
   if (!grade) throw new AppError('Not bulunamadı', 404);
   const result = await repo.gradeFinalize(enrollmentId);
   await cache.invalidatePattern('dash:*');
+  try {
+    const enrollment = await prisma.enrollment.findUnique({
+      where: { id: enrollmentId },
+      select: { student: { select: { userId: true } } },
+    });
+    if (enrollment?.student?.userId) {
+      getIO().to(`student:${enrollment.student.userId}`).emit('grade:updated', { enrollmentId });
+    }
+  } catch {}
   return result;
 };

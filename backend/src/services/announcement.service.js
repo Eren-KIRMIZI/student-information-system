@@ -1,6 +1,7 @@
 import * as repo from '../repositories/announcement.repository.js';
 import { AppError } from '../utils/appError.util.js';
 import { cache } from '../utils/cache.js';
+import { getIO } from '../config/socket.js';
 
 const paginate = (p = 1, l = 10) => ({ skip: (Number(p) - 1) * Number(l), take: Number(l) });
 
@@ -43,6 +44,14 @@ export const createAnnouncement = async (data, userId) => {
   const result = await repo.announcementCreate({ ...data, publishedById: userId });
   await cache.invalidatePattern('ann:*');
   await cache.invalidatePattern('dash:*');
+  try {
+    const io = getIO();
+    if (data.targetRole === 'ALL') {
+      io.emit('announcement:created', result);
+    } else {
+      io.to(`role:${data.targetRole.toLowerCase()}`).to('role:admin').emit('announcement:created', result);
+    }
+  } catch {}
   return result;
 };
 
@@ -51,6 +60,7 @@ export const updateAnnouncement = async (id, data) => {
   const result = await repo.announcementUpdate(id, data);
   await cache.invalidatePattern('ann:*');
   await cache.invalidatePattern('dash:*');
+  try { getIO().emit('announcement:updated', result); } catch {}
   return result;
 };
 
@@ -59,5 +69,6 @@ export const deleteAnnouncement = async (id) => {
   const result = await repo.announcementDelete(id);
   await cache.invalidatePattern('ann:*');
   await cache.invalidatePattern('dash:*');
+  try { getIO().emit('announcement:deleted', { id }); } catch {}
   return result;
 };

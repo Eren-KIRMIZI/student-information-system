@@ -8,9 +8,11 @@ import { useForm } from 'react-hook-form';
 import { useAuth } from '../../context/AuthContext';
 import dayjs from 'dayjs';
 import 'dayjs/locale/tr';
+import { useCalendarSocket } from '../../hooks/useSocket';
 dayjs.locale('tr');
 
 const AcademicCalendar = () => {
+  useCalendarSocket();
   const qc = useQueryClient();
   const { user } = useAuth();
   const roleName = typeof user?.role === 'object' ? user.role?.name : user?.role;

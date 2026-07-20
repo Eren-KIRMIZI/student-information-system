@@ -1,6 +1,7 @@
 import * as repo from '../repositories/academicCalendar.repository.js';
 import { AppError } from '../utils/appError.util.js';
 import { cache } from '../utils/cache.js';
+import { getIO } from '../config/socket.js';
 
 const paginate = (p = 1, l = 20) => ({ skip: (Number(p) - 1) * Number(l), take: Number(l) });
 
@@ -34,6 +35,7 @@ export const createCalendarEvent = async (data) => {
     endDate: new Date(data.endDate),
   });
   await cache.invalidatePattern('calendar:*');
+  try { getIO().emit('calendar:created', result); } catch {}
   return result;
 };
 
@@ -44,6 +46,7 @@ export const updateCalendarEvent = async (id, data) => {
   if (payload.endDate) payload.endDate = new Date(payload.endDate);
   const result = await repo.calendarUpdate(id, payload);
   await cache.invalidatePattern('calendar:*');
+  try { getIO().emit('calendar:updated', result); } catch {}
   return result;
 };
 
@@ -51,5 +54,6 @@ export const deleteCalendarEvent = async (id) => {
   await getCalendarEventById(id);
   const result = await repo.calendarDelete(id);
   await cache.invalidatePattern('calendar:*');
+  try { getIO().emit('calendar:deleted', { id }); } catch {}
   return result;
 };

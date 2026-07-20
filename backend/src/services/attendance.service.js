@@ -1,5 +1,6 @@
 import * as repo from '../repositories/attendance.repository.js';
 import { AppError } from '../utils/appError.util.js';
+import { getIO } from '../config/socket.js';
 
 export const getMyAttendance = async (userId) => {
   const student = await repo.studentFindByUserId(userId);
@@ -22,5 +23,7 @@ export const recordAttendance = async (courseSectionId, data, reqUser) => {
     recordedById = lecturer?.id;
   }
   const payload = records.map(r => ({ enrollmentId: r.enrollmentId, date, status: r.status }));
-  return repo.attendanceBulkUpsert(payload, recordedById);
+  const result = await repo.attendanceBulkUpsert(payload, recordedById);
+  try { getIO().to(`courseSection:${courseSectionId}`).emit('attendance:updated', { courseSectionId, date }); } catch {}
+  return result;
 };

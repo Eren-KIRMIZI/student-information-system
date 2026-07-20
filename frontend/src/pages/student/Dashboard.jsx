@@ -5,9 +5,12 @@ import { StatCard, CardSkeleton, ErrorState, EmptyState, PageHeader } from '../.
 import { ExamListItem, DashboardCard, DashboardListItem } from '../../components/feature/index';
 import dayjs from 'dayjs';
 import 'dayjs/locale/tr';
+import { useAnnouncementSocket, useEnrollmentSocket } from '../../hooks/useSocket';
 dayjs.locale('tr');
 
 const StudentDashboard = () => {
+  useAnnouncementSocket();
+  useEnrollmentSocket();
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['dashboard', 'student'],
     queryFn: getDashboardStudent,

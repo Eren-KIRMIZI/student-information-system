@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './src/swagger/swagger.config.js';
 import { errorHandler } from './src/middlewares/error.middleware.js';
+import { initSocket } from './src/config/socket.js';
 
 // Routes
 import authRoutes from './src/routes/auth.routes.js';
@@ -75,9 +76,11 @@ app.use('/api/v1/roles',              roleRoutes);
 // Global Error Handler (en son middleware)
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📚 Swagger UI: http://localhost:${PORT}/api-docs`);
 });
+
+initSocket(server);
 
 export default app;

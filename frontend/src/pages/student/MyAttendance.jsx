@@ -4,8 +4,10 @@ import { PageHeader, StatusBadge, TableSkeleton, EmptyState, ErrorState } from '
 import { AttendanceProgressBar } from '../../components/feature/index';
 import { ClipboardCheck } from 'lucide-react';
 import dayjs from 'dayjs';
+import { useAttendanceSocket } from '../../hooks/useSocket';
 
 const MyAttendance = () => {
+  useAttendanceSocket();
   const { data: records = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['my-attendance'],
     queryFn: getMyAttendance,

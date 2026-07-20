@@ -7,8 +7,10 @@ import { CourseSectionCard } from '../../components/feature/index';
 import { DAY_LABEL_SHORT, SEMESTER_LABELS } from '../../utils/constants';
 import { BookOpen, Plus, Users, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useEnrollmentSocket } from '../../hooks/useSocket';
 
 const CourseSelection = () => {
+  useEnrollmentSocket();
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);

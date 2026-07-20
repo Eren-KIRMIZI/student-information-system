@@ -8,8 +8,10 @@ import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../context/AuthContext';
 import { Pagination } from '../../components/ui/index';
+import { useAnnouncementSocket } from '../../hooks/useSocket';
 
 const AnnouncementList = () => {
+  useAnnouncementSocket();
   const qc = useQueryClient();
   const { user } = useAuth();
   const roleName = typeof user?.role === 'object' ? user.role?.name : user?.role;

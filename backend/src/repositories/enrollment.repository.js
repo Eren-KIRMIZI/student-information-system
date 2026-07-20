@@ -48,7 +48,7 @@ export const enrollmentUpdate = (id, data) =>
   prisma.enrollment.update({ where: { id }, data });
 
 export const enrollmentFindByIdSimple = (id) =>
-  prisma.enrollment.findUnique({ where: { id } });
+  prisma.enrollment.findUnique({ where: { id }, include: { student: { select: { userId: true } } } });
 
 export const studentFindByUserId = (userId) =>
   prisma.student.findUnique({ where: { userId }, select: { id: true } });
