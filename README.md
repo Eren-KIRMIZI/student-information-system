@@ -1,11 +1,10 @@
 # OBS — Ogrenci Bilgi Sistemi
 
-<img width="317" height="317" alt="Uni-Photoroom" src="https://github.com/user-attachments/assets/8182fde1-1b90-4ca5-ba0f-7c5a7a8f392c" />
-
-
 Fakulte, bolum, ders, ogrenci, akademisyen, kayit, not, devamsizlik, duyuru ve takvim
 islemlerini tek bir platform uzerinden yonetmek icin gelistirilmis kapsamli bir web
 uygulamasi. Monorepo mimarisi ile backend ve frontend tek bir depo icinde barindirilir.
+
+<img width="317" height="317" alt="Uni-Photoroom" src="https://github.com/user-attachments/assets/8182fde1-1b90-4ca5-ba0f-7c5a7a8f392c" />
 
 ---
 
@@ -81,6 +80,14 @@ Fakulte > Bolum > Ders > Ders Subesi hiyerarsisi uzerinde tam CRUD islemi:
 - Sistem loglari: kullanici islemlerinin kaydi (IP, zaman damgasi, meta veri)
 - Dashboard istatistikleri: rol bazli ozet bilgiler
 
+### Onbellek (Cache)
+
+- Memurai (Redis uyumlu) ile servis katmaninda onbellek
+- Dashboard sorgulari 60 saniye, akademik yapı 24 saat, duyurular 180 saniye sure ile onbelleklenir
+- CRUD islemlerinde otomatik cache temizleme (invalidation)
+- `CACHE_ENABLED` ortam degiskeni ile acma/kapama kontrolu
+- Redis baglantisi koparsa uygulama Prisma uzerinden calismaya devam eder
+
 ### Arayuz
 
 - Tum uygulama genelinde dark mode (acik/karanlik tema)
@@ -91,6 +98,7 @@ Fakulte > Bolum > Ders > Ders Subesi hiyerarsisi uzerinde tam CRUD islemi:
 - Tab navigasyonu
 - Filtreleme ve arama
 - Sayfalama (pagination)
+- Hizli giris butonlari: giris ekraninda rol bazli tek tikla hesap secme
 
 ---
 
@@ -104,6 +112,7 @@ Fakulte > Bolum > Ders > Ders Subesi hiyerarsisi uzerinde tam CRUD islemi:
 | Express | 4.21 | HTTP framework |
 | Prisma | 7.8 | ORM + veritabani migration |
 | PostgreSQL | 14+ | Veritabani |
+| ioredis | 5.6 | Memurai/Redis baglantisi (onbellek) |
 | jsonwebtoken | 9.0 | JWT uretimi ve dogrulama |
 | bcryptjs | 3.0 | Sifre hashleme |
 | express-validator | 7.2 | Giris dogrulama |
@@ -133,10 +142,11 @@ Fakulte > Bolum > Ders > Ders Subesi hiyerarsisi uzerinde tam CRUD islemi:
 | Day.js | 1.11 | Tarih islemleri |
 | react-hot-toast | 2.5 | Bildirim sistemi |
 
-### Araclari
+### Altyapi Servisleri
 
-| Arac | Amac |
-|------|------|
+| Servis | Amac |
+|--------|------|
+| Memurai | Redis uyumlu onbellek sunucusu |
 | concurrently | Backend ve frontend ayni anda calistirma |
 | Prisma Studio | Veritabani gorsellestirme |
 
@@ -147,6 +157,7 @@ Fakulte > Bolum > Ders > Ders Subesi hiyerarsisi uzerinde tam CRUD islemi:
 - Node.js 18 ve ustu
 - npm 9 ve ustu
 - PostgreSQL 14 ve ustu
+- Memurai veya Redis (onbellek icin, opsiyonel)
 - Git (opsiyonel, versiyon kontrolu icin)
 
 ---
@@ -174,12 +185,15 @@ Bu komut `backend/` ve `frontend/` dizinlerindeki `node_modules` klasorlerini ol
 
 ```env
 DATABASE_URL="postgresql://kullanici:sifre@localhost:5432/obs_db?schema=public"
-JWT_ACCESS_SECRET="guvenli-access-token-gizli-anahtari"
+JWT_SECRET="guvenli-access-token-gizli-anahtari"
 JWT_REFRESH_SECRET="guvenli-refresh-token-gizli-anahtari"
-JWT_ACCESS_EXPIRES="15m"
-JWT_REFRESH_EXPIRES="7d"
+ACCESS_TOKEN_EXPIRES="15m"
+REFRESH_TOKEN_EXPIRES="7d"
 CORS_ORIGIN="http://localhost:5173"
 PORT=5000
+MAX_ECTS_PER_SEMESTER=45
+REDIS_URL="redis://127.0.0.1:6379"
+CACHE_ENABLED=true
 ```
 
 ### 4. Veritabani Olusturma ve Migration
@@ -191,7 +205,7 @@ npx prisma db push
 # npx prisma migrate dev --name init
 ```
 
-### 5. Seed Verisi Yükleme
+### 5. Seed Verisi Yukleme
 
 ```bash
 npx prisma db seed
@@ -203,6 +217,20 @@ Bu islem varsayilan admin, akademisyen ve ogrenci hesaplarini olusturur.
 
 ```bash
 npx prisma generate
+```
+
+### 7. Memurai (Onbellek)
+
+Onbellek opsiyoneldir. Memurai yuklu degilse `CACHE_ENABLED=false` olarak
+`.env` dosyasinda tanimlayabilirsiniz. Bu durumda uygulama Prisma uzerinden
+dogrudan veritabanina sorgu yaparak calismaya devam eder.
+
+Memurai yuklu ise varsayilan olarak `127.0.0.1:6379` portunda dinler.
+Windows uzerinde hizmet olarak kurulabilir:
+
+```bash
+# Memurai Developer Surumu (Windows)
+# https://www.memurai.com/get-started
 ```
 
 ---
@@ -239,13 +267,14 @@ npm run dev:frontend
 
 ## Varsayilan Giris Bilgileri
 
-Seed verisi ile olusturulan hesaplar:
+Seed verisi ile olusturulan hesaplar. Giris ekraninda hizli giris butonlari
+ile tek tikla dolurulabilir.
 
 | Rol | E-posta | Sifre |
 |-----|---------|-------|
-| Admin | admin@obs.edu.tr | Admin123 |
-| Akademisyen | akademisyen1@obs.edu.tr | Akademisyen123 |
-| Ogrenci | ogrenci1@obs.edu.tr | Ogrenci123 |
+| Admin | admin@obs.edu.tr | Admin123! |
+| Akademisyen | ayse.kaya@obs.edu.tr | Academic123! |
+| Ogrenci | ali.veli@obs.edu.tr | Student123! |
 
 ---
 
@@ -261,7 +290,8 @@ student-information-system/
 │   ├── uploads/                   # Yuklenen dosyalar (disk)
 │   ├── src/
 │   │   ├── config/
-│   │   │   └── prisma.js          # Prisma client ornegi
+│   │   │   ├── prisma.js          # Prisma client ornegi
+│   │   │   └── redis.js           # ioredis baglanti konfigurasyonu
 │   │   ├── controllers/           # 20 controller dosyasi
 │   │   │   ├── auth.controller.js
 │   │   │   ├── user.controller.js
@@ -287,7 +317,7 @@ student-information-system/
 │   │   │   ├── auth.middleware.js       # JWT dogrulama
 │   │   │   ├── role.middleware.js       # Rol bazli yetkilendirme
 │   │   │   ├── validate.middleware.js   # express-validator sonuc
-│   │   │   ├── rateLimit.middleware.js   # Rate limiting
+│   │   │   ├── rateLimit.middleware.js  # Rate limiting
 │   │   │   └── error.middleware.js      # Merkezi hata yakalama
 │   │   ├── repositories/          # 16 repository dosyasi
 │   │   │   ├── academic.repository.js
@@ -312,12 +342,13 @@ student-information-system/
 │   │   │   └── swagger.config.js  # OpenAPI 3.0 konfigurasyonu
 │   │   ├── utils/
 │   │   │   ├── appError.util.js   # Ozel hata sinifi
+│   │   │   ├── cache.js           # Onbellek yardimci fonksiyonlari
 │   │   │   ├── gradeScale.js      # Harf notu ve GPA hesaplama
 │   │   │   ├── logger.js          # Winston loglama
 │   │   │   ├── pdf.util.js        # PDF uretim (transkript)
 │   │   │   ├── response.util.js   # Standart API yanit formati
 │   │   │   └── token.util.js      # JWT uretim ve dogrulama
-│   │   └── validators/           # 16 validator dosyasi (Zod/espress-validator)
+│   │   └── validators/           # 16 validator dosyasi (Zod/express-validator)
 │   ├── server.js                 # Uygulama giris noktasi
 │   └── package.json
 ├── frontend/
@@ -335,7 +366,7 @@ student-information-system/
 │       │   │   └── index.jsx     # StatCard, PageHeader, Badge, StatusBadge,
 │       │   │                     # Skeleton, ErrorState, EmptyState, Modal,
 │       │   │                     # ConfirmDialog, Pagination, SearchInput,
-│       │   │                     # Select, Tabs, Table
+│       │   │                     # Select, FilterBar, Tabs, Table
 │       │   ├── layout/
 │       │   │   ├── Sidebar.jsx   # Rol bazli navigasyon, responsive drawer
 │       │   │   └── Topbar.jsx    # Ust bar, profil, tema degistirici
@@ -460,7 +491,7 @@ Asagida modullere gore kategorize edilmis endpoint listesi yer almaktadir.
 | Method | Path | Aciklama | Yetki |
 |--------|------|----------|-------|
 | GET | /faculties | Fakulte listesi | Giris yapan |
-| POST | /facultes | Fakulte olustur | Admin |
+| POST | /faculties | Fakulte olustur | Admin |
 | PUT | /faculties/:id | Fakulte guncelle | Admin |
 | DELETE | /faculties/:id | Fakulte sil | Admin |
 | GET | /departments | Bolum listesi | Giris yapan |
@@ -589,7 +620,7 @@ Asagida modullere gore kategorize edilmis endpoint listesi yer almaktadir.
 - **ExamSchedule** — Sinav programi (tur, tarih, saati, sinif, gorevli)
 - **Announcement** — Duyuru (baslik, icerik, kategori, hedef rol)
 - **AcademicCalendar** — Akademik takvim (baslik, tarih araligi, kategori)
-- **Upload** — Yuklenen dosyalar (dosya adi, tur, boyut, amaç)
+- **Upload** — Yuklenen dosyalar (dosya adi, tur, boyut, amac)
 - **Log** — Sistem loglari (islem, varlik, IP, meta veri)
 
 ### Enum Turleri
@@ -618,13 +649,15 @@ Asagida modullere gore kategorize edilmis endpoint listesi yer almaktadir.
 Route (dogrulama + yetkilendirme)
   └── Controller (HTTP istek/yanit)
         └── Service (is mantigi, kurallar)
+              └── Cache (Memurai/Redis onbellek)
               └── Repository (Prisma sorgulari)
                     └── Prisma Client (PostgreSQL)
 ```
 
 - **Route**: `express-validator` ile giris dogrulama, `authorize()` ile rol kontrolu
 - **Controller**: Request parse, service cagrisi, response formati
-- **Service**: Is kurallari, yetkilendirme kontrolu, hash/slug uretimi
+- **Service**: Is kurallari, yetkilendirme kontrolu, cache yonetimi
+- **Cache**: `cache.get/set/del/invalidatePattern` ile servis seviyesinde onbellek
 - **Repository**: Prisma ORM sorgulari, include/where/orderBy tanimlari
 
 ### Frontend: Bilesen Tabanli Mimari
@@ -656,7 +689,8 @@ Route (React Router)
 - **Rate Limit**: Giris denemeleri ip bazli olarak sinirlandirilir
 - **RBAC**: Her route'ta rol kontrolu (authenticate + authorize middleware)
 - **Giris Dogrulama**: Tum POST/PUT endpoint'lerinde Zod/express-validator ile veri dogrulama
-- **Upload Kısıtlamasi**: Dosya boyutu siniri (10 MB), izin verilen formatlar (whitelist)
+- **Upload Kismi**: Dosya boyutu siniri (10 MB), izin verilen formatlar (whitelist)
 - **.gitignore**: `.env`, `node_modules`, `uploads/`, `dist/` dosyalari versiyon kontrolu disinda
+- **Onbellek**: `CACHE_ENABLED` ile acma/kapama, Redis baglantisi koparsa uygulama bozulmaz
 
 ---

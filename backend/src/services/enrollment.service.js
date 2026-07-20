@@ -1,5 +1,6 @@
 import * as repo from '../repositories/enrollment.repository.js';
 import { AppError } from '../utils/appError.util.js';
+import { cache } from '../utils/cache.js';
 
 const MAX_ECTS = Number(process.env.MAX_ECTS_PER_SEMESTER) || 45;
 
@@ -55,24 +56,32 @@ export const createEnrollment = async (userId, courseSectionId) => {
     }
   }
 
-  return repo.enrollmentCreate({ studentId: student.id, courseSectionId, status: 'PENDING' });
+  const result = await repo.enrollmentCreate({ studentId: student.id, courseSectionId, status: 'PENDING' });
+  await cache.invalidatePattern('dash:*');
+  return result;
 };
 
 export const approveEnrollment = async (id) => {
   const e = await repo.enrollmentFindByIdSimple(id);
   if (!e) throw new AppError('Kayıt bulunamadı', 404);
-  return repo.enrollmentUpdate(id, { status: 'ACTIVE' });
+  const result = await repo.enrollmentUpdate(id, { status: 'ACTIVE' });
+  await cache.invalidatePattern('dash:*');
+  return result;
 };
 
 export const rejectEnrollment = async (id) => {
   const e = await repo.enrollmentFindByIdSimple(id);
   if (!e) throw new AppError('Kayıt bulunamadı', 404);
-  return repo.enrollmentUpdate(id, { status: 'REJECTED' });
+  const result = await repo.enrollmentUpdate(id, { status: 'REJECTED' });
+  await cache.invalidatePattern('dash:*');
+  return result;
 };
 
 export const dropEnrollment = async (id) => {
   const e = await repo.enrollmentFindByIdSimple(id);
   if (!e) throw new AppError('Kayıt bulunamadı', 404);
   if (e.status === 'COMPLETED') throw new AppError('Tamamlanmış ders bırakılamaz', 400);
-  return repo.enrollmentUpdate(id, { status: 'DROPPED' });
+  const result = await repo.enrollmentUpdate(id, { status: 'DROPPED' });
+  await cache.invalidatePattern('dash:*');
+  return result;
 };
