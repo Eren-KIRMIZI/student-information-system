@@ -1,13 +1,19 @@
 import * as repo from '../repositories/upload.repository.js';
 import { AppError } from '../utils/appError.util.js';
 import fs from 'fs';
+import path from 'path';
+
+const sanitizeFilename = (name) => {
+  const base = path.basename(name);
+  return base.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 200);
+};
 
 export const createUpload = async (file, userId, purpose = 'OTHER', courseSectionId = null) => {
   if (!file) throw new AppError('Dosya yüklenmedi', 400);
   return repo.uploadCreate({
     uploaderId: userId,
     fileName: file.filename,
-    originalName: file.originalname,
+    originalName: sanitizeFilename(file.originalname),
     mimeType: file.mimetype,
     size: file.size,
     path: file.path.replace(/\\/g, '/'),
@@ -22,7 +28,7 @@ export const updateProfilePhoto = async (file, userId, role) => {
   await repo.uploadCreate({
     uploaderId: userId,
     fileName: file.filename,
-    originalName: file.originalname,
+    originalName: sanitizeFilename(file.originalname),
     mimeType: file.mimetype,
     size: file.size,
     path: photoUrl,
@@ -42,6 +48,11 @@ export const deleteUpload = async (id, userId, userRole) => {
   if (record.uploaderId !== userId && userRole !== 'ADMIN') {
     throw new AppError('Bu dosyayı silme yetkiniz yok', 403);
   }
-  try { fs.unlinkSync(record.path); } catch {}
+  try {
+    const filePath = path.resolve(record.path);
+    if (filePath.startsWith(path.resolve('uploads'))) {
+      fs.unlinkSync(filePath);
+    }
+  } catch {}
   return repo.uploadDelete(id);
 };

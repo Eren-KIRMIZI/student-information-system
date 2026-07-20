@@ -69,7 +69,7 @@ router.get('/', authenticate, authorize('ADMIN', 'ACADEMICIAN'), ctrl.listStuden
  *       404:
  *         description: Öğrenci bulunamadı
  */
-router.get('/:id', authenticate, ctrl.getStudentById);
+router.get('/:id', authenticate, authorize('ADMIN', 'ACADEMICIAN'), ctrl.getStudentById);
 
 /**
  * @swagger
@@ -147,7 +147,7 @@ router.post('/', authenticate, authorize('ADMIN'), createStudentValidator, valid
  *       404:
  *         description: Öğrenci bulunamadı
  */
-router.put('/:id', authenticate, updateStudentValidator, validate, ctrl.updateStudent);
+router.put('/:id', authenticate, authorize('ADMIN'), updateStudentValidator, validate, ctrl.updateStudent);
 
 /**
  * @swagger

@@ -161,7 +161,7 @@ Fakulte > Bolum > Ders > Ders Subesi hiyerarsisi uzerinde tam CRUD islemi:
 - **Jest + Supertest**: Unit ve integration test altyapisi
   - Prisma mock, cache mock
   - Cursor pagination, audit log, system settings unit testleri
-  - Faculty ve search API integration testleri
+  - Faculty API integration testleri
   - `npm run test` ile calistirma
 
 ### Arayuz
@@ -372,7 +372,7 @@ ile tek tikla dolurulabilir.
 student-information-system/
 ├── backend/
 │   ├── prisma/
-│   │   ├── schema.prisma          # Veritabani semasi (29 model, 13 enum)
+   │   │   ├── schema.prisma          # Veritabani semasi (22 model, 11 enum)
 │   │   ├── seed.js                # Varsayilan veri seti
 │   │   └── migrations/            # Veritabani migration dosyalari
 │   ├── uploads/                   # Yuklenen dosyalar (disk)
@@ -712,7 +712,7 @@ Asagida modullere gore kategorize edilmis endpoint listesi yer almaktadir.
 
 ## Veritabani Semasi
 
-29 model ve 13 enum ile tam akademik yapi modellemesi:
+22 model ve 11 enum ile tam akademik yapi modellemesi:
 
 ### Ana Modeller
 

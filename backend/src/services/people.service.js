@@ -14,7 +14,8 @@ export const listStudents = async ({ page = 1, limit = 20, search, departmentId,
 export const getStudentById = async (id) => {
   const s = await repo.studentFindById(id);
   if (!s) throw new AppError('Öğrenci bulunamadı', 404);
-  return s;
+  const { nationalId: _, ...safe } = s;
+  return safe;
 };
 
 export const createStudent = async (data) => {
@@ -57,7 +58,19 @@ export const updateStudent = async (id, data, reqUser) => {
     return repo.studentUpdate(id, { phone: data.phone, address: data.address });
   }
 
-  return repo.studentUpdate(id, data);
+  const { firstName, lastName, studentNumber, nationalId, departmentId, classYear, phone, address, birthDate } = data;
+  const updateData = {};
+  if (firstName !== undefined) updateData.firstName = firstName;
+  if (lastName !== undefined) updateData.lastName = lastName;
+  if (studentNumber !== undefined) updateData.studentNumber = studentNumber;
+  if (nationalId !== undefined) updateData.nationalId = nationalId;
+  if (departmentId !== undefined) updateData.departmentId = departmentId;
+  if (classYear !== undefined) updateData.classYear = Number(classYear) || student.classYear;
+  if (phone !== undefined) updateData.phone = phone;
+  if (address !== undefined) updateData.address = address;
+  if (birthDate !== undefined) updateData.birthDate = birthDate ? new Date(birthDate) : null;
+
+  return repo.studentUpdate(id, updateData);
 };
 
 export const updateStudentStatus = async (id, isActive) => {
@@ -109,7 +122,16 @@ export const updateLecturer = async (id, data, reqUser) => {
     return repo.lecturerUpdate(id, { phone: data.phone });
   }
 
-  return repo.lecturerUpdate(id, data);
+  const { firstName, lastName, title, departmentId, phone, specialization } = data;
+  const updateData = {};
+  if (firstName !== undefined) updateData.firstName = firstName;
+  if (lastName !== undefined) updateData.lastName = lastName;
+  if (title !== undefined) updateData.title = title;
+  if (departmentId !== undefined) updateData.departmentId = departmentId;
+  if (phone !== undefined) updateData.phone = phone;
+  if (specialization !== undefined) updateData.specialization = specialization;
+
+  return repo.lecturerUpdate(id, updateData);
 };
 
 export const updateLecturerStatus = async (id, isActive) => {

@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import * as userRepository from '../repositories/user.repository.js';
 import * as refreshTokenRepository from '../repositories/refreshToken.repository.js';
-import { generateAccessToken, generateRefreshToken, hashToken } from '../utils/token.util.js';
+import { generateAccessToken, generateRefreshToken, generateResetToken, verifyResetToken, hashToken } from '../utils/token.util.js';
 import { AppError } from '../utils/appError.util.js';
 import { logEvent } from '../utils/logger.js';
 
@@ -96,11 +96,7 @@ export const forgotPassword = async (email) => {
   // Her durumda aynı mesaj (enumeration koruması)
   if (!user || !user.isActive) return null;
 
-  const resetToken = jwt.sign(
-    { sub: user.id, purpose: 'reset' },
-    process.env.JWT_SECRET,
-    { expiresIn: '15m' }
-  );
+  const resetToken = generateResetToken(user.id);
 
   // Geliştirme: console'a logla; prod'da e-posta gönderilecek
   const resetLink = `${process.env.CORS_ORIGIN || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
@@ -114,7 +110,7 @@ export const forgotPassword = async (email) => {
 export const resetPassword = async (token, newPassword) => {
   let payload;
   try {
-    payload = jwt.verify(token, process.env.JWT_SECRET);
+    payload = verifyResetToken(token);
   } catch {
     throw new AppError('Şifre sıfırlama tokeni geçersiz veya süresi dolmuş', 401);
   }

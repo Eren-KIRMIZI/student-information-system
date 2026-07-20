@@ -23,6 +23,22 @@ export const generateRefreshToken = (user) =>
   );
 
 /**
+ * Reset token üretir (çok kısa ömürlü, amaç belirtilir).
+ */
+export const generateResetToken = (userId) =>
+  jwt.sign(
+    { sub: userId, purpose: 'reset', jti: crypto.randomUUID() },
+    process.env.JWT_RESET_SECRET,
+    { expiresIn: '15m' }
+  );
+
+/**
+ * Reset token'ı doğrular.
+ */
+export const verifyResetToken = (token) =>
+  jwt.verify(token, process.env.JWT_RESET_SECRET);
+
+/**
  * Token'ı SHA-256 ile hash'ler (DB'de ham token saklanmaz).
  */
 export const hashToken = (token) =>

@@ -110,7 +110,7 @@ const Profile = () => {
         <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
           <div style={{ position: 'relative' }}>
             {(data.student?.photoUrl || data.lecturer?.photoUrl) ? (
-              <img src={`http://localhost:5000/${data.student?.photoUrl || data.lecturer?.photoUrl}`}
+              <img src={`${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/${data.student?.photoUrl || data.lecturer?.photoUrl}`}
                 alt={name} style={{ width: 80, height: 80, borderRadius: 20, objectFit: 'cover' }} />
             ) : (
               <div style={{ width: 80, height: 80, borderRadius: 20, background: 'linear-gradient(135deg, var(--color-primary-600), var(--color-primary-400))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 32, fontWeight: 800 }}>
@@ -168,8 +168,10 @@ const Profile = () => {
 
             <div className="input-wrapper">
               <label className="input-label"><Lock size={14} /> Yeni Şifre</label>
-              <input type="password" placeholder="Değiştirmek istemiyorsanız boş bırakın" className={`input ${errors.password ? 'error' : ''}`} {...register('password', { minLength: 6 })} />
-              {errors.password && <span className="input-error">Şifre en az 6 karakter olmalıdır</span>}
+              <input type="password" placeholder="Değiştirmek istemiyorsanız boş bırakın" className={`input ${errors.password ? 'error' : ''}`}
+                {...register('password', { minLength: 8, pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/ })} />
+              {errors.password?.type === 'minLength' && <span className="input-error">Şifre en az 8 karakter olmalıdır</span>}
+              {errors.password?.type === 'pattern' && <span className="input-error">Büyük harf, küçük harf, rakam ve özel karakter içermelidir</span>}
             </div>
 
             <div style={{ marginTop: 8 }}>

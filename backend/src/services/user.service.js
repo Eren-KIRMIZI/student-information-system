@@ -67,7 +67,12 @@ export const createUser = async (data, adminId) => {
 };
 
 export const updateUser = async (id, data) => {
-  const user = await repo.update(id, data);
+  const { email, roleId, isActive } = data;
+  const updateData = {};
+  if (email !== undefined) updateData.email = email;
+  if (roleId !== undefined) updateData.roleId = roleId;
+  if (isActive !== undefined) updateData.isActive = isActive;
+  const user = await repo.update(id, updateData);
   const { password: _, ...safe } = user;
   return safe;
 };

@@ -2,14 +2,16 @@ import * as repo from '../repositories/enrollment.repository.js';
 import { AppError } from '../utils/appError.util.js';
 import { cache } from '../utils/cache.js';
 import { getIO } from '../config/socket.js';
+import prisma from '../config/prisma.js';
 
 const MAX_ECTS = Number(process.env.MAX_ECTS_PER_SEMESTER) || 45;
 
 const paginate = (page, limit) => ({ skip: (Number(page) - 1) * Number(limit), take: Number(limit) });
 
 export const listEnrollments = async ({ page = 1, limit = 20, status, courseSectionId, studentId, sortBy, order }) => {
-  const [data, total] = await repo.enrollmentFindMany({ ...paginate(page, limit), status, courseSectionId, studentId, sortBy, order });
-  return { data, pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) } };
+  const cappedLimit = Math.min(Number(limit), 100);
+  const [data, total] = await repo.enrollmentFindMany({ ...paginate(page, cappedLimit), status, courseSectionId, studentId, sortBy, order });
+  return { data, pagination: { page: Number(page), limit: cappedLimit, total, totalPages: Math.ceil(total / cappedLimit) } };
 };
 
 export const getMyEnrollments = async (userId) => {
@@ -63,28 +65,54 @@ export const createEnrollment = async (userId, courseSectionId) => {
   return result;
 };
 
-export const approveEnrollment = async (id) => {
+const checkAcademicianSectionOwnership = async (enrollmentId, reqUser) => {
+  if (reqUser.role === 'ADMIN') return;
+  if (reqUser.role === 'ACADEMICIAN') {
+    const lecturer = await prisma.lecturer.findUnique({ where: { userId: reqUser.id }, select: { id: true } });
+    const enrollment = await repo.enrollmentFindByIdSimple(enrollmentId);
+    if (!enrollment) throw new AppError('Kayıt bulunamadı', 404);
+    const section = await prisma.courseSection.findUnique({
+      where: { id: enrollment.courseSectionId },
+      select: { lecturerId: true },
+    });
+    if (section && section.lecturerId !== lecturer?.id) {
+      throw new AppError('Bu kaydı işleme yetkiniz yok', 403);
+    }
+  }
+};
+
+export const approveEnrollment = async (id, reqUser) => {
   const e = await repo.enrollmentFindByIdSimple(id);
   if (!e) throw new AppError('Kayıt bulunamadı', 404);
+  await checkAcademicianSectionOwnership(id, reqUser);
   const result = await repo.enrollmentUpdate(id, { status: 'ACTIVE' });
   await cache.invalidatePattern('dash:*');
   try { getIO().to(`student:${e.student.userId}`).emit('enrollment:updated', { enrollmentId: id, status: 'ACTIVE' }); } catch {}
   return result;
 };
 
-export const rejectEnrollment = async (id) => {
+export const rejectEnrollment = async (id, reqUser) => {
   const e = await repo.enrollmentFindByIdSimple(id);
   if (!e) throw new AppError('Kayıt bulunamadı', 404);
+  await checkAcademicianSectionOwnership(id, reqUser);
   const result = await repo.enrollmentUpdate(id, { status: 'REJECTED' });
   await cache.invalidatePattern('dash:*');
   try { getIO().to(`student:${e.student.userId}`).emit('enrollment:updated', { enrollmentId: id, status: 'REJECTED' }); } catch {}
   return result;
 };
 
-export const dropEnrollment = async (id) => {
+export const dropEnrollment = async (id, reqUser) => {
   const e = await repo.enrollmentFindByIdSimple(id);
   if (!e) throw new AppError('Kayıt bulunamadı', 404);
   if (e.status === 'COMPLETED') throw new AppError('Tamamlanmış ders bırakılamaz', 400);
+
+  if (reqUser.role === 'STUDENT') {
+    const student = await repo.studentFindByUserId(reqUser.id);
+    if (!student || e.studentId !== student.id) {
+      throw new AppError('Bu kaydı bırakma yetkiniz yok', 403);
+    }
+  }
+
   const result = await repo.enrollmentUpdate(id, { status: 'DROPPED' });
   await cache.invalidatePattern('dash:*');
   return result;

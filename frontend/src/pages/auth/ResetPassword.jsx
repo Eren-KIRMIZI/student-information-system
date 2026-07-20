@@ -12,7 +12,9 @@ const schema = z
     newPassword:     z.string()
       .min(8, 'En az 8 karakter')
       .regex(/[A-Z]/, 'En az bir büyük harf')
-      .regex(/[0-9]/, 'En az bir rakam'),
+      .regex(/[a-z]/, 'En az bir küçük harf')
+      .regex(/[0-9]/, 'En az bir rakam')
+      .regex(/[^A-Za-z0-9]/, 'En az bir özel karakter'),
     confirmPassword: z.string().min(1, 'Şifre tekrarı zorunludur'),
   })
   .refine((d) => d.newPassword === d.confirmPassword, {
@@ -54,7 +56,7 @@ const ResetPassword = () => {
         Yeni Şifre Belirle
       </h2>
       <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>
-        En az 8 karakter, büyük harf ve rakam içermelidir.
+        En az 8 karakter, büyük harf, küçük harf, rakam ve özel karakter içermelidir.
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

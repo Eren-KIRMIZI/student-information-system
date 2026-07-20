@@ -25,6 +25,14 @@ export const updateGrade = async (enrollmentId, data, reqUser) => {
   if (reqUser.role === 'ACADEMICIAN') {
     const lecturer = await repo.lecturerFindByUserId(reqUser.id);
     enteredById = lecturer?.id;
+
+    const enrollment = await prisma.enrollment.findUnique({
+      where: { id: enrollmentId },
+      select: { courseSection: { select: { lecturerId: true } } },
+    });
+    if (enrollment && enrollment.courseSection.lecturerId !== enteredById) {
+      throw new AppError('Bu ders şubesine not girme yetkiniz yok', 403);
+    }
   }
   const { letter, point } = computeLetterGrade(midtermScore, finalScore, makeupScore);
   const result = await repo.gradeUpsert(enrollmentId, {

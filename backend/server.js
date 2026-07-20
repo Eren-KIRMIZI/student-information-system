@@ -15,6 +15,7 @@ import { etagMiddleware } from './src/middlewares/etag.middleware.js';
 import { auditMiddleware } from './src/utils/audit.js';
 import { tracingMiddleware } from './src/middlewares/tracing.middleware.js';
 import { setupScheduledJobs } from './src/queue/scheduler.js';
+import { authenticate } from './src/middlewares/auth.middleware.js';
 
 // Routes
 import authRoutes from './src/routes/auth.routes.js';
@@ -44,28 +45,50 @@ import { idempotencyMiddleware } from './src/middlewares/idempotency.middleware.
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.set('trust proxy', 1);
+
 // Global Middlewares
 app.use(requestId);
 app.use(compressionMiddleware);
 app.use(maintenanceCheck);
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:', 'blob:'],
+      fontSrc: ["'self'"],
+      connectSrc: ["'self'"],
+      frameAncestors: ["'none'"],
+      objectSrc: ["'none'"],
+    },
+  },
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+}));
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
+  maxAge: 86400,
 }));
-app.use(morgan('dev'));
-app.use(express.json());
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(etagMiddleware);
 app.use(auditMiddleware);
 app.use(tracingMiddleware);
 
-// Static uploads
-app.use('/uploads', express.static('uploads'));
+// Static uploads — auth required
+app.use('/uploads', authenticate, express.static('uploads'));
 
-// Swagger Docs
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Swagger Docs — production'da devre dışı bırakılabilir
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+}
 
 // API Routes
 app.use('/api/v1/auth',               authRoutes);
@@ -91,14 +114,17 @@ app.use('/api/v1/roles',              roleRoutes);
 app.use('/api/v1/settings',           settingRoutes);
 app.use('/api/v1/search',             searchRoutes);
 
+// Idempotency — route'lardan SONRA mount et, handler içinde çalışır
 app.use(['/api/v1/enrollments', '/api/v1/grades', '/api/v1/announcements'], idempotencyMiddleware);
 
 // Global Error Handler (en son middleware)
 app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📚 Swagger UI: http://localhost:${PORT}/api-docs`);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📚 Swagger UI: http://localhost:${PORT}/api-docs`);
+  }
 });
 
 initSocket(server);

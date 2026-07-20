@@ -21,7 +21,7 @@ const router = Router();
  *       401:
  *         description: Yetkilendirme hatası
  */
-router.get('/', authenticate, ctrl.listEnrollments);
+router.get('/', authenticate, authorize('ADMIN', 'ACADEMICIAN'), ctrl.listEnrollments);
 
 /**
  * @swagger
@@ -141,6 +141,6 @@ router.put('/:id/reject', authenticate, authorize('ADMIN', 'ACADEMICIAN'), ctrl.
  *       404:
  *         description: Kayıt bulunamadı
  */
-router.put('/:id/drop', authenticate, ctrl.dropEnrollment);
+router.put('/:id/drop', authenticate, authorize('ADMIN', 'ACADEMICIAN', 'STUDENT'), ctrl.dropEnrollment);
 
 export default router;

@@ -66,7 +66,7 @@ router.post('/login', authRateLimiter, loginValidator, validate, authController.
  *       401:
  *         description: Geçersiz veya süresi dolmuş refresh token
  */
-router.post('/refresh', authController.refresh);
+router.post('/refresh', authRateLimiter, authController.refresh);
 
 /**
  * @swagger
@@ -136,7 +136,7 @@ router.post('/forgot-password', authRateLimiter, forgotPasswordValidator, valida
  *       400:
  *         description: Geçersiz veya süresi dolmuş token
  */
-router.post('/reset-password', resetPasswordValidator, validate, authController.resetPassword);
+router.post('/reset-password', authRateLimiter, resetPasswordValidator, validate, authController.resetPassword);
 
 /**
  * @swagger

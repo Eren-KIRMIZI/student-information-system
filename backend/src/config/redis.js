@@ -9,13 +9,8 @@ const redis = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', {
   lazyConnect: true,
 });
 
-redis.on('error', (err) => {
-  console.error('[Redis] Baglanti hatasi:', err.message);
-});
-
-redis.on('connect', () => {
-  console.log('[Redis] Baglandi');
-});
+redis.on('error', () => {});
+redis.on('connect', () => {});
 
 export default redis;
 export const getRedisClient = () => redis;

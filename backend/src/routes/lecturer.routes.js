@@ -145,7 +145,7 @@ router.post('/', authenticate, authorize('ADMIN'), createLecturerValidator, vali
  *       404:
  *         description: Akademisyen bulunamadı
  */
-router.put('/:id', authenticate, updateLecturerValidator, validate, ctrl.updateLecturer);
+router.put('/:id', authenticate, authorize('ADMIN'), updateLecturerValidator, validate, ctrl.updateLecturer);
 
 /**
  * @swagger

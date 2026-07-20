@@ -18,6 +18,12 @@ const roleRedirectMap = {
   STUDENT:     '/student/dashboard',
 };
 
+const devAccounts = import.meta.env.DEV ? [
+  { label: 'Admin', email: 'admin@obs.edu.tr', password: 'Admin123!', icon: Shield, color: '#dc2626' },
+  { label: 'Akademisyen', email: 'ayse.kaya@obs.edu.tr', password: 'Academic123!', icon: GraduationCap, color: '#2563eb' },
+  { label: 'Öğrenci', email: 'ali.veli@obs.edu.tr', password: 'Student123!', icon: BookOpen, color: '#16a34a' },
+] : [];
+
 const Login = () => {
   const { login } = useAuth();
   const navigate  = useNavigate();
@@ -46,37 +52,34 @@ const Login = () => {
         Hesabınıza erişmek için bilgilerinizi girin
       </p>
 
-      {/* Hızlı Giriş Butonları */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        {[
-          { label: 'Admin', email: 'admin@obs.edu.tr', password: 'Admin123!', icon: Shield, color: '#dc2626' },
-          { label: 'Akademisyen', email: 'ayse.kaya@obs.edu.tr', password: 'Academic123!', icon: GraduationCap, color: '#2563eb' },
-          { label: 'Öğrenci', email: 'ali.veli@obs.edu.tr', password: 'Student123!', icon: BookOpen, color: '#16a34a' },
-        ].map((acc) => (
-          <button
-            key={acc.label}
-            type="button"
-            onClick={() => { setValue('email', acc.email); setValue('password', acc.password); }}
-            style={{
-              flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-              padding: '10px 6px', borderRadius: 8, border: `1.5px solid ${acc.color}20`,
-              background: `${acc.color}08`, cursor: 'pointer', transition: 'all 0.15s',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = acc.color; e.currentTarget.style.background = `${acc.color}15`; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = `${acc.color}20`; e.currentTarget.style.background = `${acc.color}08`; }}
-          >
-            <acc.icon size={18} color={acc.color} />
-            <span style={{ fontSize: 11, fontWeight: 600, color: acc.color }}>{acc.label}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Ayirici */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, color: '#cbd5e1', fontSize: 12 }}>
-        <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
-        <span>veya elle girin</span>
-        <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
-      </div>
+      {devAccounts.length > 0 && (
+        <>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+            {devAccounts.map((acc) => (
+              <button
+                key={acc.label}
+                type="button"
+                onClick={() => { setValue('email', acc.email); setValue('password', acc.password); }}
+                style={{
+                  flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                  padding: '10px 6px', borderRadius: 8, border: `1.5px solid ${acc.color}20`,
+                  background: `${acc.color}08`, cursor: 'pointer', transition: 'all 0.15s',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = acc.color; e.currentTarget.style.background = `${acc.color}15`; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = `${acc.color}20`; e.currentTarget.style.background = `${acc.color}08`; }}
+              >
+                <acc.icon size={18} color={acc.color} />
+                <span style={{ fontSize: 11, fontWeight: 600, color: acc.color }}>{acc.label}</span>
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, color: '#cbd5e1', fontSize: 12 }}>
+            <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
+            <span>veya elle girin</span>
+            <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
+          </div>
+        </>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* Email */}

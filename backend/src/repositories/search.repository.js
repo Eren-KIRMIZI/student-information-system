@@ -8,7 +8,6 @@ export const searchRepository = {
           { firstName: { contains: query, mode: 'insensitive' } },
           { lastName: { contains: query, mode: 'insensitive' } },
           { studentNumber: { contains: query, mode: 'insensitive' } },
-          { nationalId: { contains: query, mode: 'insensitive' } },
         ],
       },
       take,
@@ -72,12 +71,13 @@ export const searchRepository = {
   },
 
   async searchAll(query, take = 5) {
+    const cappedTake = Math.min(take, 50);
     const [students, lecturers, courses, departments, announcements] = await Promise.all([
-      this.searchStudents(query, take),
-      this.searchLecturers(query, take),
-      this.searchCourses(query, take),
-      this.searchDepartments(query, take),
-      this.searchAnnouncements(query, take),
+      this.searchStudents(query, cappedTake),
+      this.searchLecturers(query, cappedTake),
+      this.searchCourses(query, cappedTake),
+      this.searchDepartments(query, cappedTake),
+      this.searchAnnouncements(query, cappedTake),
     ]);
 
     return { students, lecturers, courses, departments, announcements };

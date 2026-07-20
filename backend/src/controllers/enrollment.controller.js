@@ -21,13 +21,13 @@ export const createEnrollment = async (req, res, next) => {
 };
 
 export const approveEnrollment = async (req, res, next) => {
-  try { return successResponse(res, await svc.approveEnrollment(req.params.id), 'Kayıt onaylandı'); } catch (e) { next(e); }
+  try { return successResponse(res, await svc.approveEnrollment(req.params.id, req.user), 'Kayıt onaylandı'); } catch (e) { next(e); }
 };
 
 export const rejectEnrollment = async (req, res, next) => {
-  try { return successResponse(res, await svc.rejectEnrollment(req.params.id), 'Kayıt reddedildi'); } catch (e) { next(e); }
+  try { return successResponse(res, await svc.rejectEnrollment(req.params.id, req.user), 'Kayıt reddedildi'); } catch (e) { next(e); }
 };
 
 export const dropEnrollment = async (req, res, next) => {
-  try { return successResponse(res, await svc.dropEnrollment(req.params.id), 'Ders bırakıldı'); } catch (e) { next(e); }
+  try { return successResponse(res, await svc.dropEnrollment(req.params.id, req.user), 'Ders bırakıldı'); } catch (e) { next(e); }
 };

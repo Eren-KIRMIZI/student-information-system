@@ -11,6 +11,7 @@ export const initSocket = (httpServer) => {
     },
     pingInterval: 25000,
     pingTimeout: 60000,
+    maxHttpBufferSize: 1e6,
   });
 
   io.use((socket, next) => {
@@ -29,10 +30,7 @@ export const initSocket = (httpServer) => {
     const { id, role } = socket.data.user;
     socket.join(`role:${role.toLowerCase()}`);
     socket.join(`${role.toLowerCase()}:${id}`);
-    console.log(`[Socket] ${role} baglandi: ${socket.id}`);
-    socket.on('disconnect', () => {
-      console.log(`[Socket] Ayrildi: ${socket.id}`);
-    });
+    socket.on('disconnect', () => {});
   });
 
   return io;

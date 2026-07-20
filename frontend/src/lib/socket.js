@@ -15,23 +15,15 @@ export const connectSocket = () => {
 
   socket = io(url, {
     auth: { token },
-    transports: ['websocket', 'polling'],
+    transports: ['websocket'],
     reconnection: true,
     reconnectionAttempts: 10,
     reconnectionDelay: 1000,
   });
 
-  socket.on('connect', () => {
-    console.log('[Socket] Baglandi:', socket.id);
-  });
-
-  socket.on('disconnect', (reason) => {
-    console.log('[Socket] Ayrildi:', reason);
-  });
-
-  socket.on('connect_error', (err) => {
-    console.error('[Socket] Baglanti hatasi:', err.message);
-  });
+  socket.on('connect', () => {});
+  socket.on('disconnect', () => {});
+  socket.on('connect_error', () => {});
 
   return socket;
 };
