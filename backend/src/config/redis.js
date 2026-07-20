@@ -18,3 +18,4 @@ redis.on('connect', () => {
 });
 
 export default redis;
+export const getRedisClient = () => redis;

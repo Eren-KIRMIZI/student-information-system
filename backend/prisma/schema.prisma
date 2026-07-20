@@ -190,6 +190,7 @@ model Student {
   updatedAt      DateTime            @updatedAt
 
   @@index([departmentId])
+  @@index([userId])
   @@map("students")
 }
 
@@ -213,6 +214,7 @@ model Lecturer {
   updatedAt         DateTime            @updatedAt
 
   @@index([departmentId])
+  @@index([userId])
   @@map("lecturers")
 }
 
@@ -291,6 +293,9 @@ model Enrollment {
 
   @@unique([studentId, courseSectionId])
   @@index([status])
+  @@index([studentId])
+  @@index([courseSectionId])
+  @@index([studentId, status])
   @@map("enrollments")
 }
 
@@ -323,6 +328,8 @@ model Attendance {
   createdAt    DateTime         @default(now())
 
   @@unique([enrollmentId, date])
+  @@index([enrollmentId])
+  @@index([date])
   @@map("attendance")
 }
 
@@ -374,6 +381,7 @@ model Announcement {
   updatedAt     DateTime             @updatedAt
 
   @@index([targetRole, publishedAt])
+  @@index([category])
   @@map("announcements")
 }
 
@@ -387,6 +395,8 @@ model AcademicCalendar {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
+  @@index([category])
+  @@index([startDate, endDate])
   @@map("academic_calendar")
 }
 
@@ -422,5 +432,62 @@ model Log {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+  @@index([userId])
   @@map("logs")
+}
+
+// ==================== ENTERPRISE: AUDIT LOG ====================
+
+model AuditLog {
+  id            String   @id @default(cuid())
+  userId        String?
+  action        String
+  entity        String
+  entityId      String?
+  method        String
+  path          String
+  ipAddress     String?
+  userAgent     String?
+  correlationId String?
+  before        Json?
+  after         Json?
+  statusCode    Int?
+  durationMs    Int?
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@index([correlationId])
+  @@map("audit_logs")
+}
+
+// ==================== ENTERPRISE: SYSTEM SETTINGS ====================
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  category  String   @default("general")
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@index([key])
+  @@index([category])
+  @@map("system_settings")
+}
+
+// ==================== ENTERPRISE: IDEMPOTENCY ====================
+
+model IdempotencyRecord {
+  id         String   @id @default(cuid())
+  key        String   @unique
+  statusCode Int
+  response   Json
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([key])
+  @@index([expiresAt])
+  @@map("idempotency_records")
 }

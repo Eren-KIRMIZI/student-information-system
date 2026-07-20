@@ -8,6 +8,13 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './src/swagger/swagger.config.js';
 import { errorHandler } from './src/middlewares/error.middleware.js';
 import { initSocket } from './src/config/socket.js';
+import { requestId } from './src/middlewares/requestId.middleware.js';
+import { compressionMiddleware } from './src/middlewares/compression.middleware.js';
+import { maintenanceCheck } from './src/middlewares/maintenance.middleware.js';
+import { etagMiddleware } from './src/middlewares/etag.middleware.js';
+import { auditMiddleware } from './src/utils/audit.js';
+import { tracingMiddleware } from './src/middlewares/tracing.middleware.js';
+import { setupScheduledJobs } from './src/queue/scheduler.js';
 
 // Routes
 import authRoutes from './src/routes/auth.routes.js';
@@ -30,11 +37,17 @@ import advisorAssignmentRoutes from './src/routes/advisorAssignment.routes.js';
 import uploadRoutes from './src/routes/upload.routes.js';
 import logRoutes from './src/routes/log.routes.js';
 import roleRoutes from './src/routes/role.routes.js';
+import settingRoutes from './src/routes/setting.routes.js';
+import searchRoutes from './src/routes/search.routes.js';
+import { idempotencyMiddleware } from './src/middlewares/idempotency.middleware.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Global Middlewares
+app.use(requestId);
+app.use(compressionMiddleware);
+app.use(maintenanceCheck);
 app.use(helmet());
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
@@ -44,6 +57,9 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(etagMiddleware);
+app.use(auditMiddleware);
+app.use(tracingMiddleware);
 
 // Static uploads
 app.use('/uploads', express.static('uploads'));
@@ -72,6 +88,10 @@ app.use('/api/v1/advisor-assignments',advisorAssignmentRoutes);
 app.use('/api/v1/uploads',            uploadRoutes);
 app.use('/api/v1/logs',               logRoutes);
 app.use('/api/v1/roles',              roleRoutes);
+app.use('/api/v1/settings',           settingRoutes);
+app.use('/api/v1/search',             searchRoutes);
+
+app.use(['/api/v1/enrollments', '/api/v1/grades', '/api/v1/announcements'], idempotencyMiddleware);
 
 // Global Error Handler (en son middleware)
 app.use(errorHandler);
@@ -82,5 +102,9 @@ const server = app.listen(PORT, () => {
 });
 
 initSocket(server);
+
+if (process.env.QUEUE_ENABLED === 'true') {
+  setupScheduledJobs().catch(() => {});
+}
 
 export default app;
