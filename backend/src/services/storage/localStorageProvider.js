@@ -1,0 +1,48 @@
+import { StorageProvider } from './storageProvider.js';
+import fs from 'fs';
+import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
+
+export class LocalStorageProvider extends StorageProvider {
+  constructor() {
+    super();
+    this.uploadDir = path.resolve('uploads');
+    // Ensure base upload directory exists
+    if (!fs.existsSync(this.uploadDir)) {
+      fs.mkdirSync(this.uploadDir, { recursive: true });
+    }
+  }
+
+  async upload(file, purpose = 'OTHER') {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const storageKey = `${purpose.toLowerCase()}/${uuidv4()}${ext}`;
+    const absolutePath = path.join(this.uploadDir, storageKey);
+    const relativeUrl = `/uploads/${storageKey}`;
+
+    // Ensure the subdirectory exists
+    const dir = path.dirname(absolutePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    // Move file to target path
+    // Multer uses file.path for the temporary file
+    fs.renameSync(file.path, absolutePath);
+
+    return {
+      storageKey,
+      fileUrl: relativeUrl,
+      fileSize: file.size,
+      fileType: file.mimetype,
+      extension: ext,
+      originalFileName: file.originalname
+    };
+  }
+
+  async delete(storageKey) {
+    const absolutePath = path.join(this.uploadDir, storageKey);
+    if (fs.existsSync(absolutePath)) {
+      fs.unlinkSync(absolutePath);
+    }
+  }
+}

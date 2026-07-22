@@ -6,7 +6,7 @@ import { getSectionGrades, updateGrade, finalizeGrade } from '../../api/records.
 import { getSectionAttendance, createAttendance } from '../../api/records.api';
 import { getSectionWeeklySchedule } from '../../api/system.api';
 import { getSectionExamSchedule } from '../../api/system.api';
-import { getSectionMaterials, uploadFile, deleteUpload } from '../../api/system.api';
+import { getSectionMaterials, uploadMaterial, deleteMaterial } from '../../api/material.api';
 import {
   PageHeader, StatusBadge, Skeleton, ErrorState, Tabs,
   EmptyState,
@@ -267,22 +267,17 @@ const MaterialsTab = ({ sectionId }) => {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: (file) => {
-      const form = new FormData();
-      form.append('file', file);
-      form.append('purpose', 'COURSE_MATERIAL');
-      form.append('courseSectionId', sectionId);
-      return uploadFile(form);
-    },
+    mutationFn: (data) => uploadMaterial(data),
     onSuccess: () => {
       toast.success('Materyal yüklendi');
       qc.invalidateQueries({ queryKey: ['section-materials', sectionId] });
+      setFile(null); setTitle(''); setDescription(''); setWeek('');
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Yüklenemedi'),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => deleteUpload(id),
+    mutationFn: (id) => deleteMaterial(id),
     onSuccess: () => {
       toast.success('Materyal silindi');
       qc.invalidateQueries({ queryKey: ['section-materials', sectionId] });
@@ -290,30 +285,60 @@ const MaterialsTab = ({ sectionId }) => {
     onError: (e) => toast.error(e.response?.data?.message || 'Silinemedi'),
   });
 
+  const [file, setFile] = useState(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [week, setWeek] = useState('');
+  const [visibility, setVisibility] = useState('STUDENTS');
+
   if (isLoading) return <Skeleton height={200} />;
   if (isError) return <ErrorState onRetry={refetch} />;
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
-        <label
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            padding: '8px 16px', borderRadius: 8, border: '2px dashed var(--color-border)',
-            cursor: 'pointer', fontSize: 14, color: 'var(--color-text-secondary)',
-            transition: 'border-color 0.2s',
+      <div className="card" style={{ marginBottom: 24, padding: 20 }}>
+        <h4 style={{ marginBottom: 16 }}>Yeni Materyal Yükle</h4>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+          <div className="input-wrapper" style={{ margin: 0 }}>
+            <label className="input-label">Başlık *</label>
+            <input type="text" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Örn: Hafta 1 Sunumu" />
+          </div>
+          <div className="input-wrapper" style={{ margin: 0 }}>
+            <label className="input-label">Hafta (Opsiyonel)</label>
+            <input type="number" className="input" value={week} onChange={(e) => setWeek(e.target.value)} min={1} max={20} />
+          </div>
+          <div className="input-wrapper" style={{ margin: 0, gridColumn: '1 / -1' }}>
+            <label className="input-label">Açıklama</label>
+            <textarea className="input" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
+          </div>
+          <div className="input-wrapper" style={{ margin: 0 }}>
+            <label className="input-label">Dosya *</label>
+            <input type="file" className="input" onChange={(e) => setFile(e.target.files?.[0])} />
+          </div>
+          <div className="input-wrapper" style={{ margin: 0 }}>
+            <label className="input-label">Görünürlük</label>
+            <select className="input" value={visibility} onChange={(e) => setVisibility(e.target.value)}>
+              <option value="STUDENTS">Öğrenciler Görebilir</option>
+              <option value="HIDDEN">Gizli</option>
+            </select>
+          </div>
+        </div>
+        <button 
+          className="btn btn-primary"
+          disabled={!file || !title || uploadMutation.isPending}
+          onClick={() => {
+            const form = new FormData();
+            form.append('file', file);
+            form.append('title', title);
+            if (description) form.append('description', description);
+            if (week) form.append('week', week);
+            form.append('visibility', visibility);
+            form.append('courseSectionId', sectionId);
+            uploadMutation.mutate(form);
           }}
-          onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-primary)'}
-          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border)'}
         >
-          <Upload size={16} />
-          {uploadMutation.isPending ? 'Yükleniyor...' : 'Dosya Yükle'}
-          <input
-            type="file"
-            style={{ display: 'none' }}
-            onChange={(e) => e.target.files?.[0] && uploadMutation.mutate(e.target.files[0])}
-          />
-        </label>
+          {uploadMutation.isPending ? 'Yükleniyor...' : 'Yükle'}
+        </button>
       </div>
 
       {!materials.length ? (
@@ -322,19 +347,26 @@ const MaterialsTab = ({ sectionId }) => {
         <div className="table-container">
           <table className="table">
             <thead>
-              <tr><th>Dosya Adı</th><th>Boyut</th><th>Yüklenme Tarihi</th><th style={{ width: 60 }}></th></tr>
+              <tr><th>Başlık / Dosya Adı</th><th>Hafta</th><th>Boyut</th><th>İndirilme</th><th>Yüklenme Tarihi</th><th style={{ width: 60 }}></th></tr>
             </thead>
             <tbody>
               {materials.map((m) => (
                 <tr key={m.id}>
                   <td>
-                    <a href={`http://localhost:5000/uploads/${m.filename}`} target="_blank" rel="noreferrer"
+                    <a href={`http://localhost:5000${m.fileUrl}`} target="_blank" rel="noreferrer"
                       style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: 13 }}>
-                      {m.originalName ?? m.filename}
+                      {m.title}
                     </a>
+                    <div style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>{m.originalFileName}</div>
                   </td>
                   <td style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
-                    {m.size ? `${(m.size / 1024).toFixed(1)} KB` : '—'}
+                    {m.week ? `${m.week}. Hafta` : '—'}
+                  </td>
+                  <td style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
+                    {m.fileSize ? `${(m.fileSize / 1024).toFixed(1)} KB` : '—'}
+                  </td>
+                  <td style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
+                    {m.downloadCount} kez
                   </td>
                   <td style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
                     {dayjs(m.createdAt).format('DD.MM.YYYY HH:mm')}
@@ -343,7 +375,9 @@ const MaterialsTab = ({ sectionId }) => {
                     <button
                       className="btn btn-ghost btn-sm"
                       style={{ color: 'var(--color-danger)' }}
-                      onClick={() => deleteMutation.mutate(m.id)}
+                      onClick={() => {
+                        if(window.confirm('Emin misiniz?')) deleteMutation.mutate(m.id);
+                      }}
                     >
                       <Trash2 size={13} />
                     </button>

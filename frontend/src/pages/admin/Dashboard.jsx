@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { GraduationCap, Users, BookOpen, ClipboardList, Megaphone, TrendingUp } from 'lucide-react';
+import { GraduationCap, Users, BookOpen, ClipboardList, Megaphone, TrendingUp, FileText, Download } from 'lucide-react';
 import { getDashboardAdmin } from '../../api/dashboard.api';
 import { StatCard, CardSkeleton, ErrorState, EmptyState, PageHeader, StatusBadge } from '../../components/ui/index';
 import { DashboardCard, DashboardListItem, QuickActions, NotificationWidget, RecentActivity, CalendarWidget, SystemHealth } from '../../components/feature/index';
@@ -31,6 +31,8 @@ const AdminDashboard = () => {
             <StatCard label="Akademisyen" value={data?.totalLecturers ?? 0} icon={Users} color="#7c3aed" />
             <StatCard label="Ders Sayısı" value={data?.totalCourses ?? 0} icon={BookOpen} color="#059669" />
             <StatCard label="Toplam Kayıt" value={data?.totalEnrollments ?? 0} icon={ClipboardList} color="#d97706" />
+            <StatCard label="Toplam Materyal" value={data?.totalMaterials ?? 0} icon={FileText} color="#0ea5e9" />
+            <StatCard label="Bugün Yüklenen" value={data?.materialsToday ?? 0} icon={Download} color="#14b8a6" />
           </div>
 
           <div style={{ marginBottom: 24 }}>
@@ -86,6 +88,21 @@ const AdminDashboard = () => {
                       key={a.id}
                       title={a.title}
                       subtitle={`${dayjs(a.publishedAt).format('DD MMM YYYY')}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </DashboardCard>
+            <DashboardCard icon={FileText} iconBg="#e0f2fe" iconColor="#0ea5e9" title="En Çok İndirilen Materyaller">
+              {!data?.mostDownloadedMaterials?.length ? (
+                <EmptyState icon={FileText} title="Materyal yok" />
+              ) : (
+                <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                  {data.mostDownloadedMaterials.map(m => (
+                    <DashboardListItem
+                      key={m.id}
+                      title={m.title}
+                      subtitle={`${m.courseSection.course.code} — ${m.downloadCount} indirme`}
                     />
                   ))}
                 </div>

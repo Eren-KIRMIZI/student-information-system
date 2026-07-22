@@ -135,6 +135,9 @@ model User {
   logs          Log[]
   announcements Announcement[]
   qrTokens      QRToken[]
+  materials     CourseMaterial[]
+  conversations ConversationParticipant[]
+  messages      Message[] @relation("SentMessages")
 
   @@map("users")
 }
@@ -291,6 +294,7 @@ model CourseSection {
   weeklySlots  WeeklySchedule[]
   examSlots    ExamSchedule[]
   materials    Upload[]
+  courseMaterials CourseMaterial[]
   waitlist     Waitlist[]
   qrTokens     QRToken[]
   createdAt    DateTime         @default(now())
@@ -626,4 +630,77 @@ model CourseGroupItem {
 
   @@unique([groupId, courseId])
   @@map("course_group_items")
+}
+
+// ==================== ADVANCED: COURSE MATERIALS ====================
+
+model CourseMaterial {
+  id               String         @id @default(cuid())
+  title            String
+  description      String?
+  week             Int?
+  originalFileName String
+  storageKey       String
+  fileUrl          String
+  fileType         String
+  extension        String
+  fileSize         Int
+  visibility       String         @default("STUDENTS")
+  downloadCount    Int            @default(0)
+  uploaderId       String
+  uploader         User           @relation(fields: [uploaderId], references: [id])
+  courseSectionId  String
+  courseSection    CourseSection  @relation(fields: [courseSectionId], references: [id], onDelete: Cascade)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([courseSectionId])
+  @@index([uploaderId])
+  @@map("course_materials")
+}
+
+// ==================== ADVANCED: MESSAGING ====================
+
+model Conversation {
+  id            String   @id @default(cuid())
+  isGroup       Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastMessageAt DateTime?
+  lastMessageId String?
+  participants  ConversationParticipant[]
+  messages      Message[]
+
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt       DateTime     @default(now())
+  lastReadAt     DateTime?
+
+  @@unique([conversationId, userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id])
+  content        String
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  editedAt       DateTime?
+  deletedAt      DateTime?
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@map("messages")
 }

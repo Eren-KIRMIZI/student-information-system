@@ -133,9 +133,25 @@ Fakulte > Bolum > Ders > Ders Subesi hiyerarsisi uzerinde tam CRUD islemi:
 
 - **Genel UX Iyilestirmeleri:** Tum dashboard'larda kullanilan istatistik kartlari (StatCard) tiklanabilir hale getirilerek ilgili liste sayfalarina yonlendirme saglandi. Veri yuklenme asamalari (Skeleton Loading), bos (Empty) ve hata (Error) durumlari icin ozel tasarimlar tum widget'lara entegre edildi.
 - **Dinamik Karsilama ve Guvenlik:** Her kullanici rolu icin isme hitap eden ve gunluk gorevleri ozetleyen karsilama karti (Welcome Card) eklendi. Ust kisimda IP, tarih ve cihaz bilgisini gosteren 'Last Login' karti konumlandirildi.
-- **Ogrenci Dashboard:** AKTS ve Mezuniyet yuzdesini gosteren ilerleme cubuklari, bugunun dersleri ve yoklama durumunu ozetleyen gosterge panelleri.
-- **Akademisyen Dashboard:** Bugun yoklama alinacak dersler, girilmeyen notlar ve bekleyen kayitlari vurgulayan "Bugunku Gorevler" paneli, ogrenci hareketlerini gosteren zaman cizelgesi.
-- **Admin Dashboard:** Kullanici, ders ve bolum ekleme islevleri icin hizli islem butonlari, CPU/RAM ve veritabani baglanti durumlarini gosteren sistem sagligi metrikleri, takvim bileseni. Sistemi hizli taramak icin global arama cubugu eklendi. Bolum bazli GPA ortalamasi ve harf notu dagilimi grafiklerine zaman (Hafta/Ay/Donem) filtresi entegre edildi.
+- **Ogrenci Dashboard:** AKTS ve Mezuniyet yuzdesini gosteren ilerleme cubuklari, bugunun dersleri ve yoklama durumunu ozetleyen gosterge panelleri, okunmamis mesaj sayisi ve son eklenen materyaller tablosu.
+- **Akademisyen Dashboard:** Bugun yoklama alinacak dersler, girilmeyen notlar ve bekleyen kayitlari vurgulayan "Bugunku Gorevler" paneli, ogrenci hareketlerini gosteren zaman cizelgesi, indirilen materyal istatistikleri ve son yuklenen materyaller.
+- **Admin Dashboard:** Kullanici, ders ve bolum ekleme islevleri icin hizli islem butonlari, CPU/RAM ve veritabani baglanti durumlarini gosteren sistem sagligi metrikleri, toplam ve gunluk eklenen materyal sayilari, en cok indirilen materyaller tablosu, takvim bileseni.
+
+#### Ders Materyal Yonetimi
+
+- Akademisyenler, verdikleri dersler (CourseSection) altinda haftalik bazda ders materyalleri (PDF, PPTX vb.) yukleyebilir.
+- Materyallere "Sadece Ogrenciler Gorebilir" veya "Gizli" seklinde gorunurluk ayari yapilabilir.
+- Ogrenciler kayitli olduklari derslerin calisma alanina (workspace) girerek materyalleri goruntuleyebilir ve indirebilir.
+- Indirme sayilari ve istatistikleri akademisyen/admin dashboard'larinda anlik izlenebilir.
+- Butun materyal yukleme/silme islemleri Audit Log uzerinden denetlenir.
+
+#### Gercek Zamanli Mesajlasma (Chat)
+
+- Kullanicilarin kendi aralarinda birebir iletisim kurmasini saglar.
+- Ozel izin yapisi: Akademisyenler yalnizca danismanlik yaptigi veya dersine kayitli ogrencilerle; ogrenciler ise sadece akademisyenleriyle mesajlasabilir.
+- Socket.IO entegrasyonu sayesinde sayfa yenilemeye gerek kalmadan gercek zamanli (real-time) mesaj alinip gonderilir.
+- Okunmamis mesaj sayilari, sohbetler (Conversations) ekraninda ve dashboard uzerinde izlenebilir.
+
 ### Sistem Yonetimi
 
 - Kullanici listeleme, olusturma, guncelleme, aktif/pasif yapma
@@ -752,6 +768,25 @@ Asagida modullere gore kategorize edilmis endpoint listesi yer almaktadir.
 | PUT | /uploads/me/photo | Profil fotografini guncelle | Giris yapan |
 | DELETE | /uploads/:id | Dosya sil | Giris yapan |
 | GET | /logs | Sistem loglari | Admin |
+
+### Ders Materyalleri — `/api/v1/materials`
+
+| Method | Path | Aciklama | Yetki |
+|--------|------|----------|-------|
+| POST | /materials | Yeni ders materyali yukle | Admin, Akademisyen |
+| GET | /materials/section/:sectionId | Derse ait materyalleri listele | Giris yapan |
+| GET | /materials/:id/download | Materyali indir (sayaci artirir) | Giris yapan |
+| DELETE | /materials/:id | Materyali sil | Admin, Akademisyen |
+
+### Mesajlasma — `/api/v1/messaging`
+
+| Method | Path | Aciklama | Yetki |
+|--------|------|----------|-------|
+| GET | /messaging | Aktif sohbetleri listele | Giris yapan |
+| POST | /messaging | Yeni sohbet baslat | Giris yapan |
+| GET | /messaging/:id/messages | Sohbetteki mesajlari listele | Giris yapan |
+| POST | /messaging/:id/messages | Sohbete mesaj gonder | Giris yapan |
+| PUT | /messaging/:id/read | Sohbeti okundu isaretle | Giris yapan |
 
 ### Onkosul — `/api/v1/prerequisites`
 

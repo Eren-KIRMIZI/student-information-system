@@ -3,7 +3,8 @@ import {
   LayoutDashboard, BookOpen, Calendar, ClipboardList, Award, GraduationCap,
   BookMarked, UserCheck, Megaphone, CalendarDays, Users, Building2,
   BookCopy, ScrollText, UserCog, ClipboardCheck, FileText, ChevronRight,
-  Layers, UserSquare, LogOut, X, BarChart3, QrCode, AlertTriangle, PieChart, TrendingUp, Shield
+  Layers, UserSquare, LogOut, X, BarChart3, QrCode, AlertTriangle, PieChart, TrendingUp, Shield,
+  MessageSquare
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -11,6 +12,7 @@ const studentNav = [
   { to: '/student/dashboard',          icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/student/schedule',           icon: Calendar,        label: 'Ders Programım' },
   { to: '/student/exams',              icon: ClipboardList,   label: 'Sınav Programım' },
+  { to: '/student/courses',            icon: BookCopy,        label: 'Derslerim' },
   { to: '/student/grades',             icon: Award,           label: 'Notlarım' },
   { to: '/student/transcript',         icon: ScrollText,      label: 'Transkript' },
   { to: '/student/analytics',          icon: BarChart3,       label: 'Akademik Analizler' },
@@ -20,6 +22,7 @@ const studentNav = [
   { to: '/student/schedule-analysis',  icon: TrendingUp,      label: 'Program Analizi' },
   { to: '/student/graduation',         icon: GraduationCap,   label: 'Mezuniyet Kontrolü' },
   { to: '/student/attendance',         icon: UserCheck,       label: 'Devamsızlığım' },
+  { to: '/conversations',              icon: MessageSquare,   label: 'Mesajlar' },
   { to: '/announcements',              icon: Megaphone,       label: 'Duyurular' },
   { to: '/academic-calendar',          icon: CalendarDays,    label: 'Akademik Takvim' },
 ];
@@ -31,6 +34,7 @@ const academicianNav = [
   { to: '/academician/advisor-analytics',   icon: BarChart3,       label: 'Danışmanlık Analizi' },
   { to: '/academician/qr-generator',        icon: QrCode,          label: 'QR Yoklama' },
   { to: '/academician/my-schedule',         icon: Calendar,        label: 'Haftalık Programım' },
+  { to: '/conversations',                   icon: MessageSquare,   label: 'Mesajlar' },
   { to: '/announcements',                   icon: Megaphone,       label: 'Duyurular' },
   { to: '/academic-calendar',               icon: CalendarDays,    label: 'Akademik Takvim' },
 ];
@@ -49,7 +53,8 @@ const adminNav = [
   { to: '/admin/courses',               icon: BookOpen,        label: 'Dersler' },
   { to: '/admin/course-sections',       icon: BookCopy,        label: 'Ders Şubeleri' },
   { to: '/admin/advisor-assignments',   icon: UserCheck,       label: 'Danışman Atamaları' },
-  { label: 'İÇERİK',                    isGroup: true },
+  { label: 'İÇERİK & İLETİŞİM',         isGroup: true },
+  { to: '/conversations',               icon: MessageSquare,   label: 'Mesajlar' },
   { to: '/announcements',               icon: Megaphone,       label: 'Duyurular' },
   { to: '/academic-calendar',           icon: CalendarDays,    label: 'Akademik Takvim' },
   { label: 'SİSTEM',                    isGroup: true },

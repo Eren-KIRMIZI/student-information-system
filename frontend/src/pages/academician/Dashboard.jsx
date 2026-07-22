@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { BookCopy, Users, ClipboardList, Megaphone, Clock, CheckSquare, FileWarning } from 'lucide-react';
+import { BookCopy, Users, ClipboardList, Megaphone, Clock, CheckSquare, FileWarning, Download, FileText } from 'lucide-react';
 import { getDashboardAcademician } from '../../api/dashboard.api';
 import { StatCard, CardSkeleton, ErrorState, EmptyState, PageHeader } from '../../components/ui/index';
 import { DashboardCard, DashboardListItem, RecentActivity, WelcomeCard, LastLoginCard } from '../../components/feature/index';
@@ -46,6 +46,7 @@ const AcademicianDashboard = () => {
             <StatCard label="Verdiğim Şube" value={data?.totalSections ?? 0} icon={BookCopy} color="#2563eb" />
             <StatCard label="Toplam Öğrenci" value={data?.totalStudents ?? 0} icon={Users} color="#7c3aed" />
             <StatCard label="Bekleyen Kayıt" value={data?.pendingEnrollments ?? 0} icon={ClipboardList} color="#d97706" />
+            <StatCard label="İndirilen Materyal" value={data?.totalDownloads ?? 0} icon={Download} color="#14b8a6" />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
@@ -124,6 +125,24 @@ const AcademicianDashboard = () => {
                   title={a.title}
                   subtitle={`${dayjs(a.publishedAt).format('DD MMM YYYY')}`}
                   trailing={<Clock size={14} style={{ color: 'var(--color-text-muted)' }} />}
+                />
+              ))}
+            </div>
+          )}
+        </DashboardCard>
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:20, marginTop: 24 }}>
+        <DashboardCard icon={FileText} iconBg="#e0f2fe" iconColor="#0ea5e9" title="Son Yüklediğim Materyaller">
+          {!data?.recentMaterials?.length ? (
+            <EmptyState icon={FileText} title="Materyal yüklemediniz" />
+          ) : (
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              {data.recentMaterials.map(m => (
+                <DashboardListItem
+                  key={m.id}
+                  title={m.title}
+                  subtitle={`${m.courseSection.course.code} — ${dayjs(m.createdAt).format('DD MMM YYYY')}`}
+                  badge={<span className="badge badge-gray">{m.downloadCount} İndirme</span>}
                 />
               ))}
             </div>

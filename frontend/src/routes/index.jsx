@@ -32,6 +32,8 @@ const GraduationCheck   = lazy(() => import('../pages/student/GraduationCheck'))
 const StudentAnalytics  = lazy(() => import('../pages/student/Analytics'));
 const QRScan            = lazy(() => import('../pages/student/QRScan'));
 const ScheduleOptimizer = lazy(() => import('../pages/student/ScheduleOptimizer'));
+const MyCourses         = lazy(() => import('../pages/student/MyCourses'));
+const StudentCourseSectionWorkspace = lazy(() => import('../pages/student/CourseSectionWorkspace'));
 
 // ---- Academician Pages ----
 const AcademicianDashboard = lazy(() => import('../pages/academician/Dashboard'));
@@ -65,6 +67,8 @@ const AnnouncementList   = lazy(() => import('../pages/shared/AnnouncementList')
 const AnnouncementDetail = lazy(() => import('../pages/shared/AnnouncementDetail'));
 const AcademicCalendar   = lazy(() => import('../pages/shared/AcademicCalendar'));
 const Profile            = lazy(() => import('../pages/shared/Profile'));
+const Conversations      = lazy(() => import('../pages/shared/Conversations'));
+const Chat               = lazy(() => import('../pages/shared/Chat'));
 
 const PageLoader = () => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
@@ -94,6 +98,8 @@ const AppRoutes = () => (
           <Route path="/announcements/:id"        element={<AnnouncementDetail />} />
           <Route path="/academic-calendar"        element={<AcademicCalendar />} />
           <Route path="/profile"                  element={<Profile />} />
+          <Route path="/conversations"            element={<Conversations />} />
+          <Route path="/chat/:id"                 element={<Chat />} />
         </Route>
       </Route>
 
@@ -112,6 +118,8 @@ const AppRoutes = () => (
           <Route path="/student/analytics"        element={<StudentAnalytics />} />
           <Route path="/student/qr-scan"          element={<QRScan />} />
           <Route path="/student/schedule-analysis" element={<ScheduleOptimizer />} />
+          <Route path="/student/courses"          element={<MyCourses />} />
+          <Route path="/student/courses/:id"      element={<StudentCourseSectionWorkspace />} />
         </Route>
       </Route>
 

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { GraduationCap, CalendarClock, Award, BookOpen, Megaphone, Clock } from 'lucide-react';
+import { GraduationCap, CalendarClock, Award, BookOpen, Megaphone, Clock, MessageCircle, FileText } from 'lucide-react';
 import { getDashboardStudent } from '../../api/dashboard.api';
 import { StatCard, CardSkeleton, ErrorState, EmptyState, PageHeader } from '../../components/ui/index';
 import { ExamListItem, DashboardCard, DashboardListItem, ProgressWidget, WelcomeCard, LastLoginCard } from '../../components/feature/index';
@@ -27,7 +27,7 @@ const StudentDashboard = () => {
         messages={[
           `Bugün ${data?.upcomingExams?.length || 0} sınavınız var`,
           `${data?.announcements?.length || 0} duyuru bulunuyor`,
-          `2 okunmamış bildiriminiz var`
+          data?.unreadMessages ? `${data.unreadMessages} okunmamış mesajınız var` : `Okunmamış mesajınız yok`
         ]} 
         isLoading={isLoading} 
       />
@@ -45,8 +45,8 @@ const StudentDashboard = () => {
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))', gap:16, marginBottom:24 }}>
             <StatCard label="Genel Not Ortalaması" value={data?.gpa?.toFixed(2) ?? '—'} icon={Award} color="#2563eb" />
             <StatCard label="Kayıtlı Ders" value={data?.totalCourses ?? 0} icon={BookOpen} color="#7c3aed" />
-            <StatCard label="Toplam AKTS" value={data?.totalEcts ?? 0} icon={GraduationCap} color="#059669" />
             <StatCard label="Yaklaşan Sınav" value={data?.upcomingExams?.length ?? 0} icon={CalendarClock} color="#d97706" />
+            <StatCard label="Okunmamış Mesaj" value={data?.unreadMessages ?? 0} icon={MessageCircle} color="#ec4899" />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
@@ -121,6 +121,24 @@ const StudentDashboard = () => {
                   title={a.title}
                   subtitle={`${dayjs(a.publishedAt).format('DD MMM YYYY')}`}
                   trailing={<Clock size={14} style={{ color: 'var(--color-text-muted)' }} />}
+                />
+              ))}
+            </div>
+          )}
+        </DashboardCard>
+      </div>
+
+      <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:20, marginTop: 24 }}>
+        <DashboardCard icon={FileText} iconBg="#e0f2fe" iconColor="#0ea5e9" title="Son Eklenen Materyaller">
+          {!data?.recentMaterials?.length ? (
+            <EmptyState icon={FileText} title="Materyal yok" />
+          ) : (
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              {data.recentMaterials.map(m => (
+                <DashboardListItem
+                  key={m.id}
+                  title={m.title}
+                  subtitle={`${m.courseSection.course.code} — ${dayjs(m.createdAt).format('DD MMM YYYY')}`}
                 />
               ))}
             </div>
