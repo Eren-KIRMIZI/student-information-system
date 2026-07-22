@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { BookCopy, Users, ClipboardList, Megaphone, Clock, CheckSquare, FileWarning } from 'lucide-react';
 import { getDashboardAcademician } from '../../api/dashboard.api';
 import { StatCard, CardSkeleton, ErrorState, EmptyState, PageHeader } from '../../components/ui/index';
-import { DashboardCard, DashboardListItem, RecentActivity } from '../../components/feature/index';
+import { DashboardCard, DashboardListItem, RecentActivity, WelcomeCard, LastLoginCard } from '../../components/feature/index';
+import { useAuth } from '../../context/AuthContext';
 import dayjs from 'dayjs';
 import 'dayjs/locale/tr';
 import { useAnnouncementSocket, useEnrollmentSocket } from '../../hooks/useSocket';
@@ -11,6 +12,8 @@ dayjs.locale('tr');
 const AcademicianDashboard = () => {
   useAnnouncementSocket();
   useEnrollmentSocket();
+  const { user } = useAuth();
+
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['dashboard', 'academician'],
     queryFn: getDashboardAcademician,
@@ -18,7 +21,20 @@ const AcademicianDashboard = () => {
 
   return (
     <div className="animate-fade-in">
-      <PageHeader title="Hoş Geldiniz" subtitle="Öğretim faaliyetlerinize genel bakış" />
+      <WelcomeCard 
+        user={user} 
+        roleLabel="Akademisyen" 
+        messages={[
+          `Bugün ${data?.sections?.length || 0} dersiniz bulunuyor`,
+          `${data?.pendingEnrollments || 0} kayıt onayı bekliyor`,
+          `Sistem durumu normal`
+        ]} 
+        isLoading={isLoading} 
+      />
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20, marginBottom: 24 }}>
+        <LastLoginCard date="22 Temmuz 2026" time="08:45" ip="10.0.1.42" isLoading={isLoading} />
+      </div>
 
       {isLoading ? (
         <CardSkeleton count={3} />

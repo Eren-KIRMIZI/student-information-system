@@ -1,20 +1,28 @@
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 // ====== StatCard ======
-export const StatCard = ({ label, value, icon: Icon, color = '#2563eb', trend }) => (
-  <div className="stat-card">
-    <div className="stat-icon" style={{ background: `${color}18` }}>
-      <Icon size={22} color={color} />
+export const StatCard = ({ label, value, icon: Icon, color = '#2563eb', trend, to }) => {
+  const navigate = useNavigate();
+  return (
+    <div 
+      className={`stat-card ${to ? 'clickable card-hover' : ''}`} 
+      onClick={() => to && navigate(to)}
+      style={{ cursor: to ? 'pointer' : 'default' }}
+    >
+      <div className="stat-icon" style={{ background: `${color}18` }}>
+        <Icon size={22} color={color} />
+      </div>
+      <div>
+        <div className="stat-value">{value ?? '—'}</div>
+        <div className="stat-label">{label}</div>
+        {trend && <div style={{ fontSize: 12, color: trend > 0 ? '#10b981' : '#ef4444', marginTop: 2, fontWeight: 600 }}>
+          {trend > 0 ? '▲' : '▼'} {Math.abs(trend)}%
+        </div>}
+      </div>
     </div>
-    <div>
-      <div className="stat-value">{value ?? '—'}</div>
-      <div className="stat-label">{label}</div>
-      {trend && <div style={{ fontSize: 12, color: trend > 0 ? '#10b981' : '#ef4444', marginTop: 2, fontWeight: 600 }}>
-        {trend > 0 ? '▲' : '▼'} {Math.abs(trend)}%
-      </div>}
-    </div>
-  </div>
-);
+  );
+};
 
 // ====== PageHeader ======
 export const PageHeader = ({ title, subtitle, action }) => (

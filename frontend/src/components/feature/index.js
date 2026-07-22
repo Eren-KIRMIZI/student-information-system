@@ -12,3 +12,6 @@ export { SystemHealth } from './SystemHealth';
 export { CalendarWidget } from './CalendarWidget';
 export { ProgressWidget } from './ProgressWidget';
 export { NotificationWidget } from './NotificationWidget';
+export { WelcomeCard } from './WelcomeCard';
+export { LastLoginCard } from './LastLoginCard';
+export { GlobalSearchWidget } from './GlobalSearchWidget';

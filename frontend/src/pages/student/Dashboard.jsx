@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { GraduationCap, CalendarClock, Award, BookOpen, Megaphone, Clock } from 'lucide-react';
 import { getDashboardStudent } from '../../api/dashboard.api';
 import { StatCard, CardSkeleton, ErrorState, EmptyState, PageHeader } from '../../components/ui/index';
-import { ExamListItem, DashboardCard, DashboardListItem, ProgressWidget } from '../../components/feature/index';
+import { ExamListItem, DashboardCard, DashboardListItem, ProgressWidget, WelcomeCard, LastLoginCard } from '../../components/feature/index';
+import { useAuth } from '../../context/AuthContext';
 import dayjs from 'dayjs';
 import 'dayjs/locale/tr';
 import { useAnnouncementSocket, useEnrollmentSocket } from '../../hooks/useSocket';
@@ -11,6 +12,8 @@ dayjs.locale('tr');
 const StudentDashboard = () => {
   useAnnouncementSocket();
   useEnrollmentSocket();
+  const { user } = useAuth();
+
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['dashboard', 'student'],
     queryFn: getDashboardStudent,
@@ -18,7 +21,20 @@ const StudentDashboard = () => {
 
   return (
     <div className="animate-fade-in">
-      <PageHeader title="Hoş Geldiniz" subtitle="Akademik durumunuza genel bakış" />
+      <WelcomeCard 
+        user={user} 
+        roleLabel="Öğrenci" 
+        messages={[
+          `Bugün ${data?.upcomingExams?.length || 0} sınavınız var`,
+          `${data?.announcements?.length || 0} duyuru bulunuyor`,
+          `2 okunmamış bildiriminiz var`
+        ]} 
+        isLoading={isLoading} 
+      />
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20, marginBottom: 24 }}>
+        <LastLoginCard date="21 Temmuz 2026" time="15:30" ip="192.168.1.105" isLoading={isLoading} />
+      </div>
 
       {isLoading ? (
         <CardSkeleton count={4} />

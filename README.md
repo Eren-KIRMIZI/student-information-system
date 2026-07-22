@@ -131,9 +131,11 @@ Fakulte > Bolum > Ders > Ders Subesi hiyerarsisi uzerinde tam CRUD islemi:
 
 #### Gelistirilmis Dashboard Arayuzleri
 
+- **Genel UX Iyilestirmeleri:** Tum dashboard'larda kullanilan istatistik kartlari (StatCard) tiklanabilir hale getirilerek ilgili liste sayfalarina yonlendirme saglandi. Veri yuklenme asamalari (Skeleton Loading), bos (Empty) ve hata (Error) durumlari icin ozel tasarimlar tum widget'lara entegre edildi.
+- **Dinamik Karsilama ve Guvenlik:** Her kullanici rolu icin isme hitap eden ve gunluk gorevleri ozetleyen karsilama karti (Welcome Card) eklendi. Ust kisimda IP, tarih ve cihaz bilgisini gosteren 'Last Login' karti konumlandirildi.
 - **Ogrenci Dashboard:** AKTS ve Mezuniyet yuzdesini gosteren ilerleme cubuklari, bugunun dersleri ve yoklama durumunu ozetleyen gosterge panelleri.
-- **Akademisyen Dashboard:** Bugun yoklama alinacak dersler, girilmeyen notlar ve bekleyen kayitlari vurgulayan "Bugunku Gorevler" paneli, ogrenci hareketlerini gosteren zaman cizelgesi (timeline).
-- **Admin Dashboard:** Kullanici, ders ve bolum ekleme islevleri icin hizli islem butonlari (Quick Actions), CPU/RAM ve veritabani baglanti durumlarini gosteren sistem sagligi metrikleri, bildirimler ve yaklasan olaylar icin takvim bileseni. Ayrica bolum bazli GPA ortalamasi ve harf notu dagilimi grafikleri.
+- **Akademisyen Dashboard:** Bugun yoklama alinacak dersler, girilmeyen notlar ve bekleyen kayitlari vurgulayan "Bugunku Gorevler" paneli, ogrenci hareketlerini gosteren zaman cizelgesi.
+- **Admin Dashboard:** Kullanici, ders ve bolum ekleme islevleri icin hizli islem butonlari, CPU/RAM ve veritabani baglanti durumlarini gosteren sistem sagligi metrikleri, takvim bileseni. Sistemi hizli taramak icin global arama cubugu eklendi. Bolum bazli GPA ortalamasi ve harf notu dagilimi grafiklerine zaman (Hafta/Ay/Donem) filtresi entegre edildi.
 ### Sistem Yonetimi
 
 - Kullanici listeleme, olusturma, guncelleme, aktif/pasif yapma
