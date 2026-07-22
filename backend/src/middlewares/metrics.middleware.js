@@ -8,18 +8,18 @@ export const metricsMiddleware = (req, res, next) => {
   const start = Date.now();
 
   res.on('finish', () => {
-    const duration = Date.now() - start;
+    const durationMs = Date.now() - start;
 
     // Route pattern'i normalize et (/api/v1/students/cuid123 → /api/v1/students/:id)
     const route = normalizeRoute(req.route?.path || req.path);
     const labels = {
       method: req.method,
       route,
-      status: String(res.statusCode),
+      status_code: String(res.statusCode),
     };
 
     httpRequestsTotal.inc(labels);
-    httpRequestDuration.observe(labels, duration);
+    httpRequestDuration.observe(labels, durationMs / 1000);
   });
 
   next();

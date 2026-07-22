@@ -1,20 +1,39 @@
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import path from 'path';
+import fs from 'fs';
+import os from 'os';
 import { fileURLToPath } from 'url';
+import { getContextValue, getContext } from '../observability/context.js';
+import { getActiveTraceId } from '../observability/otel.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOGS_DIR = path.join(__dirname, '../../../logs');
+const pkgPath = path.join(__dirname, '../../package.json');
+const applicationVersion = JSON.parse(fs.readFileSync(pkgPath, 'utf8')).version;
 
 // ==================== FORMATS ====================
 
+// Loglara dinamik context değerlerini (traceId, requestId vb.) ekleyen format
+const injectContextFormat = winston.format((info) => {
+  const ctx = getContext();
+  info.traceId = getActiveTraceId() || ctx.traceId;
+  info.requestId = ctx.requestId || info.requestId;
+  info.correlationId = ctx.correlationId || info.correlationId;
+  info.userId = ctx.userId || info.userId;
+  info.role = ctx.role || info.role;
+  return info;
+});
+
 const jsonFormat = winston.format.combine(
+  injectContextFormat(),
   winston.format.timestamp({ format: 'YYYY-MM-DDTHH:mm:ss.SSSZ' }),
   winston.format.errors({ stack: true }),
   winston.format.json()
 );
 
 const consoleFormat = winston.format.combine(
+  injectContextFormat(),
   winston.format.colorize({ all: true }),
   winston.format.timestamp({ format: 'HH:mm:ss' }),
   winston.format.printf(({ timestamp, level, message, traceId, requestId, ...meta }) => {
@@ -62,7 +81,10 @@ export const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
   defaultMeta: {
     service: 'obs-api',
-    env: process.env.NODE_ENV || 'development',
+    environment: process.env.NODE_ENV || 'development',
+    hostname: os.hostname(),
+    processId: process.pid,
+    applicationVersion,
   },
   transports,
   exitOnError: false,

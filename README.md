@@ -1036,3 +1036,25 @@ npm run test
 # Coverage raporu
 npm run test:coverage
 ```
+
+---
+
+## Enterprise Observability
+
+Sistem, production ortamı için endüstri standartlarında tam teşekküllü (Monitoring, Tracing, Logging, Health, CI) bir Observability katmanına sahiptir. Tüm özellikler Infrastructure katmanında (business logic haricinde) kurgulanmıştır ve çevre değişkenleri üzerinden açılıp kapatılabilir (`Extension over Modification` yaklaşımı).
+
+### Özellikler ve Konfigürasyon
+
+- **Monitoring (`MONITORING_ENABLED=true`)**:
+  `/metrics` endpoint'i Prometheus uyumlu standart isimlendirmelerle metrik döner.
+  _Örnek Metrikler_: `http_requests_total`, `process_cpu_seconds_total`, `prisma_query_duration_seconds`, `redis_latency_seconds`.
+- **OpenTelemetry Tracing (`OTEL_ENABLED=true`)**:
+  Tüm HTTP, Prisma, Redis çağrıları için otomatik Trace üretilir. `AsyncLocalStorage` üzerinden zincir (Logger -> Trace -> CorrelationID -> RequestID) olarak yönetilir.
+- **Advanced Winston Logging**:
+  Loglar JSON formatında üretilir ve production için kritik bağlamları içerir (`traceId`, `requestId`, `service`, `environment`, `hostname`, `processId`, `applicationVersion`). Versiyon bilgisi `package.json` üzerinden çalışma zamanında dinamik okunur.
+- **Health Check (`HEALTHCHECK_ENABLED=true`)**:
+  `/health`, `/ready`, `/live` uçları RFC standartlarında yanıt verir. DB, Redis, Queue, Memory ve Event Loop gecikme durumlarını anlık kontrol eder.
+- **Admin Dashboard Metrikleri (`SYSTEM_METRICS_ENABLED=true`)**:
+  Arka planda Socket.io üzerinden `SYSTEM_METRICS_INTERVAL` (örn: `5000` ms) sıklığında CPU, Heap, Uptime ve Ram metriklerini yayınlar. **Bu metrikler, sistem yöneticisinin (Admin) Gelişmiş Dashboard ekranında anlık olarak görselleştirilir.**
+- **CI / CD Pipeline**:
+  Github Actions (`.github/workflows/ci.yml`) üzerinden her PR ve Push işleminde otomatik `Lint`, `Typecheck` (uygulanabilirse), `Test` ve `Build` senaryoları koşulur (Docker bağımsızdır).

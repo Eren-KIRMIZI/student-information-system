@@ -1,34 +1,38 @@
 import morgan from 'morgan';
 import { logger } from '../utils/winstonLogger.js';
-import { getTraceId, getRequestId } from '../utils/tracer.js';
 
 /**
  * Morgan formatını Winston'a yönlendiren HTTP logger.
- * Her isteği: method, url, status, duration, user_id, trace_id ile loglar.
+ * Her isteği: method, url, status, duration, ip, userAgent vb. ile loglar.
+ * Request context'inden gelen traceId vb. veriler winstonLogger içinde otomatik eklenir.
  */
 
-// Custom token'lar
-morgan.token('trace-id',   () => getTraceId()   || '-');
-morgan.token('request-id', () => getRequestId() || '-');
-morgan.token('user-id',    (req) => req.user?.id || '-');
-morgan.token('body-size',  (req) => {
-  const len = req.headers['content-length'];
-  return len ? `${len}B` : '-';
+const FORMAT = JSON.stringify({
+  method: ':method',
+  endpoint: ':url',
+  statusCode: ':status',
+  responseTime: ':response-time',
+  ip: ':remote-addr',
+  userAgent: ':user-agent'
 });
-
-const FORMAT = ':method :url :status :res[content-length]B :response-time ms | trace=:trace-id req=:request-id user=:user-id';
 
 export const httpLogger = morgan(FORMAT, {
   stream: {
     write(message) {
-      logger.http(message.trim(), {
-        traceId:   getTraceId(),
-        requestId: getRequestId(),
-      });
+      try {
+        const data = JSON.parse(message.trim());
+        // Sayıları dönüştür
+        if (data.statusCode) data.statusCode = parseInt(data.statusCode, 10);
+        if (data.responseTime) data.responseTime = parseFloat(data.responseTime);
+        
+        logger.http(`HTTP ${data.method} ${data.endpoint}`, data);
+      } catch (e) {
+        logger.http(message.trim());
+      }
     },
   },
   skip(req) {
     // Health check ve metrics'i loglamaktan kaçın
-    return req.url === '/health' || req.url === '/metrics' || req.url === '/health/live';
+    return req.url === '/health' || req.url === '/metrics' || req.url === '/health/live' || req.url === '/health/ready';
   },
 });

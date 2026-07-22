@@ -46,6 +46,12 @@ jobs:
       - name: Format check frontend
         run: npm run format:check --prefix frontend
 
+      # - name: Typecheck backend
+      #   run: npm run typecheck --prefix backend
+
+      # - name: Typecheck frontend
+      #   run: npm run typecheck --prefix frontend
+
   # =====================================================
   # PRISMA SCHEMA CHECK
   # =====================================================

@@ -1,5 +1,6 @@
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
+import { startSystemMetricsJob } from '../observability/systemMetricsJob.js';
 
 let io;
 
@@ -32,6 +33,8 @@ export const initSocket = (httpServer) => {
     socket.join(`${role.toLowerCase()}:${id}`);
     socket.on('disconnect', () => {});
   });
+
+  startSystemMetricsJob(io);
 
   return io;
 };

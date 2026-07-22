@@ -1,3 +1,6 @@
+import { bootstrapObservability } from './src/bootstrap/observability.js';
+bootstrapObservability();
+
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';

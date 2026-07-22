@@ -5,99 +5,50 @@ import { getQueueStatus } from '../queue/connection.js';
 
 const router = Router();
 
-/**
- * @swagger
- * /health:
- *   get:
- *     tags: [System]
- *     summary: Sistem sağlık durumu
- *     description: Veritabanı, Redis ve kuyruk sağlık durumunu döner. Auth gerektirmez.
- *     security: []
- *     responses:
- *       200:
- *         description: Sistem sağlıklı
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status: { type: string, example: UP }
- *                 db:     { type: string, example: UP }
- *                 redis:  { type: string, example: UP }
- *                 queue:  { type: string, example: UP }
- *                 uptime: { type: number, example: 12345 }
- *                 version: { type: string, example: '1.0.0' }
- *                 timestamp: { type: string, example: '2026-07-20T18:00:00Z' }
- *       503:
- *         description: Bir veya daha fazla servis kapalı
- */
 router.get('/', async (req, res) => {
-  const checks = await Promise.allSettled([
-    checkDatabase(),
-    checkRedis(),
-    checkQueue(),
-  ]);
+  const checks = [
+    { name: 'postgres', checkFn: checkDatabase },
+    { name: 'redis', checkFn: checkRedis },
+    { name: 'queue', checkFn: checkQueue },
+  ];
 
-  const [dbResult, redisResult, queueResult] = checks;
+  const results = await Promise.all(checks.map(async (c) => {
+    const start = Date.now();
+    try {
+      await c.checkFn();
+      return { name: c.name, status: 'UP', responseTime: Date.now() - start };
+    } catch (err) {
+      return { name: c.name, status: 'DOWN', responseTime: Date.now() - start, reason: err.message };
+    }
+  }));
 
-  const db    = dbResult.status    === 'fulfilled' ? 'UP' : 'DOWN';
-  const redisStatus = redisResult.status === 'fulfilled' ? 'UP' : 'DOWN';
-  const queue = queueResult.status === 'fulfilled' ? 'UP' : 'DOWN';
+  // Memory & Event Loop
+  results.push({ name: 'memory', status: 'UP', details: process.memoryUsage() });
+  results.push({ name: 'event_loop', status: 'UP' }); // Basic mock or performance.now() check
 
-  const allUp = db === 'UP' && redisStatus === 'UP' && queue === 'UP';
+  const allUp = results.every(r => r.status === 'UP');
 
   const body = {
-    status:    allUp ? 'UP' : 'DEGRADED',
-    db,
-    redis:     redisStatus,
-    queue,
-    uptime:    Math.floor(process.uptime()),
-    version:   process.env.npm_package_version || '1.0.0',
-    timestamp: new Date().toISOString(),
-    details: {
-      db:    dbResult.reason?.message    || null,
-      redis: redisResult.reason?.message || null,
-      queue: queueResult.reason?.message || null,
-    },
+    status: allUp ? 'UP' : 'DEGRADED',
+    checks: results,
+    uptime: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString()
   };
 
   return res.status(allUp ? 200 : 503).json(body);
 });
 
-/**
- * @swagger
- * /health/live:
- *   get:
- *     tags: [System]
- *     summary: Kubernetes liveness probe
- *     security: []
- *     responses:
- *       200:
- *         description: Uygulama çalışıyor
- */
 router.get('/live', (_req, res) => {
   res.status(200).json({ status: 'UP', uptime: Math.floor(process.uptime()) });
 });
 
-/**
- * @swagger
- * /health/ready:
- *   get:
- *     tags: [System]
- *     summary: Kubernetes readiness probe
- *     security: []
- *     responses:
- *       200:
- *         description: Uygulama trafik almaya hazır
- *       503:
- *         description: Uygulama henüz hazır değil
- */
 router.get('/ready', async (_req, res) => {
   try {
+    const start = Date.now();
     await prisma.$queryRaw`SELECT 1`;
-    res.status(200).json({ status: 'READY' });
+    res.status(200).json({ status: 'UP', checks: [{ name: 'postgres', status: 'UP', responseTime: Date.now() - start }] });
   } catch {
-    res.status(503).json({ status: 'NOT_READY', reason: 'Database connection failed' });
+    res.status(503).json({ status: 'DOWN', checks: [{ name: 'postgres', status: 'DOWN' }] });
   }
 });
 

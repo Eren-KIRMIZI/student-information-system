@@ -1,23 +1,15 @@
-import { AsyncLocalStorage } from 'async_hooks';
 import { randomUUID } from 'crypto';
 import { logger } from './winstonLogger.js';
-
-// ==================== CONTEXT STORE ====================
-
-/**
- * Her request için AsyncLocalStorage context:
- * { traceId, requestId, userId, startTime, spans[] }
- */
-const store = new AsyncLocalStorage();
+import { getContextValue, runWithContext as runWithSharedContext, getContext as getSharedContext } from '../observability/context.js';
 
 // ==================== CONTEXT API ====================
 
-export const getContext = () => store.getStore() || {};
+export const getContext = () => getSharedContext() || {};
 
-export const getTraceId   = () => getContext().traceId || null;
-export const getRequestId = () => getContext().requestId || null;
+export const getTraceId   = () => getContextValue('traceId') || null;
+export const getRequestId = () => getContextValue('requestId') || null;
 
-export const runWithContext = (ctx, fn) => store.run(ctx, fn);
+export const runWithContext = (ctx, fn) => runWithSharedContext(ctx, fn);
 
 // ==================== TRACER ====================
 
@@ -44,8 +36,8 @@ export const tracer = {
    * @returns {{ end, addEvent, setAttribute }}
    */
   startSpan(name, attributes = {}) {
-    const ctx = store.getStore();
-    if (!ctx) {
+    const ctx = getContext();
+    if (!ctx || Object.keys(ctx).length === 0) {
       // Trace context yok — no-op span
       return {
         end: () => null,

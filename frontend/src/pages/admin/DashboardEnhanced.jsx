@@ -1,16 +1,22 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAdminKPIs } from '../../api/advanced.api';
 import { PageHeader, CardSkeleton, ErrorState } from '../../components/ui/index';
 import { WelcomeCard, LastLoginCard, GlobalSearchWidget } from '../../components/feature/index';
-import { GraduationCap, Users, BookOpen, ClipboardList, TrendingUp, AlertTriangle, BarChart3, Filter } from 'lucide-react';
+import { GraduationCap, Users, BookOpen, ClipboardList, TrendingUp, AlertTriangle, BarChart3, Filter, Activity, Server, Cpu } from 'lucide-react';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
+import { useSocketEvent } from '../../hooks/useSocket';
 const COLORS = ['#2563eb', '#7c3aed', '#059669', '#d97706', '#dc2626', '#0891b2', '#c026d3', '#ea580c'];
 
 const DashboardEnhanced = () => {
   const { user } = useAuth();
   const [timeFilter, setTimeFilter] = useState('week');
+  const [systemMetrics, setSystemMetrics] = useState(null);
+
+  useSocketEvent('system:metrics', (metrics) => {
+    setSystemMetrics(metrics);
+  });
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin-kpis'],
@@ -78,6 +84,41 @@ const DashboardEnhanced = () => {
         <ErrorState onRetry={refetch} />
       ) : (
         <>
+          {systemMetrics && (
+            <div className="card" style={{ padding: '16px 20px', marginBottom: 24, display: 'flex', gap: 24, alignItems: 'center', background: 'var(--color-surface-hover)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Activity size={24} color="#2563eb" />
+                <div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', fontWeight: 600 }}>SİSTEM CPU EFORU</div>
+                  <div style={{ fontSize: 18, fontWeight: 700 }}>{systemMetrics.cpu?.[0]?.toFixed(2) || '0.00'} <span style={{fontSize: 12, fontWeight: 500, color: 'var(--color-text-muted)'}}>load</span></div>
+                </div>
+              </div>
+              <div style={{ width: 1, height: 30, background: 'var(--color-border)' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Server size={24} color="#059669" />
+                <div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', fontWeight: 600 }}>SİSTEM RAM KULLANIMI</div>
+                  <div style={{ fontSize: 18, fontWeight: 700 }}>{((systemMetrics.ram?.total - systemMetrics.ram?.free) / 1024 / 1024 / 1024).toFixed(1)} <span style={{fontSize: 12, fontWeight: 500, color: 'var(--color-text-muted)'}}>GB / {(systemMetrics.ram?.total / 1024 / 1024 / 1024).toFixed(1)} GB</span></div>
+                </div>
+              </div>
+              <div style={{ width: 1, height: 30, background: 'var(--color-border)' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Cpu size={24} color="#d97706" />
+                <div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', fontWeight: 600 }}>NODE HEAP KULLANIMI</div>
+                  <div style={{ fontSize: 18, fontWeight: 700 }}>{(systemMetrics.heap?.used / 1024 / 1024).toFixed(1)} <span style={{fontSize: 12, fontWeight: 500, color: 'var(--color-text-muted)'}}>MB / {(systemMetrics.heap?.total / 1024 / 1024).toFixed(1)} MB</span></div>
+                </div>
+              </div>
+              <div style={{ width: 1, height: 30, background: 'var(--color-border)' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', fontWeight: 600 }}>UPTIME</div>
+                  <div style={{ fontSize: 18, fontWeight: 700 }}>{Math.floor(systemMetrics.uptime / 60)} <span style={{fontSize: 12, fontWeight: 500, color: 'var(--color-text-muted)'}}>dk</span></div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
             <div className="card" style={{ textAlign: 'center', padding: 20 }}>
               <GraduationCap size={28} color="#2563eb" style={{ margin: '0 auto 8px' }} />
