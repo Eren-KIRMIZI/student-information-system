@@ -4,7 +4,12 @@ const CALENDAR_CATEGORIES = ['REGISTRATION', 'EXAM', 'HOLIDAY', 'SEMESTER_START'
 
 export const createCalendarEventValidator = [
   body('title').trim().notEmpty().withMessage('Baslik zorunludur').isLength({ max: 200 }),
-  body('startDate').trim().notEmpty().withMessage('Baslangic tarihi zorunludur').isISO8601().withMessage('Gecersiz tarih'),
+  body('startDate')
+    .trim()
+    .notEmpty()
+    .withMessage('Baslangic tarihi zorunludur')
+    .isISO8601()
+    .withMessage('Gecersiz tarih'),
   body('endDate').trim().notEmpty().withMessage('Bitis tarihi zorunludur').isISO8601().withMessage('Gecersiz tarih'),
   body('category').optional().trim().isIn(CALENDAR_CATEGORIES).withMessage('Gecersiz kategori'),
   body('description').optional().trim().isLength({ max: 500 }),

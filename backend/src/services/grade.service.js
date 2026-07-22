@@ -6,7 +6,9 @@ import { getIO } from '../config/socket.js';
 import prisma from '../config/prisma.js';
 
 export const getMyGrades = async (userId) => {
-  const student = await import('../config/prisma.js').then(m => m.default.student.findUnique({ where: { userId }, select: { id: true } }));
+  const student = await import('../config/prisma.js').then((m) =>
+    m.default.student.findUnique({ where: { userId }, select: { id: true } }),
+  );
   if (!student) throw new AppError('Profil bulunamadı', 404);
   return repo.gradeFindManyByStudent(student.id);
 };
@@ -36,8 +38,12 @@ export const updateGrade = async (enrollmentId, data, reqUser) => {
   }
   const { letter, point } = computeLetterGrade(midtermScore, finalScore, makeupScore);
   const result = await repo.gradeUpsert(enrollmentId, {
-    midtermScore, finalScore, makeupScore,
-    letterGrade: letter, gradePoint: point, enteredById,
+    midtermScore,
+    finalScore,
+    makeupScore,
+    letterGrade: letter,
+    gradePoint: point,
+    enteredById,
   });
   await cache.invalidatePattern('dash:*');
   try {

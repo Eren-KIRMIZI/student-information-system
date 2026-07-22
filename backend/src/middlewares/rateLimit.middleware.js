@@ -34,19 +34,19 @@ export const authRateLimiter = createLimiter(
   15 * 60 * 1000,
   process.env.NODE_ENV === 'production' ? 5 : 50,
   'auth',
-  'Cok fazla deneme yapildi. Lutfen 15 dakika sonra tekrar deneyin.'
+  'Cok fazla deneme yapildi. Lutfen 15 dakika sonra tekrar deneyin.',
 );
 
 export const generalRateLimiter = createLimiter(
   1 * 60 * 1000,
   process.env.NODE_ENV === 'production' ? 60 : 600,
   'general',
-  'Istek limiti asildi. Lutfen biraz bekleyin.'
+  'Istek limiti asildi. Lutfen biraz bekleyin.',
 );
 
 export const writeRateLimiter = createLimiter(
   1 * 60 * 1000,
   process.env.NODE_ENV === 'production' ? 30 : 300,
   'write',
-  'Yazma istek limiti asildi.'
+  'Yazma istek limiti asildi.',
 );

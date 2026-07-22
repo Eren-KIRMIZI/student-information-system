@@ -6,8 +6,7 @@ export const qrTokenCreate = (data) =>
 export const qrTokenFindByToken = (token) =>
   prisma.qRToken.findUnique({ where: { token }, include: { courseSection: true } });
 
-export const qrTokenDeactivate = (id) =>
-  prisma.qRToken.update({ where: { id }, data: { isActive: false } });
+export const qrTokenDeactivate = (id) => prisma.qRToken.update({ where: { id }, data: { isActive: false } });
 
 export const qrTokenFindActive = (courseSectionId) =>
   prisma.qRToken.findFirst({ where: { courseSectionId, isActive: true, expiresAt: { gt: new Date() } } });
@@ -19,8 +18,7 @@ export const qrTokenFindBySection = (courseSectionId) =>
     include: { scans: { include: { student: true } } },
   });
 
-export const qrScanCreate = (data) =>
-  prisma.qRScan.create({ data });
+export const qrScanCreate = (data) => prisma.qRScan.create({ data });
 
 export const qrScanExists = (tokenId, studentId) =>
   prisma.qRScan.findUnique({ where: { tokenId_studentId: { tokenId, studentId } } });

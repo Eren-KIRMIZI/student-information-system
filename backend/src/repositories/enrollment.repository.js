@@ -7,12 +7,22 @@ export const enrollmentFindMany = (params) => {
   if (courseSectionId) where.courseSectionId = courseSectionId;
   if (studentId) where.studentId = studentId;
   return Promise.all([
-    prisma.enrollment.findMany({ where, skip, take, orderBy: { [sortBy]: order }, include: { student: true, courseSection: { include: { course: true, lecturer: true } } } }),
+    prisma.enrollment.findMany({
+      where,
+      skip,
+      take,
+      orderBy: { [sortBy]: order },
+      include: { student: true, courseSection: { include: { course: true, lecturer: true } } },
+    }),
     prisma.enrollment.count({ where }),
   ]);
 };
 
-export const enrollmentFindById = (id) => prisma.enrollment.findUnique({ where: { id }, include: { student: true, courseSection: { include: { course: true, lecturer: true } } } });
+export const enrollmentFindById = (id) =>
+  prisma.enrollment.findUnique({
+    where: { id },
+    include: { student: true, courseSection: { include: { course: true, lecturer: true } } },
+  });
 
 export const enrollmentFindForStudent = (studentId) =>
   prisma.enrollment.findMany({
@@ -28,14 +38,22 @@ export const enrollmentCountActive = (courseSectionId) =>
   prisma.enrollment.count({ where: { courseSectionId, status: { in: ['ACTIVE', 'APPROVED', 'PENDING'] } } });
 
 export const enrollmentSumEcts = (studentId, academicYear, semester) =>
-  prisma.enrollment.findMany({
-    where: { studentId, status: { in: ['ACTIVE', 'APPROVED', 'PENDING'] }, courseSection: { academicYear, semester } },
-    include: { courseSection: { include: { course: true } } },
-  }).then(list => list.reduce((s, e) => s + e.courseSection.course.ects, 0));
+  prisma.enrollment
+    .findMany({
+      where: {
+        studentId,
+        status: { in: ['ACTIVE', 'APPROVED', 'PENDING'] },
+        courseSection: { academicYear, semester },
+      },
+      include: { courseSection: { include: { course: true } } },
+    })
+    .then((list) => list.reduce((s, e) => s + e.courseSection.course.ects, 0));
 
 export const enrollmentGetStudentSlots = (studentId) =>
   prisma.weeklySchedule.findMany({
-    where: { courseSection: { enrollments: { some: { studentId, status: { in: ['ACTIVE', 'APPROVED', 'PENDING'] } } } } },
+    where: {
+      courseSection: { enrollments: { some: { studentId, status: { in: ['ACTIVE', 'APPROVED', 'PENDING'] } } } },
+    },
   });
 
 export const enrollmentGetSectionSlots = (courseSectionId) =>
@@ -44,11 +62,9 @@ export const enrollmentGetSectionSlots = (courseSectionId) =>
 export const enrollmentCreate = (data) =>
   prisma.enrollment.create({ data, include: { courseSection: { include: { course: true } } } });
 
-export const enrollmentUpdate = (id, data) =>
-  prisma.enrollment.update({ where: { id }, data });
+export const enrollmentUpdate = (id, data) => prisma.enrollment.update({ where: { id }, data });
 
 export const enrollmentFindByIdSimple = (id) =>
   prisma.enrollment.findUnique({ where: { id }, include: { student: { select: { userId: true } } } });
 
-export const studentFindByUserId = (userId) =>
-  prisma.student.findUnique({ where: { userId }, select: { id: true } });
+export const studentFindByUserId = (userId) => prisma.student.findUnique({ where: { userId }, select: { id: true } });

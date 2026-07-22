@@ -7,8 +7,18 @@ const paginate = (page, limit) => ({ skip: (Number(page) - 1) * Number(limit), t
 
 // ===== STUDENT SERVICE =====
 export const listStudents = async ({ page = 1, limit = 20, search, departmentId, classYear, sortBy, order }) => {
-  const [data, total] = await repo.studentFindMany({ ...paginate(page, limit), search, departmentId, classYear, sortBy, order });
-  return { data, pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) } };
+  const [data, total] = await repo.studentFindMany({
+    ...paginate(page, limit),
+    search,
+    departmentId,
+    classYear,
+    sortBy,
+    order,
+  });
+  return {
+    data,
+    pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) },
+  };
 };
 
 export const getStudentById = async (id) => {
@@ -19,13 +29,26 @@ export const getStudentById = async (id) => {
 };
 
 export const createStudent = async (data) => {
-  const { email, password, firstName, lastName, studentNumber, nationalId, departmentId, classYear, phone, address, birthDate } = data;
+  const {
+    email,
+    password,
+    firstName,
+    lastName,
+    studentNumber,
+    nationalId,
+    departmentId,
+    classYear,
+    phone,
+    address,
+    birthDate,
+  } = data;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) throw new AppError('Bu e-posta adresi zaten kullanımda', 409, null, 'DUPLICATE_EMAIL');
 
   const existingStudent = await prisma.student.findFirst({ where: { studentNumber } });
-  if (existingStudent) throw new AppError('Bu öğrenci numarası zaten kullanımda', 409, null, 'DUPLICATE_STUDENT_NUMBER');
+  if (existingStudent)
+    throw new AppError('Bu öğrenci numarası zaten kullanımda', 409, null, 'DUPLICATE_STUDENT_NUMBER');
 
   const role = await prisma.role.findUnique({ where: { name: 'STUDENT' } });
   if (!role) throw new AppError('Öğrenci rolü bulunamadı', 500);
@@ -36,10 +59,15 @@ export const createStudent = async (data) => {
     });
     const student = await tx.student.create({
       data: {
-        userId: user.id, firstName, lastName, studentNumber,
-        nationalId: nationalId || null, departmentId,
+        userId: user.id,
+        firstName,
+        lastName,
+        studentNumber,
+        nationalId: nationalId || null,
+        departmentId,
         classYear: Number(classYear) || 1,
-        phone: phone || null, address: address || null,
+        phone: phone || null,
+        address: address || null,
         birthDate: birthDate ? new Date(birthDate) : null,
       },
       include: { department: true, user: { select: { email: true } } },
@@ -82,7 +110,10 @@ export const updateStudentStatus = async (id, isActive) => {
 // ===== LECTURER SERVICE =====
 export const listLecturers = async ({ page = 1, limit = 20, search, departmentId, sortBy, order }) => {
   const [data, total] = await repo.lecturerFindMany({ ...paginate(page, limit), search, departmentId, sortBy, order });
-  return { data, pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) } };
+  return {
+    data,
+    pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) },
+  };
 };
 
 export const getLecturerById = async (id) => {

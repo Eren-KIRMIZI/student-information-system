@@ -22,16 +22,27 @@ export const generateTranscriptPDF = (transcriptData, res) => {
   const { student, grades, gpa, totalCredits } = transcriptData;
   const fonts = registerFont(new PDFDocument({ autoFirstPage: false }));
 
-  const doc = new PDFDocument({ size: 'A4', margin: 50, bufferPages: true, info: { Title: `Transkript - ${student.firstName} ${student.lastName}`, Author: 'OBS' } });
+  const doc = new PDFDocument({
+    size: 'A4',
+    margin: 50,
+    bufferPages: true,
+    info: { Title: `Transkript - ${student.firstName} ${student.lastName}`, Author: 'OBS' },
+  });
   doc.pipe(res);
 
   const pageW = doc.page.width - 100;
 
   const drawHeader = () => {
     doc.font(fonts.bold).fontSize(16).text('ÜNİVERSİTESİ', 50, 50, { align: 'center', width: pageW });
-    doc.font(fonts.regular).fontSize(11).text('Öğrenci Bilgi Sistemi — Transkript Belgesi', { align: 'center', width: pageW });
+    doc
+      .font(fonts.regular)
+      .fontSize(11)
+      .text('Öğrenci Bilgi Sistemi — Transkript Belgesi', { align: 'center', width: pageW });
     doc.moveDown(0.8);
-    doc.moveTo(50, doc.y).lineTo(50 + pageW, doc.y).stroke('#2563eb');
+    doc
+      .moveTo(50, doc.y)
+      .lineTo(50 + pageW, doc.y)
+      .stroke('#2563eb');
     doc.moveDown(0.8);
   };
 
@@ -50,7 +61,7 @@ export const generateTranscriptPDF = (transcriptData, res) => {
   doc.y = infoY + 52;
 
   const groupedBySemester = {};
-  grades.forEach(g => {
+  grades.forEach((g) => {
     const s = g.enrollment.courseSection;
     const key = `${s.academicYear} ${s.semester}`;
     if (!groupedBySemester[key]) groupedBySemester[key] = [];
@@ -64,7 +75,10 @@ export const generateTranscriptPDF = (transcriptData, res) => {
       drawHeader();
     }
     doc.moveDown(0.5);
-    doc.font(fonts.bold).fontSize(11).text(`${year} — ${SEMESTER_LABEL[sem] ?? sem} Dönemi`, 50, doc.y, { width: pageW });
+    doc
+      .font(fonts.bold)
+      .fontSize(11)
+      .text(`${year} — ${SEMESTER_LABEL[sem] ?? sem} Dönemi`, 50, doc.y, { width: pageW });
     doc.moveDown(0.3);
 
     const tableTop = doc.y;
@@ -72,16 +86,22 @@ export const generateTranscriptPDF = (transcriptData, res) => {
     const headers = ['Ders', 'Kredi', 'Vize', 'Final', 'Harf', 'Puan'];
     const colX = [50];
     let cx = 50;
-    for (let i = 0; i < colW.length - 1; i++) { cx += colW[i]; colX.push(cx); }
+    for (let i = 0; i < colW.length - 1; i++) {
+      cx += colW[i];
+      colX.push(cx);
+    }
 
     doc.font(fonts.bold).fontSize(9);
-    doc.fillColor('#f1f5f9').rect(50, tableTop - 2, pageW, 18).fill();
+    doc
+      .fillColor('#f1f5f9')
+      .rect(50, tableTop - 2, pageW, 18)
+      .fill();
     doc.fillColor('#000');
     headers.forEach((h, i) => doc.text(h, colX[i], tableTop, { width: colW[i], align: i === 0 ? 'left' : 'center' }));
     doc.y = tableTop + 18;
 
     doc.font(fonts.regular).fontSize(9);
-    semGrades.forEach(g => {
+    semGrades.forEach((g) => {
       if (doc.y > 760) {
         doc.addPage();
         drawHeader();
@@ -91,23 +111,40 @@ export const generateTranscriptPDF = (transcriptData, res) => {
       const c = g.enrollment.courseSection.course;
       doc.text(c.name, colX[0], rowY, { width: colW[0] });
       doc.text(String(c.credit), colX[1], rowY, { width: colW[1], align: 'center' });
-      doc.text(g.midtermScore != null ? String(g.midtermScore) : '—', colX[2], rowY, { width: colW[2], align: 'center' });
-      doc.text(g.makeupScore != null ? String(g.makeupScore) : (g.finalScore != null ? String(g.finalScore) : '—'), colX[3], rowY, { width: colW[3], align: 'center' });
+      doc.text(g.midtermScore != null ? String(g.midtermScore) : '—', colX[2], rowY, {
+        width: colW[2],
+        align: 'center',
+      });
+      doc.text(
+        g.makeupScore != null ? String(g.makeupScore) : g.finalScore != null ? String(g.finalScore) : '—',
+        colX[3],
+        rowY,
+        { width: colW[3], align: 'center' },
+      );
       doc.text(g.letterGrade || '—', colX[4], rowY, { width: colW[4], align: 'center' });
-      doc.text(g.gradePoint != null ? g.gradePoint.toFixed(1) : '—', colX[5], rowY, { width: colW[5], align: 'center' });
+      doc.text(g.gradePoint != null ? g.gradePoint.toFixed(1) : '—', colX[5], rowY, {
+        width: colW[5],
+        align: 'center',
+      });
       doc.y = rowY + 16;
     });
 
     const { gpa: semGPA } = computeSemesterGPA(semGrades);
     doc.moveDown(0.2);
-    doc.font(fonts.bold).fontSize(9).text(`Dönem Ortalaması: ${semGPA.toFixed(2)}`, 50, doc.y, { width: pageW, align: 'right' });
+    doc
+      .font(fonts.bold)
+      .fontSize(9)
+      .text(`Dönem Ortalaması: ${semGPA.toFixed(2)}`, 50, doc.y, { width: pageW, align: 'right' });
     doc.moveDown(0.3);
   });
 
   const totalPages = doc.bufferedPageRange().count;
   for (let i = 0; i < totalPages; i++) {
     doc.switchToPage(i);
-    doc.font(fonts.regular).fontSize(8).fillColor('#94a3b8')
+    doc
+      .font(fonts.regular)
+      .fontSize(8)
+      .fillColor('#94a3b8')
       .text(`Sayfa ${i + 1} / ${totalPages}`, 50, doc.page.height - 40, { width: pageW, align: 'center' });
   }
 

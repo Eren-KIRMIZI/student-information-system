@@ -2,15 +2,18 @@ import * as repo from '../repositories/academic.repository.js';
 import { AppError } from '../utils/appError.util.js';
 import { cache } from '../utils/cache.js';
 
-const paginate = (page, limit) => ({ skip: (Number(page)-1)*Number(limit), take: Number(limit) });
+const paginate = (page, limit) => ({ skip: (Number(page) - 1) * Number(limit), take: Number(limit) });
 
 // ===== FACULTY SERVICE =====
-export const listFaculties = async ({ page=1, limit=20, search, sortBy, order }) => {
-  const cacheKey = `faculties:${JSON.stringify({page,limit,search,sortBy,order})}`;
+export const listFaculties = async ({ page = 1, limit = 20, search, sortBy, order }) => {
+  const cacheKey = `faculties:${JSON.stringify({ page, limit, search, sortBy, order })}`;
   const cached = await cache.get(cacheKey);
   if (cached) return cached;
-  const [data, total] = await repo.facultyFindMany({ ...paginate(page,limit), search, sortBy, order });
-  const result = { data, pagination: { page:Number(page), limit:Number(limit), total, totalPages: Math.ceil(total/limit) } };
+  const [data, total] = await repo.facultyFindMany({ ...paginate(page, limit), search, sortBy, order });
+  const result = {
+    data,
+    pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) },
+  };
   await cache.set(cacheKey, result, 86400);
   return result;
 };
@@ -33,19 +36,23 @@ export const updateFaculty = async (id, data) => {
 export const deleteFaculty = async (id) => {
   await getFacultyById(id);
   const count = await repo.facultyHasDepts(id);
-  if (count > 0) throw new AppError('Bu fakülteye bağlı bölümler var, önce onları kaldırın.', 409, null, 'HAS_DEPENDENTS');
+  if (count > 0)
+    throw new AppError('Bu fakülteye bağlı bölümler var, önce onları kaldırın.', 409, null, 'HAS_DEPENDENTS');
   const result = await repo.facultyDelete(id);
   await cache.invalidatePattern('faculties:*');
   return result;
 };
 
 // ===== DEPARTMENT SERVICE =====
-export const listDepartments = async ({ page=1, limit=100, search, facultyId, sortBy, order }) => {
-  const cacheKey = `departments:${JSON.stringify({page,limit,search,facultyId,sortBy,order})}`;
+export const listDepartments = async ({ page = 1, limit = 100, search, facultyId, sortBy, order }) => {
+  const cacheKey = `departments:${JSON.stringify({ page, limit, search, facultyId, sortBy, order })}`;
   const cached = await cache.get(cacheKey);
   if (cached) return cached;
-  const [data, total] = await repo.deptFindMany({ ...paginate(page,limit), search, facultyId, sortBy, order });
-  const result = { data, pagination: { page:Number(page), limit:Number(limit), total, totalPages: Math.ceil(total/limit) } };
+  const [data, total] = await repo.deptFindMany({ ...paginate(page, limit), search, facultyId, sortBy, order });
+  const result = {
+    data,
+    pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) },
+  };
   await cache.set(cacheKey, result, 86400);
   return result;
 };
@@ -68,19 +75,23 @@ export const updateDepartment = async (id, data) => {
 export const deleteDepartment = async (id) => {
   await getDepartmentById(id);
   const [s, l, c] = await repo.deptHasDependents(id);
-  if (s+l+c > 0) throw new AppError('Bu bölüme bağlı öğrenci, akademisyen veya ders var.', 409, null, 'HAS_DEPENDENTS');
+  if (s + l + c > 0)
+    throw new AppError('Bu bölüme bağlı öğrenci, akademisyen veya ders var.', 409, null, 'HAS_DEPENDENTS');
   const result = await repo.deptDelete(id);
   await cache.invalidatePattern('departments:*');
   return result;
 };
 
 // ===== COURSE SERVICE =====
-export const listCourses = async ({ page=1, limit=20, search, departmentId, sortBy, order }) => {
-  const cacheKey = `courses:${JSON.stringify({page,limit,search,departmentId,sortBy,order})}`;
+export const listCourses = async ({ page = 1, limit = 20, search, departmentId, sortBy, order }) => {
+  const cacheKey = `courses:${JSON.stringify({ page, limit, search, departmentId, sortBy, order })}`;
   const cached = await cache.get(cacheKey);
   if (cached) return cached;
-  const [data, total] = await repo.courseFindMany({ ...paginate(page,limit), search, departmentId, sortBy, order });
-  const result = { data, pagination: { page:Number(page), limit:Number(limit), total, totalPages: Math.ceil(total/limit) } };
+  const [data, total] = await repo.courseFindMany({ ...paginate(page, limit), search, departmentId, sortBy, order });
+  const result = {
+    data,
+    pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) },
+  };
   await cache.set(cacheKey, result, 86400);
   return result;
 };
@@ -110,12 +121,32 @@ export const deleteCourse = async (id) => {
 };
 
 // ===== COURSE SECTION SERVICE =====
-export const listCourseSections = async ({ page=1, limit=20, academicYear, semester, departmentId, lecturerId, sortBy, order }) => {
-  const cacheKey = `sections:${JSON.stringify({page,limit,academicYear,semester,departmentId,lecturerId,sortBy,order})}`;
+export const listCourseSections = async ({
+  page = 1,
+  limit = 20,
+  academicYear,
+  semester,
+  departmentId,
+  lecturerId,
+  sortBy,
+  order,
+}) => {
+  const cacheKey = `sections:${JSON.stringify({ page, limit, academicYear, semester, departmentId, lecturerId, sortBy, order })}`;
   const cached = await cache.get(cacheKey);
   if (cached) return cached;
-  const [data, total] = await repo.sectionFindMany({ ...paginate(page,limit), academicYear, semester, departmentId, lecturerId, sortBy, order });
-  const result = { data, pagination: { page:Number(page), limit:Number(limit), total, totalPages: Math.ceil(total/limit) } };
+  const [data, total] = await repo.sectionFindMany({
+    ...paginate(page, limit),
+    academicYear,
+    semester,
+    departmentId,
+    lecturerId,
+    sortBy,
+    order,
+  });
+  const result = {
+    data,
+    pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) },
+  };
   await cache.set(cacheKey, result, 3600);
   return result;
 };

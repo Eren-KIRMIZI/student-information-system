@@ -13,7 +13,7 @@ const ROLE_MAP = {
 
 export const getAnnouncements = async (query, userRole) => {
   const { page = 1, limit = 10, category, targetRole } = query;
-  const cacheKey = `ann:${userRole}:${JSON.stringify({page,limit,category,targetRole})}`;
+  const cacheKey = `ann:${userRole}:${JSON.stringify({ page, limit, category, targetRole })}`;
   const cached = await cache.get(cacheKey);
   if (cached) return cached;
 
@@ -29,7 +29,10 @@ export const getAnnouncements = async (query, userRole) => {
     repo.announcementFindMany(where, skip, take),
     repo.announcementCount(where),
   ]);
-  const result = { data, pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) } };
+  const result = {
+    data,
+    pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) },
+  };
   await cache.set(cacheKey, result, 180);
   return result;
 };
@@ -60,7 +63,9 @@ export const updateAnnouncement = async (id, data) => {
   const result = await repo.announcementUpdate(id, data);
   await cache.invalidatePattern('ann:*');
   await cache.invalidatePattern('dash:*');
-  try { getIO().emit('announcement:updated', result); } catch {}
+  try {
+    getIO().emit('announcement:updated', result);
+  } catch {}
   return result;
 };
 
@@ -69,6 +74,8 @@ export const deleteAnnouncement = async (id) => {
   const result = await repo.announcementDelete(id);
   await cache.invalidatePattern('ann:*');
   await cache.invalidatePattern('dash:*');
-  try { getIO().emit('announcement:deleted', { id }); } catch {}
+  try {
+    getIO().emit('announcement:deleted', { id });
+  } catch {}
   return result;
 };

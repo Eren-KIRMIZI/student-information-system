@@ -8,7 +8,9 @@ import { AppError } from '../utils/appError.util.js';
 const router = Router();
 
 const ALLOWED_MIME_TYPES = new Set([
-  'image/jpeg', 'image/png', 'image/webp',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
@@ -17,7 +19,20 @@ const ALLOWED_MIME_TYPES = new Set([
   'application/zip',
 ]);
 
-const ALLOWED_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.pdf', '.docx', '.doc', '.pptx', '.ppt', '.xlsx', '.xls', '.zip']);
+const ALLOWED_EXTENSIONS = new Set([
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.webp',
+  '.pdf',
+  '.docx',
+  '.doc',
+  '.pptx',
+  '.ppt',
+  '.xlsx',
+  '.xls',
+  '.zip',
+]);
 
 const upload = multer({
   dest: 'uploads/temp', // temporary, storage provider will move it
@@ -31,7 +46,7 @@ const upload = multer({
     }
     cb(null, true);
   },
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
 });
 
 // Middleware to ensure temp dir exists

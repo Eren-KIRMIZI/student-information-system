@@ -11,7 +11,9 @@ import { deleteUploadValidator } from '../validators/upload.validator.js';
 const router = Router();
 
 const ALLOWED_MIME_TYPES = new Set([
-  'image/jpeg', 'image/png', 'image/webp',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',

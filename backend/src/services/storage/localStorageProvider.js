@@ -35,7 +35,7 @@ export class LocalStorageProvider extends StorageProvider {
       fileSize: file.size,
       fileType: file.mimetype,
       extension: ext,
-      originalFileName: file.originalname
+      originalFileName: file.originalname,
     };
   }
 

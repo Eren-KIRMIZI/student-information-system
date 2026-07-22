@@ -28,30 +28,33 @@ export const getStudentDashboard = async (studentId, userId) => {
     prisma.courseMaterial.findMany({
       where: {
         courseSection: { enrollments: { some: { studentId, status: 'ACTIVE' } } },
-        visibility: 'STUDENTS'
+        visibility: 'STUDENTS',
       },
       orderBy: { createdAt: 'desc' },
       take: 5,
-      include: { courseSection: { include: { course: true } } }
+      include: { courseSection: { include: { course: true } } },
     }),
     prisma.message.count({
       where: {
         conversation: { participants: { some: { userId } } },
         senderId: { not: userId },
-        isRead: false
-      }
-    })
+        isRead: false,
+      },
+    }),
   ]);
 
-  const totalEcts   = enrollments.reduce((sum, e) => sum + (e.courseSection.course.ects || 0), 0);
-  const totalCourses= enrollments.length;
+  const totalEcts = enrollments.reduce((sum, e) => sum + (e.courseSection.course.ects || 0), 0);
+  const totalCourses = enrollments.length;
 
   // GANO
-  const finalGrades = grades.filter(g => g.gradePoint !== null);
+  const finalGrades = grades.filter((g) => g.gradePoint !== null);
   let gpa = 0;
   if (finalGrades.length > 0) {
-    const totalPoints = finalGrades.reduce((sum, g) => sum + (g.gradePoint * g.enrollment.courseSection.course.credit), 0);
-    const totalCredits= finalGrades.reduce((sum, g) => sum + g.enrollment.courseSection.course.credit, 0);
+    const totalPoints = finalGrades.reduce(
+      (sum, g) => sum + g.gradePoint * g.enrollment.courseSection.course.credit,
+      0,
+    );
+    const totalCredits = finalGrades.reduce((sum, g) => sum + g.enrollment.courseSection.course.credit, 0);
     gpa = totalCredits > 0 ? Math.round((totalPoints / totalCredits) * 100) / 100 : 0;
   }
 
@@ -80,26 +83,43 @@ export const getAcademicianDashboard = async (lecturerId, userId) => {
       where: { uploaderId: userId },
       orderBy: { createdAt: 'desc' },
       take: 5,
-      include: { courseSection: { include: { course: true } } }
+      include: { courseSection: { include: { course: true } } },
     }),
     prisma.courseMaterial.aggregate({
       where: { uploaderId: userId },
-      _sum: { downloadCount: true }
-    })
+      _sum: { downloadCount: true },
+    }),
   ]);
 
   const totalSections = sections.length;
   const totalStudents = sections.reduce((sum, s) => sum + s.enrollments.length, 0);
   const totalDownloads = materialStats._sum.downloadCount || 0;
 
-  return { totalSections, totalStudents, pendingEnrollments, sections: sections.map(s => ({ id: s.id, courseName: s.course.name, studentCount: s.enrollments.length })), announcements, recentMaterials, totalDownloads };
+  return {
+    totalSections,
+    totalStudents,
+    pendingEnrollments,
+    sections: sections.map((s) => ({ id: s.id, courseName: s.course.name, studentCount: s.enrollments.length })),
+    announcements,
+    recentMaterials,
+    totalDownloads,
+  };
 };
 
 export const getAdminDashboard = async () => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [totalStudents, totalLecturers, totalCourses, recentEnrollments, announcements, totalMaterials, materialsToday, mostDownloadedMaterials] = await Promise.all([
+  const [
+    totalStudents,
+    totalLecturers,
+    totalCourses,
+    recentEnrollments,
+    announcements,
+    totalMaterials,
+    materialsToday,
+    mostDownloadedMaterials,
+  ] = await Promise.all([
     prisma.student.count(),
     prisma.lecturer.count(),
     prisma.course.count(),
@@ -115,16 +135,26 @@ export const getAdminDashboard = async () => {
     }),
     prisma.courseMaterial.count(),
     prisma.courseMaterial.count({
-      where: { createdAt: { gte: today } }
+      where: { createdAt: { gte: today } },
     }),
     prisma.courseMaterial.findMany({
       orderBy: { downloadCount: 'desc' },
       take: 5,
-      include: { uploader: { include: { lecturer: true } }, courseSection: { include: { course: true } } }
-    })
+      include: { uploader: { include: { lecturer: true } }, courseSection: { include: { course: true } } },
+    }),
   ]);
 
   const totalEnrollments = await prisma.enrollment.count();
 
-  return { totalStudents, totalLecturers, totalCourses, totalEnrollments, recentEnrollments, announcements, totalMaterials, materialsToday, mostDownloadedMaterials };
+  return {
+    totalStudents,
+    totalLecturers,
+    totalCourses,
+    totalEnrollments,
+    recentEnrollments,
+    announcements,
+    totalMaterials,
+    materialsToday,
+    mostDownloadedMaterials,
+  };
 };

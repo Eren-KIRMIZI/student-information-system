@@ -254,7 +254,9 @@ router.get('/:id/grades', authenticate, authorize('ADMIN', 'ACADEMICIAN'), async
       orderBy: { student: { lastName: 'asc' } },
     });
     return successResponse(res, enrollments);
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 /**
@@ -402,7 +404,14 @@ router.get('/:id/weekly-schedule', authenticate, weeklyScheduleCtrl.getSectionWe
  *       409:
  *         description: Zaman çakışması
  */
-router.post('/:id/weekly-schedule', authenticate, authorize('ADMIN'), createWeeklySlotValidator, validate, weeklyScheduleCtrl.createWeeklySlot);
+router.post(
+  '/:id/weekly-schedule',
+  authenticate,
+  authorize('ADMIN'),
+  createWeeklySlotValidator,
+  validate,
+  weeklyScheduleCtrl.createWeeklySlot,
+);
 
 /**
  * @swagger
@@ -482,7 +491,14 @@ router.get('/:id/exam-schedule', authenticate, examScheduleCtrl.getSectionExamSc
  *       409:
  *         description: Sınav zaman çakışması
  */
-router.post('/:id/exam-schedule', authenticate, authorize('ADMIN'), createExamSlotValidator, validate, examScheduleCtrl.createExamSlot);
+router.post(
+  '/:id/exam-schedule',
+  authenticate,
+  authorize('ADMIN'),
+  createExamSlotValidator,
+  validate,
+  examScheduleCtrl.createExamSlot,
+);
 
 /**
  * @swagger
@@ -509,9 +525,14 @@ router.post('/:id/exam-schedule', authenticate, authorize('ADMIN'), createExamSl
  */
 router.get('/:id/materials', authenticate, async (req, res, next) => {
   try {
-    const materials = await prisma.upload.findMany({ where: { courseSectionId: req.params.id, purpose: 'COURSE_MATERIAL' }, orderBy: { createdAt: 'desc' } });
+    const materials = await prisma.upload.findMany({
+      where: { courseSectionId: req.params.id, purpose: 'COURSE_MATERIAL' },
+      orderBy: { createdAt: 'desc' },
+    });
     return successResponse(res, materials);
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 export default router;

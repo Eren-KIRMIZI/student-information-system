@@ -1,10 +1,8 @@
 import prisma from '../config/prisma.js';
 
-export const studentFindByUserId = (userId) =>
-  prisma.student.findUnique({ where: { userId }, select: { id: true } });
+export const studentFindByUserId = (userId) => prisma.student.findUnique({ where: { userId }, select: { id: true } });
 
-export const lecturerFindByUserId = (userId) =>
-  prisma.lecturer.findUnique({ where: { userId }, select: { id: true } });
+export const lecturerFindByUserId = (userId) => prisma.lecturer.findUnique({ where: { userId }, select: { id: true } });
 
 export const scheduleFindManyByStudent = (studentId) =>
   prisma.weeklySchedule.findMany({
@@ -26,11 +24,8 @@ export const scheduleFindBySection = (courseSectionId) =>
     orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
   });
 
-export const scheduleCreate = (data) =>
-  prisma.weeklySchedule.create({ data });
+export const scheduleCreate = (data) => prisma.weeklySchedule.create({ data });
 
-export const scheduleUpdate = (id, data) =>
-  prisma.weeklySchedule.update({ where: { id }, data });
+export const scheduleUpdate = (id, data) => prisma.weeklySchedule.update({ where: { id }, data });
 
-export const scheduleDelete = (id) =>
-  prisma.weeklySchedule.delete({ where: { id } });
+export const scheduleDelete = (id) => prisma.weeklySchedule.delete({ where: { id } });

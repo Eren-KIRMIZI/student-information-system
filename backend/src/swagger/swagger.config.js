@@ -6,7 +6,8 @@ const options = {
     info: {
       title: 'Öğrenci Bilgi Sistemi (OBS) API',
       version: '1.0.0',
-      description: 'OBS REST API — Admin, Akademisyen ve Öğrenci rollerine sahip tam kapsamlı akademik otomasyon sistemi.',
+      description:
+        'OBS REST API — Admin, Akademisyen ve Öğrenci rollerine sahip tam kapsamlı akademik otomasyon sistemi.',
     },
     servers: [
       {
@@ -37,11 +38,11 @@ const options = {
             success: { type: 'boolean', example: false },
             message: { type: 'string', example: 'Doğrulama hatası' },
             code: { type: 'string', example: 'VALIDATION_ERROR', nullable: true },
-            errors: { 
-              type: 'array', 
+            errors: {
+              type: 'array',
               nullable: true,
               items: { type: 'object', properties: { field: { type: 'string' }, message: { type: 'string' } } },
-              example: [{ field: 'email', message: 'Geçerli bir email adresi giriniz' }]
+              example: [{ field: 'email', message: 'Geçerli bir email adresi giriniz' }],
             },
           },
         },
@@ -58,25 +59,25 @@ const options = {
       responses: {
         BadRequest: {
           description: 'Geçersiz veri veya doğrulama hatası',
-          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
         },
         Unauthorized: {
           description: 'Oturum açılmamış veya token geçersiz',
-          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
         },
         Forbidden: {
           description: 'Yetki yetersiz (Örn: Sadece ADMIN rolü erişebilir)',
-          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
         },
         NotFound: {
           description: 'İstenen kaynak bulunamadı',
-          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
         },
         InternalError: {
           description: 'Sunucu tarafında beklenmeyen hata',
-          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
-        }
-      }
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+        },
+      },
     },
     security: [{ bearerAuth: [] }],
   },

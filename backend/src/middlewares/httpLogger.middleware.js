@@ -13,7 +13,7 @@ const FORMAT = JSON.stringify({
   statusCode: ':status',
   responseTime: ':response-time',
   ip: ':remote-addr',
-  userAgent: ':user-agent'
+  userAgent: ':user-agent',
 });
 
 export const httpLogger = morgan(FORMAT, {
@@ -24,7 +24,7 @@ export const httpLogger = morgan(FORMAT, {
         // Sayıları dönüştür
         if (data.statusCode) data.statusCode = parseInt(data.statusCode, 10);
         if (data.responseTime) data.responseTime = parseFloat(data.responseTime);
-        
+
         logger.http(`HTTP ${data.method} ${data.endpoint}`, data);
       } catch (e) {
         logger.http(message.trim());

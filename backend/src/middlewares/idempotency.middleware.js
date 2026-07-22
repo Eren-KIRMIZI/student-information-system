@@ -26,14 +26,16 @@ export const idempotencyMiddleware = async (req, res, next) => {
   res.json = (body) => {
     const statusCode = res.statusCode;
 
-    prisma.idempotencyRecord.create({
-      data: {
-        key: hash,
-        statusCode,
-        response: body,
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      },
-    }).catch(() => {});
+    prisma.idempotencyRecord
+      .create({
+        data: {
+          key: hash,
+          statusCode,
+          response: body,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        },
+      })
+      .catch(() => {});
 
     return originalJson(body);
   };

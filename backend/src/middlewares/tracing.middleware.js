@@ -13,7 +13,7 @@ export const tracingMiddleware = (req, res, next) => {
   const ctx = tracer.startTrace(requestId);
 
   // Trace ID'yi response header'a ekle
-  res.setHeader('X-Trace-ID',   ctx.traceId);
+  res.setHeader('X-Trace-ID', ctx.traceId);
   res.setHeader('X-Request-ID', ctx.requestId);
 
   // Context'i request'e bağla (auth middleware userId'yi sonradan doldurur)
@@ -28,7 +28,7 @@ export const tracingMiddleware = (req, res, next) => {
   };
 
   logger.debug('[trace] Request started', {
-    traceId:   ctx.traceId,
+    traceId: ctx.traceId,
     requestId: ctx.requestId,
     ...rootSpan,
   });

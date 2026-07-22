@@ -46,10 +46,7 @@ export const searchRepository = {
   async searchDepartments(query, take = 10) {
     return prisma.department.findMany({
       where: {
-        OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { code: { contains: query, mode: 'insensitive' } },
-        ],
+        OR: [{ name: { contains: query, mode: 'insensitive' } }, { code: { contains: query, mode: 'insensitive' } }],
       },
       take,
       include: { faculty: { select: { name: true } } },

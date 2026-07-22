@@ -6,7 +6,13 @@ export const advisorFindMany = (params) => {
   if (lecturerId) where.lecturerId = lecturerId;
   if (studentId) where.studentId = studentId;
   return Promise.all([
-    prisma.advisorAssignment.findMany({ where, skip, take, orderBy: { assignedAt: 'desc' }, include: { student: true, lecturer: true } }),
+    prisma.advisorAssignment.findMany({
+      where,
+      skip,
+      take,
+      orderBy: { assignedAt: 'desc' },
+      include: { student: true, lecturer: true },
+    }),
     prisma.advisorAssignment.count({ where }),
   ]);
 };
@@ -23,5 +29,4 @@ export const advisorFindById = (id) =>
 export const advisorCreate = (data) =>
   prisma.advisorAssignment.create({ data, include: { student: true, lecturer: true } });
 
-export const advisorDeactivate = (id) =>
-  prisma.advisorAssignment.update({ where: { id }, data: { isActive: false } });
+export const advisorDeactivate = (id) => prisma.advisorAssignment.update({ where: { id }, data: { isActive: false } });

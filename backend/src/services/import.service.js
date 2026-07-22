@@ -13,19 +13,16 @@ import { logger } from '../utils/winstonLogger.js';
  * 2024000001,Ahmet,Yılmaz,12345678901,ahmet@ogrenci.obs.edu.tr,5551234567,2000-05-15,1,CS
  */
 
-const REQUIRED_COLUMNS = [
-  'studentNumber', 'firstName', 'lastName', 'nationalId',
-  'email', 'departmentCode',
-];
+const REQUIRED_COLUMNS = ['studentNumber', 'firstName', 'lastName', 'nationalId', 'email', 'departmentCode'];
 
 export async function importStudentsFromCSV(buffer, roleId) {
   const span = tracer.startSpan('ImportService.importStudentsFromCSV');
 
   const results = {
-    total:    0,
+    total: 0,
     imported: 0,
-    skipped:  0,
-    errors:   [],
+    skipped: 0,
+    errors: [],
   };
 
   // Parse CSV
@@ -111,8 +108,8 @@ export async function importStudentsFromCSV(buffer, roleId) {
             studentNumber: row.studentNumber?.trim(),
             nationalId,
             firstName: row.firstName?.trim(),
-            lastName:  row.lastName?.trim(),
-            phone:     row.phone?.trim() || null,
+            lastName: row.lastName?.trim(),
+            phone: row.phone?.trim() || null,
             birthDate: row.birthDate ? new Date(row.birthDate) : null,
             classYear: parseInt(row.classYear) || 1,
             departmentId: deptId,
@@ -123,9 +120,7 @@ export async function importStudentsFromCSV(buffer, roleId) {
       results.imported++;
     } catch (err) {
       const isDuplicate = err.code === 'P2002';
-      const errorMsg = isDuplicate
-        ? `Zaten kayıtlı: ${err.meta?.target?.join(', ')}`
-        : err.message;
+      const errorMsg = isDuplicate ? `Zaten kayıtlı: ${err.meta?.target?.join(', ')}` : err.message;
 
       results.errors.push({ row: rowNum, error: errorMsg, data: row });
       results.skipped++;
@@ -141,9 +136,9 @@ export async function importStudentsFromCSV(buffer, roleId) {
   }
 
   span.end({
-    total:    results.total,
+    total: results.total,
     imported: results.imported,
-    skipped:  results.skipped,
+    skipped: results.skipped,
   });
 
   return results;
@@ -159,11 +154,11 @@ function parseCSV(buffer) {
     stream
       .pipe(
         parse({
-          columns:          true,
+          columns: true,
           skip_empty_lines: true,
-          trim:             true,
-          bom:              true,
-        })
+          trim: true,
+          bom: true,
+        }),
       )
       .on('data', (row) => rows.push(row))
       .on('end', () => resolve(rows))

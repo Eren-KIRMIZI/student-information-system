@@ -13,11 +13,11 @@ export const getLogs = async (query) => {
     if (startDate) where.createdAt.gte = new Date(startDate);
     if (endDate) where.createdAt.lte = new Date(endDate);
   }
-  const [data, total] = await Promise.all([
-    repo.logFindMany(where, skip, take),
-    repo.logCount(where),
-  ]);
-  return { data, pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) } };
+  const [data, total] = await Promise.all([repo.logFindMany(where, skip, take), repo.logCount(where)]);
+  return {
+    data,
+    pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) },
+  };
 };
 
 export const getAuditLogs = async (query) => {
@@ -32,9 +32,9 @@ export const getAuditLogs = async (query) => {
     if (startDate) where.createdAt.gte = new Date(startDate);
     if (endDate) where.createdAt.lte = new Date(endDate);
   }
-  const [data, total] = await Promise.all([
-    repo.auditLogFindMany(where, skip, take),
-    repo.auditLogCount(where),
-  ]);
-  return { data, pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) } };
+  const [data, total] = await Promise.all([repo.auditLogFindMany(where, skip, take), repo.auditLogCount(where)]);
+  return {
+    data,
+    pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) },
+  };
 };

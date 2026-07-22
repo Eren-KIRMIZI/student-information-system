@@ -10,7 +10,11 @@ export const searchController = {
     try {
       const { q, limit } = req.query;
       if (!q || q.trim().length < 2) {
-        return successResponse(res, { students: [], lecturers: [], courses: [], departments: [], announcements: [] }, 200);
+        return successResponse(
+          res,
+          { students: [], lecturers: [], courses: [], departments: [], announcements: [] },
+          200,
+        );
       }
       const results = await searchService.search(q.trim(), capLimit(limit));
       successResponse(res, results, 200);

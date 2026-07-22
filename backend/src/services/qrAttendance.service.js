@@ -51,14 +51,21 @@ export const scanQRToken = async (userId, token) => {
   const existingScan = await repo.qrScanExists(qrToken.id, student.id);
   if (existingScan) throw new AppError('Bu QR kodunu zaten tarattınız', 409);
 
-  const enrollment = await prisma.enrollment.findFirst({ where: { studentId: student.id, courseSectionId: qrToken.courseSectionId, status: { in: ['ACTIVE', 'APPROVED'] } } });
+  const enrollment = await prisma.enrollment.findFirst({
+    where: { studentId: student.id, courseSectionId: qrToken.courseSectionId, status: { in: ['ACTIVE', 'APPROVED'] } },
+  });
   if (!enrollment) throw new AppError('Bu derse kayıtlı değilsiniz', 403);
 
   const scan = await repo.qrScanCreate({ tokenId: qrToken.id, studentId: student.id });
 
   try {
-    const section = await prisma.courseSection.findUnique({ where: { id: qrToken.courseSectionId }, include: { course: true } });
-    getIO().to(`lecturer:${qrToken.createdBy}`).emit('qr:scan', { studentId: student.id, courseName: section?.course?.name, scannedAt: scan.scannedAt });
+    const section = await prisma.courseSection.findUnique({
+      where: { id: qrToken.courseSectionId },
+      include: { course: true },
+    });
+    getIO()
+      .to(`lecturer:${qrToken.createdBy}`)
+      .emit('qr:scan', { studentId: student.id, courseName: section?.course?.name, scannedAt: scan.scannedAt });
   } catch {}
 
   return { message: 'Kayıt başarılı', scannedAt: scan.scannedAt };

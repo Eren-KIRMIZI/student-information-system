@@ -4,7 +4,14 @@ import prisma from '../config/prisma.js';
  * Kritik olayları logs tablosuna yazar.
  * @param {{ userId?: string, action: string, entity?: string, entityId?: string, ipAddress?: string, metadata?: object }} params
  */
-export const logEvent = async ({ userId = null, action, entity = null, entityId = null, ipAddress = null, metadata = null }) => {
+export const logEvent = async ({
+  userId = null,
+  action,
+  entity = null,
+  entityId = null,
+  ipAddress = null,
+  metadata = null,
+}) => {
   try {
     await prisma.log.create({
       data: {

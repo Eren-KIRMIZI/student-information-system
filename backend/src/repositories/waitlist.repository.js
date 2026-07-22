@@ -1,7 +1,11 @@
 import prisma from '../config/prisma.js';
 
 export const waitlistFindActive = (courseSectionId) =>
-  prisma.waitlist.findMany({ where: { courseSectionId, status: 'WAITING' }, orderBy: { position: 'asc' }, include: { student: true } });
+  prisma.waitlist.findMany({
+    where: { courseSectionId, status: 'WAITING' },
+    orderBy: { position: 'asc' },
+    include: { student: true },
+  });
 
 export const waitlistFindEntry = (studentId, courseSectionId) =>
   prisma.waitlist.findFirst({ where: { studentId, courseSectionId } });
@@ -14,11 +18,9 @@ export const waitlistGetNextPosition = async (courseSectionId) => {
 export const waitlistCreate = (data) =>
   prisma.waitlist.create({ data, include: { student: true, courseSection: { include: { course: true } } } });
 
-export const waitlistUpdate = (id, data) =>
-  prisma.waitlist.update({ where: { id }, data });
+export const waitlistUpdate = (id, data) => prisma.waitlist.update({ where: { id }, data });
 
-export const waitlistCancel = (id) =>
-  prisma.waitlist.update({ where: { id }, data: { status: 'CANCELLED' } });
+export const waitlistCancel = (id) => prisma.waitlist.update({ where: { id }, data: { status: 'CANCELLED' } });
 
 export const waitlistPromote = (id) =>
   prisma.waitlist.update({ where: { id }, data: { status: 'PROMOTED', promotedAt: new Date() } });

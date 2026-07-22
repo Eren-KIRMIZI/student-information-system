@@ -1,7 +1,12 @@
 import { AppError } from './appError.util.js';
 
 export const optimisticLock = {
-  async update({ model, id, data, errorMessage = 'Kayit baska bir tarafindan guncellendi. Lutfen sayfayi yenileyin.' }) {
+  async update({
+    model,
+    id,
+    data,
+    errorMessage = 'Kayit baska bir tarafindan guncellendi. Lutfen sayfayi yenileyin.',
+  }) {
     const current = await model.findUnique({ where: { id }, select: { updatedAt: true } });
     if (!current) throw new AppError('Kayit bulunamadi', 404);
 

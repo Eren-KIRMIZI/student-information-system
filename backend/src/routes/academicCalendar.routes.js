@@ -3,7 +3,10 @@ import { authenticate } from '../middlewares/auth.middleware.js';
 import { authorize } from '../middlewares/role.middleware.js';
 import { validate } from '../middlewares/validate.middleware.js';
 import * as ctrl from '../controllers/academicCalendar.controller.js';
-import { createCalendarEventValidator, updateCalendarEventValidator } from '../validators/academicCalendar.validator.js';
+import {
+  createCalendarEventValidator,
+  updateCalendarEventValidator,
+} from '../validators/academicCalendar.validator.js';
 
 const router = Router();
 

@@ -53,7 +53,7 @@ export const auditLog = async ({
     ipAddress,
     statusCode,
     durationMs,
-    traceId:   getTraceId(),
+    traceId: getTraceId(),
     requestId: getRequestId(),
     correlationId: getCorrelationId(),
   });

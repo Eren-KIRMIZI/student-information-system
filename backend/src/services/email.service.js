@@ -140,8 +140,11 @@ export async function sendPasswordChanged({ to, firstName, ipAddress }) {
  * Not açıklandı emaili
  */
 export async function sendGradePublished({ to, firstName, courseName, letterGrade, academicYear }) {
-  const gradeColor = ['AA', 'BA', 'BB'].includes(letterGrade) ? '#16a34a'
-    : ['CB', 'CC', 'DC', 'DD'].includes(letterGrade) ? '#d97706' : '#dc2626';
+  const gradeColor = ['AA', 'BA', 'BB'].includes(letterGrade)
+    ? '#16a34a'
+    : ['CB', 'CC', 'DC', 'DD'].includes(letterGrade)
+      ? '#d97706'
+      : '#dc2626';
 
   return sendMail({
     to,

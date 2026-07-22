@@ -2,7 +2,12 @@ import { body, param } from 'express-validator';
 
 export const createUserValidator = [
   body('email').trim().notEmpty().withMessage('E-posta zorunludur').isEmail().withMessage('Geçersiz e-posta adresi'),
-  body('password').trim().notEmpty().withMessage('Şifre zorunludur').isLength({ min: 6 }).withMessage('Şifre en az 6 karakter olmalıdır'),
+  body('password')
+    .trim()
+    .notEmpty()
+    .withMessage('Şifre zorunludur')
+    .isLength({ min: 6 })
+    .withMessage('Şifre en az 6 karakter olmalıdır'),
   body('roleId').trim().notEmpty().withMessage('Rol zorunludur'),
 ];
 

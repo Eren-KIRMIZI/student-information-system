@@ -29,7 +29,7 @@ const jsonFormat = winston.format.combine(
   injectContextFormat(),
   winston.format.timestamp({ format: 'YYYY-MM-DDTHH:mm:ss.SSSZ' }),
   winston.format.errors({ stack: true }),
-  winston.format.json()
+  winston.format.json(),
 );
 
 const consoleFormat = winston.format.combine(
@@ -38,10 +38,10 @@ const consoleFormat = winston.format.combine(
   winston.format.timestamp({ format: 'HH:mm:ss' }),
   winston.format.printf(({ timestamp, level, message, traceId, requestId, ...meta }) => {
     const trace = traceId ? ` [trace:${traceId.slice(0, 8)}]` : '';
-    const req   = requestId ? ` [req:${requestId.slice(0, 8)}]` : '';
+    const req = requestId ? ` [req:${requestId.slice(0, 8)}]` : '';
     const extra = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
     return `${timestamp} ${level}${trace}${req}: ${message}${extra}`;
-  })
+  }),
 );
 
 // ==================== TRANSPORTS ====================
@@ -60,9 +60,9 @@ const makeRotateTransport = (level, filename) =>
 
 const transports = [
   // Rotating logs — split by type
-  makeRotateTransport('error',   'error.log'),
-  makeRotateTransport('http',    'http.log'),
-  makeRotateTransport('info',    'combined.log'),
+  makeRotateTransport('error', 'error.log'),
+  makeRotateTransport('http', 'http.log'),
+  makeRotateTransport('info', 'combined.log'),
 ];
 
 // Console — dev only
@@ -71,7 +71,7 @@ if (process.env.NODE_ENV !== 'production') {
     new winston.transports.Console({
       level: 'debug',
       format: consoleFormat,
-    })
+    }),
   );
 }
 
@@ -95,9 +95,7 @@ export const logger = winston.createLogger({
 export const auditLogger = winston.createLogger({
   level: 'info',
   defaultMeta: { service: 'obs-audit' },
-  transports: [
-    makeRotateTransport('info', 'audit.log'),
-  ],
+  transports: [makeRotateTransport('info', 'audit.log')],
   exitOnError: false,
 });
 

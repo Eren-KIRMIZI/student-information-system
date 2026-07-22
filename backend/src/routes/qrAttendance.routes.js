@@ -7,9 +7,23 @@ import * as ctrl from '../controllers/qrAttendance.controller.js';
 
 const router = Router();
 
-router.post('/generate', authenticate, authorize('ACADEMICIAN'), [body('courseSectionId').notEmpty()], validate, ctrl.generateQRToken);
+router.post(
+  '/generate',
+  authenticate,
+  authorize('ACADEMICIAN'),
+  [body('courseSectionId').notEmpty()],
+  validate,
+  ctrl.generateQRToken,
+);
 router.get('/active/:courseSectionId', authenticate, authorize('ACADEMICIAN'), ctrl.getQRToken);
-router.post('/scan', authenticate, authorize('STUDENT'), [body('token').notEmpty().withMessage('QR token gerekli')], validate, ctrl.scanQRToken);
+router.post(
+  '/scan',
+  authenticate,
+  authorize('STUDENT'),
+  [body('token').notEmpty().withMessage('QR token gerekli')],
+  validate,
+  ctrl.scanQRToken,
+);
 router.put('/:id/deactivate', authenticate, authorize('ACADEMICIAN'), ctrl.deactivateQRToken);
 router.get('/section/:courseSectionId', authenticate, authorize('ACADEMICIAN'), ctrl.getSectionScans);
 router.get('/recent/:courseSectionId', authenticate, authorize('ACADEMICIAN'), ctrl.getRecentScans);

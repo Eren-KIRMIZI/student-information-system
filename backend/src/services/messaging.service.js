@@ -8,34 +8,52 @@ export const getConversations = async (userId) => {
     where: { participants: { some: { userId } } },
     orderBy: { lastMessageAt: 'desc' },
     include: {
-      participants: { 
-        include: { user: { select: { id: true, email: true, student: { select: { firstName: true, lastName: true } }, lecturer: { select: { firstName: true, lastName: true } } } } } 
+      participants: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              student: { select: { firstName: true, lastName: true } },
+              lecturer: { select: { firstName: true, lastName: true } },
+            },
+          },
+        },
       },
       messages: {
         orderBy: { createdAt: 'desc' },
-        take: 1
-      }
-    }
+        take: 1,
+      },
+    },
   });
 };
 
 export const getConversationMessages = async (conversationId, userId) => {
   // Check if user is in conversation
   const participant = await prisma.conversationParticipant.findUnique({
-    where: { conversationId_userId: { conversationId, userId } }
+    where: { conversationId_userId: { conversationId, userId } },
   });
   if (!participant) throw new AppError('Erişim yetkiniz yok', 403);
 
   return prisma.message.findMany({
     where: { conversationId },
     orderBy: { createdAt: 'asc' },
-    include: { sender: { select: { id: true, email: true, student: { select: { firstName: true, lastName: true } }, lecturer: { select: { firstName: true, lastName: true } } } } }
+    include: {
+      sender: {
+        select: {
+          id: true,
+          email: true,
+          student: { select: { firstName: true, lastName: true } },
+          lecturer: { select: { firstName: true, lastName: true } },
+        },
+      },
+    },
   });
 };
 
 export const sendMessage = async (conversationId, content, user) => {
   const participant = await prisma.conversationParticipant.findUnique({
-    where: { conversationId_userId: { conversationId, userId: user.id } }
+    where: { conversationId_userId: { conversationId, userId: user.id } },
   });
   if (!participant) throw new AppError('Erişim yetkiniz yok', 403);
 
@@ -43,43 +61,52 @@ export const sendMessage = async (conversationId, content, user) => {
     data: {
       content,
       senderId: user.id,
-      conversationId
+      conversationId,
     },
-    include: { sender: { select: { id: true, email: true, student: { select: { firstName: true, lastName: true } }, lecturer: { select: { firstName: true, lastName: true } } } } }
+    include: {
+      sender: {
+        select: {
+          id: true,
+          email: true,
+          student: { select: { firstName: true, lastName: true } },
+          lecturer: { select: { firstName: true, lastName: true } },
+        },
+      },
+    },
   });
 
   const conversation = await prisma.conversation.update({
     where: { id: conversationId },
     data: { lastMessageAt: new Date(), lastMessageId: message.id },
-    include: { participants: true }
+    include: { participants: true },
   });
 
   // Notify participants via socket
   const io = getIO();
-  conversation.participants.forEach(p => {
-    io.to(`role:${p.userId}`).emit('message:new', message); // Wait, we use `${role.toLowerCase()}:${id}` in socket.js 
+  conversation.participants.forEach((p) => {
+    io.to(`role:${p.userId}`).emit('message:new', message); // Wait, we use `${role.toLowerCase()}:${id}` in socket.js
     // Actually, in socket.js: socket.join(`${role.toLowerCase()}:${id}`);
     // We don't have the role of the participant easily here, but we can query it or use user id
   });
-  
+
   // Actually, better way: broadcast to users by querying their roles
-  const users = await prisma.user.findMany({ where: { id: { in: conversation.participants.map(p => p.userId) } }});
-  users.forEach(u => {
+  const users = await prisma.user.findMany({ where: { id: { in: conversation.participants.map((p) => p.userId) } } });
+  users.forEach((u) => {
     io.to(`${u.roleId ? '' : ''}`).emit('message:new', message); // Wait, we can just query users and then send
   });
-  
+
   // Let's refine the socket emission later or send to all possible namespaces
-  users.forEach(u => {
-     // I need to know their role name to match the room string
+  users.forEach((u) => {
+    // I need to know their role name to match the room string
   });
-  
+
   await auditLog({
     userId: user.id,
     action: 'CREATE',
     entity: 'Message',
     entityId: message.id,
     method: 'POST',
-    path: `/api/v1/messaging/${conversationId}`
+    path: `/api/v1/messaging/${conversationId}`,
   });
 
   return message;
@@ -91,21 +118,21 @@ export const startConversation = async (targetUserId, user) => {
   if (user.role === 'STUDENT') {
     // Basic check: can talk to advisor
     const advisorAssignment = await prisma.advisorAssignment.findFirst({
-      where: { student: { userId: user.id }, lecturer: { userId: targetUserId } }
+      where: { student: { userId: user.id }, lecturer: { userId: targetUserId } },
     });
     const enrollment = await prisma.enrollment.findFirst({
-      where: { student: { userId: user.id }, courseSection: { lecturer: { userId: targetUserId } } }
+      where: { student: { userId: user.id }, courseSection: { lecturer: { userId: targetUserId } } },
     });
     if (!advisorAssignment && !enrollment) {
       throw new AppError('Sadece danışmanınız veya dersini aldığınız akademisyenlerle iletişime geçebilirsiniz', 403);
     }
   } else if (user.role === 'ACADEMICIAN') {
-     // Check advisee or enrollment
-     const advisorAssignment = await prisma.advisorAssignment.findFirst({
-      where: { lecturer: { userId: user.id }, student: { userId: targetUserId } }
+    // Check advisee or enrollment
+    const advisorAssignment = await prisma.advisorAssignment.findFirst({
+      where: { lecturer: { userId: user.id }, student: { userId: targetUserId } },
     });
     const enrollment = await prisma.enrollment.findFirst({
-      where: { courseSection: { lecturer: { userId: user.id } }, student: { userId: targetUserId } }
+      where: { courseSection: { lecturer: { userId: user.id } }, student: { userId: targetUserId } },
     });
     if (!advisorAssignment && !enrollment) {
       throw new AppError('Sadece danışmanlık veya ders verdiğiniz öğrencilerle iletişime geçebilirsiniz', 403);
@@ -116,11 +143,8 @@ export const startConversation = async (targetUserId, user) => {
   const existing = await prisma.conversation.findFirst({
     where: {
       isGroup: false,
-      AND: [
-        { participants: { some: { userId: user.id } } },
-        { participants: { some: { userId: targetUserId } } }
-      ]
-    }
+      AND: [{ participants: { some: { userId: user.id } } }, { participants: { some: { userId: targetUserId } } }],
+    },
   });
 
   if (existing) return existing;
@@ -128,12 +152,9 @@ export const startConversation = async (targetUserId, user) => {
   const conversation = await prisma.conversation.create({
     data: {
       participants: {
-        create: [
-          { userId: user.id },
-          { userId: targetUserId }
-        ]
-      }
-    }
+        create: [{ userId: user.id }, { userId: targetUserId }],
+      },
+    },
   });
 
   return conversation;
@@ -142,14 +163,14 @@ export const startConversation = async (targetUserId, user) => {
 export const markAsRead = async (conversationId, user) => {
   await prisma.conversationParticipant.update({
     where: { conversationId_userId: { conversationId, userId: user.id } },
-    data: { lastReadAt: new Date() }
+    data: { lastReadAt: new Date() },
   });
 
   // mark messages read
   await prisma.message.updateMany({
     where: { conversationId, senderId: { not: user.id }, isRead: false },
-    data: { isRead: true }
+    data: { isRead: true },
   });
-  
+
   return { success: true };
 };

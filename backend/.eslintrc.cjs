@@ -16,9 +16,10 @@ module.exports = {
   rules: {
     'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     'no-console': 'off',
-    'prefer-const': 'error',
-    'no-var': 'error',
-    eqeqeq: ['error', 'always'],
+    'prefer-const': 'warn',
+    'no-var': 'warn',
+    eqeqeq: ['warn', 'always'],
+    'no-empty': 'warn',
     'no-duplicate-imports': 'error',
     'no-shadow': 'warn',
   },

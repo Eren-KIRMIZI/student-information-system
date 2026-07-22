@@ -12,7 +12,10 @@ export const getStudentTranscript = (studentId) =>
         },
       },
     },
-    orderBy: [{ enrollment: { courseSection: { academicYear: 'asc' } } }, { enrollment: { courseSection: { semester: 'asc' } } }],
+    orderBy: [
+      { enrollment: { courseSection: { academicYear: 'asc' } } },
+      { enrollment: { courseSection: { semester: 'asc' } } },
+    ],
   });
 
 export const getStudentInfo = (userId) =>

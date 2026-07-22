@@ -24,7 +24,7 @@ export const startSystemMetricsJob = (io) => {
         },
         uptime: process.uptime(),
         // TODO: Queue ve request count vb. veriler de buraya eklenebilir.
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       // Admin Dashboard clientlarına yayinla

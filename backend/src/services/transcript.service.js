@@ -11,7 +11,14 @@ export const getMyTranscript = async (userId) => {
   for (const g of grades) {
     const cs = g.enrollment.courseSection;
     const key = `${cs.academicYear}-${cs.semester}`;
-    if (!semesterMap[key]) semesterMap[key] = { academicYear: cs.academicYear, semester: cs.semester, courses: [], totalCredits: 0, totalPoints: 0 };
+    if (!semesterMap[key])
+      semesterMap[key] = {
+        academicYear: cs.academicYear,
+        semester: cs.semester,
+        courses: [],
+        totalCredits: 0,
+        totalPoints: 0,
+      };
     const s = semesterMap[key];
     s.courses.push({
       courseCode: cs.course.code,
@@ -30,21 +37,42 @@ export const getMyTranscript = async (userId) => {
     }
   }
 
-  const semesters = Object.values(semesterMap).map(s => ({
+  const semesters = Object.values(semesterMap).map((s) => ({
     ...s,
     gpa: s.totalCredits > 0 ? Math.round((s.totalPoints / s.totalCredits) * 100) / 100 : 0,
   }));
 
-  const allCredits = grades.filter(g => g.gradePoint !== null).reduce((sum, g) => sum + g.enrollment.courseSection.course.credit, 0);
-  const allPoints = grades.filter(g => g.gradePoint !== null).reduce((sum, g) => sum + g.gradePoint * g.enrollment.courseSection.course.credit, 0);
+  const allCredits = grades
+    .filter((g) => g.gradePoint !== null)
+    .reduce((sum, g) => sum + g.enrollment.courseSection.course.credit, 0);
+  const allPoints = grades
+    .filter((g) => g.gradePoint !== null)
+    .reduce((sum, g) => sum + g.gradePoint * g.enrollment.courseSection.course.credit, 0);
   const cumulativeGpa = allCredits > 0 ? Math.round((allPoints / allCredits) * 100) / 100 : 0;
 
-  const totalEctsCompleted = grades.filter(g => g.gradePoint !== null && g.gradePoint > 0).reduce((sum, g) => sum + g.enrollment.courseSection.course.ects, 0);
+  const totalEctsCompleted = grades
+    .filter((g) => g.gradePoint !== null && g.gradePoint > 0)
+    .reduce((sum, g) => sum + g.enrollment.courseSection.course.ects, 0);
 
   return {
-    student: { id: student.id, firstName: student.firstName, lastName: student.lastName, studentNumber: student.studentNumber, department: student.department.name, faculty: student.department.faculty.name, classYear: student.classYear },
+    student: {
+      id: student.id,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      studentNumber: student.studentNumber,
+      department: student.department.name,
+      faculty: student.department.faculty.name,
+      classYear: student.classYear,
+    },
     semesters,
-    summary: { cumulativeGpa, totalCredits: allCredits, totalEctsCompleted, totalCourses: grades.length, coursesPassed: grades.filter(g => g.gradePoint > 0).length, coursesFailed: grades.filter(g => g.gradePoint === 0).length },
+    summary: {
+      cumulativeGpa,
+      totalCredits: allCredits,
+      totalEctsCompleted,
+      totalCourses: grades.length,
+      coursesPassed: grades.filter((g) => g.gradePoint > 0).length,
+      coursesFailed: grades.filter((g) => g.gradePoint === 0).length,
+    },
   };
 };
 

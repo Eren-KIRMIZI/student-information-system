@@ -6,9 +6,9 @@ const router = Router();
 
 router.use(authenticate);
 
-router.get('/',          searchController.searchAll);
-router.get('/students',  searchController.searchStudents);
+router.get('/', searchController.searchAll);
+router.get('/students', searchController.searchStudents);
 router.get('/lecturers', searchController.searchLecturers);
-router.get('/courses',   searchController.searchCourses);
+router.get('/courses', searchController.searchCourses);
 
 export default router;

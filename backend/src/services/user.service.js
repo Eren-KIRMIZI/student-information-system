@@ -12,9 +12,13 @@ export const getMe = async (userId) => {
   if (!user) throw new AppError('Kullanıcı bulunamadı', 404);
   const { password: _, ...safe } = user;
   return {
-    id: safe.id, email: safe.email, role: safe.role.name,
-    isActive: safe.isActive, lastLoginAt: safe.lastLoginAt,
-    student: safe.student, lecturer: safe.lecturer,
+    id: safe.id,
+    email: safe.email,
+    role: safe.role.name,
+    isActive: safe.isActive,
+    lastLoginAt: safe.lastLoginAt,
+    student: safe.student,
+    lecturer: safe.lecturer,
   };
 };
 
@@ -43,16 +47,20 @@ export const getUsers = async (query) => {
   const where = {};
   if (roleId) where.roleId = roleId;
   if (isActive !== undefined) where.isActive = isActive === 'true';
-  if (search) where.OR = [
-    { email: { contains: search, mode: 'insensitive' } },
-    { student: { firstName: { contains: search, mode: 'insensitive' } } },
-    { student: { lastName: { contains: search, mode: 'insensitive' } } },
-    { lecturer: { firstName: { contains: search, mode: 'insensitive' } } },
-    { lecturer: { lastName: { contains: search, mode: 'insensitive' } } },
-  ];
+  if (search)
+    where.OR = [
+      { email: { contains: search, mode: 'insensitive' } },
+      { student: { firstName: { contains: search, mode: 'insensitive' } } },
+      { student: { lastName: { contains: search, mode: 'insensitive' } } },
+      { lecturer: { firstName: { contains: search, mode: 'insensitive' } } },
+      { lecturer: { lastName: { contains: search, mode: 'insensitive' } } },
+    ];
   const [data, total] = await repo.findMany({ skip, take, where });
   const safe = data.map(({ password: _, ...u }) => u);
-  return { data: safe, pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) } };
+  return {
+    data: safe,
+    pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit) },
+  };
 };
 
 export const createUser = async (data, adminId) => {
@@ -79,7 +87,18 @@ export const updateUser = async (id, data) => {
 
 export const updateUserStatus = async (id, isActive, adminId) => {
   await prisma.user.update({ where: { id }, data: { isActive } });
-  await logEvent({ userId: adminId, action: isActive ? 'USER_ACTIVATED' : 'USER_DEACTIVATED', entity: 'User', entityId: id });
-  try { getIO().to(`student:${id}`).to(`lecturer:${id}`).to(`admin:${id}`).emit('user:statusChanged', { userId: id, isActive }); } catch {}
+  await logEvent({
+    userId: adminId,
+    action: isActive ? 'USER_ACTIVATED' : 'USER_DEACTIVATED',
+    entity: 'User',
+    entityId: id,
+  });
+  try {
+    getIO()
+      .to(`student:${id}`)
+      .to(`lecturer:${id}`)
+      .to(`admin:${id}`)
+      .emit('user:statusChanged', { userId: id, isActive });
+  } catch {}
   return null;
 };

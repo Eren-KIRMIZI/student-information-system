@@ -6,11 +6,9 @@ export const prereqFindByCourse = (courseId) =>
 export const prereqFindAll = () =>
   prisma.prerequisite.findMany({ include: { requiredCourse: true, prereqCourse: true } });
 
-export const prereqCreate = (data) =>
-  prisma.prerequisite.create({ data });
+export const prereqCreate = (data) => prisma.prerequisite.create({ data });
 
-export const prereqDelete = (id) =>
-  prisma.prerequisite.delete({ where: { id } });
+export const prereqDelete = (id) => prisma.prerequisite.delete({ where: { id } });
 
 export const prereqCheckSatisfied = async (studentId, courseId) => {
   const prereqs = await prisma.prerequisite.findMany({ where: { courseId } });
@@ -25,9 +23,19 @@ export const prereqCheckSatisfied = async (studentId, courseId) => {
       },
     });
     if (!grade) {
-      missing.push({ courseId: prereq.prereqCourseId, courseCode: prereq.prereqCourse.code, reason: 'Ders hiç alınmamış' });
+      missing.push({
+        courseId: prereq.prereqCourseId,
+        courseCode: prereq.prereqCourse.code,
+        reason: 'Ders hiç alınmamış',
+      });
     } else if (grade.gradePoint !== null && prereq.minGradePoint && grade.gradePoint < prereq.minGradePoint) {
-      missing.push({ courseId: prereq.prereqCourseId, courseCode: prereq.prereqCourse.code, gradePoint: grade.gradePoint, minRequired: prereq.minGradePoint, reason: 'Not yetersiz' });
+      missing.push({
+        courseId: prereq.prereqCourseId,
+        courseCode: prereq.prereqCourse.code,
+        gradePoint: grade.gradePoint,
+        minRequired: prereq.minGradePoint,
+        reason: 'Not yetersiz',
+      });
     } else if (grade.gradePoint === null || grade.gradePoint === 0) {
       missing.push({ courseId: prereq.prereqCourseId, courseCode: prereq.prereqCourse.code, reason: 'Ders başarısız' });
     }

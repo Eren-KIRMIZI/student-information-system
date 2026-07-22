@@ -2,7 +2,13 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import * as userRepository from '../repositories/user.repository.js';
 import * as refreshTokenRepository from '../repositories/refreshToken.repository.js';
-import { generateAccessToken, generateRefreshToken, generateResetToken, verifyResetToken, hashToken } from '../utils/token.util.js';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  generateResetToken,
+  verifyResetToken,
+  hashToken,
+} from '../utils/token.util.js';
 import { AppError } from '../utils/appError.util.js';
 import { logEvent } from '../utils/logger.js';
 
@@ -127,9 +133,7 @@ export const resetPassword = async (token, newPassword) => {
 };
 
 export const changePassword = async (userId, currentPassword, newPassword) => {
-  const user = await userRepository.findByEmailWithRole(
-    (await userRepository.findById(userId))?.email
-  );
+  const user = await userRepository.findByEmailWithRole((await userRepository.findById(userId))?.email);
 
   if (!user) throw new AppError('Kullanıcı bulunamadı', 404);
 

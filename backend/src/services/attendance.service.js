@@ -31,8 +31,10 @@ export const recordAttendance = async (courseSectionId, data, reqUser) => {
       throw new AppError('Bu ders şubesine yoklama girme yetkiniz yok', 403);
     }
   }
-  const payload = records.map(r => ({ enrollmentId: r.enrollmentId, date, status: r.status }));
+  const payload = records.map((r) => ({ enrollmentId: r.enrollmentId, date, status: r.status }));
   const result = await repo.attendanceBulkUpsert(payload, recordedById);
-  try { getIO().to(`courseSection:${courseSectionId}`).emit('attendance:updated', { courseSectionId, date }); } catch {}
+  try {
+    getIO().to(`courseSection:${courseSectionId}`).emit('attendance:updated', { courseSectionId, date });
+  } catch {}
   return result;
 };

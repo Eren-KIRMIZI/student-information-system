@@ -33,7 +33,7 @@ export const initOpenTelemetry = () => {
     });
 
     sdk.start();
-    
+
     // Uygulama kapandığında SDK'yı düzgün kapat
     process.on('SIGTERM', () => {
       sdk.shutdown().finally(() => process.exit(0));
@@ -57,7 +57,7 @@ export const getActiveTraceId = () => {
   if (spanContext?.traceId) {
     return spanContext.traceId;
   }
-  
+
   // OTel aktif değilse kendi context'imizden çekiyoruz
   return getContextValue('traceId');
 };

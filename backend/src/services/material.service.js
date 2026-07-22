@@ -6,13 +6,13 @@ import { auditLog } from '../utils/audit.js';
 
 export const createMaterial = async (file, data, user) => {
   if (!file) throw new AppError('Dosya yüklenmedi', 400);
-  
+
   const { title, description, week, visibility, courseSectionId } = data;
 
   // Check permissions: Admin or Academician assigned to this section
   if (user.role === 'ACADEMICIAN') {
     const section = await prisma.courseSection.findFirst({
-      where: { id: courseSectionId, lecturerId: user.lecturer?.id }
+      where: { id: courseSectionId, lecturerId: user.lecturer?.id },
     });
     if (!section) throw new AppError('Bu şubeye materyal yükleme yetkiniz yok', 403);
   } else if (user.role !== 'ADMIN') {
@@ -35,9 +35,9 @@ export const createMaterial = async (file, data, user) => {
       extension: storageResult.extension,
       fileSize: storageResult.fileSize,
       uploaderId: user.id,
-      courseSectionId
+      courseSectionId,
     },
-    include: { uploader: { select: { id: true, email: true } } }
+    include: { uploader: { select: { id: true, email: true } } },
   });
 
   // Socket notification to enrolled students
@@ -51,7 +51,7 @@ export const createMaterial = async (file, data, user) => {
     entityId: material.id,
     method: 'POST',
     path: '/api/v1/materials',
-    after: material
+    after: material,
   });
 
   return material;
@@ -61,25 +61,27 @@ export const getSectionMaterials = async (courseSectionId, user) => {
   // Access check
   if (user.role === 'STUDENT') {
     const enrollment = await prisma.enrollment.findFirst({
-      where: { courseSectionId, studentId: user.student?.id }
+      where: { courseSectionId, studentId: user.student?.id },
     });
     if (!enrollment) throw new AppError('Bu dersin materyallerini göremezsiniz', 403);
   }
 
   return prisma.courseMaterial.findMany({
-    where: { 
+    where: {
       courseSectionId,
-      ...(user.role === 'STUDENT' ? { visibility: 'STUDENTS' } : {}) 
+      ...(user.role === 'STUDENT' ? { visibility: 'STUDENTS' } : {}),
     },
     orderBy: { createdAt: 'desc' },
-    include: { uploader: { select: { id: true, email: true, lecturer: { select: { firstName: true, lastName: true } } } } }
+    include: {
+      uploader: { select: { id: true, email: true, lecturer: { select: { firstName: true, lastName: true } } } },
+    },
   });
 };
 
 export const incrementDownload = async (id, user) => {
   const material = await prisma.courseMaterial.update({
     where: { id },
-    data: { downloadCount: { increment: 1 } }
+    data: { downloadCount: { increment: 1 } },
   });
 
   await auditLog({
@@ -88,7 +90,7 @@ export const incrementDownload = async (id, user) => {
     entity: 'CourseMaterial',
     entityId: material.id,
     method: 'GET',
-    path: `/api/v1/materials/${id}/download`
+    path: `/api/v1/materials/${id}/download`,
   });
 
   return material;
@@ -100,7 +102,7 @@ export const deleteMaterial = async (id, user) => {
 
   if (user.role === 'ACADEMICIAN') {
     if (material.uploaderId !== user.id) {
-       throw new AppError('Sadece kendi yüklediğiniz materyali silebilirsiniz', 403);
+      throw new AppError('Sadece kendi yüklediğiniz materyali silebilirsiniz', 403);
     }
   } else if (user.role !== 'ADMIN') {
     throw new AppError('Silme yetkiniz yok', 403);
@@ -115,7 +117,7 @@ export const deleteMaterial = async (id, user) => {
     entity: 'CourseMaterial',
     entityId: id,
     method: 'DELETE',
-    path: `/api/v1/materials/${id}`
+    path: `/api/v1/materials/${id}`,
   });
 
   return true;

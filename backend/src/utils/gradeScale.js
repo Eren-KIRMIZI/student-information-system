@@ -9,10 +9,10 @@ const GRADE_THRESHOLDS = [
   { min: 50, letter: 'FD', point: 0.5 },
 ];
 
-export const GRADE_POINT_MAP = Object.fromEntries(GRADE_THRESHOLDS.map(t => [t.letter, t.point]));
+export const GRADE_POINT_MAP = Object.fromEntries(GRADE_THRESHOLDS.map((t) => [t.letter, t.point]));
 GRADE_POINT_MAP.FF = 0.0;
 
-export const LETTER_GRADES = GRADE_THRESHOLDS.map(t => t.letter).concat('FF');
+export const LETTER_GRADES = GRADE_THRESHOLDS.map((t) => t.letter).concat('FF');
 
 export const computeLetterGrade = (midtermScore, finalScore, makeupScore) => {
   const effectiveFinal = makeupScore ?? finalScore;
@@ -25,7 +25,7 @@ export const computeLetterGrade = (midtermScore, finalScore, makeupScore) => {
 };
 
 export const computeSemesterGPA = (grades) => {
-  const active = grades.filter(g => g.gradePoint != null && g.enrollment?.courseSection?.course?.credit);
+  const active = grades.filter((g) => g.gradePoint != null && g.enrollment?.courseSection?.course?.credit);
   if (!active.length) return { gpa: 0, totalCredits: 0 };
   const totalCredits = active.reduce((s, g) => s + g.enrollment.courseSection.course.credit, 0);
   const totalPoints = active.reduce((s, g) => s + g.gradePoint * g.enrollment.courseSection.course.credit, 0);

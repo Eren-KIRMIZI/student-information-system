@@ -12,15 +12,28 @@ export const getMyAnalytics = async (userId) => {
   for (const g of grades) {
     const cs = g.enrollment.courseSection;
     const key = `${cs.academicYear}-${cs.semester}`;
-    if (!semesterMap[key]) semesterMap[key] = { academicYear: cs.academicYear, semester: cs.semester, courses: [], totalCredits: 0, totalPoints: 0 };
-    semesterMap[key].courses.push({ code: cs.course.code, name: cs.course.name, credit: cs.course.credit, gradePoint: g.gradePoint, letterGrade: g.letterGrade });
+    if (!semesterMap[key])
+      semesterMap[key] = {
+        academicYear: cs.academicYear,
+        semester: cs.semester,
+        courses: [],
+        totalCredits: 0,
+        totalPoints: 0,
+      };
+    semesterMap[key].courses.push({
+      code: cs.course.code,
+      name: cs.course.name,
+      credit: cs.course.credit,
+      gradePoint: g.gradePoint,
+      letterGrade: g.letterGrade,
+    });
     if (g.gradePoint !== null) {
       semesterMap[key].totalCredits += cs.course.credit;
       semesterMap[key].totalPoints += g.gradePoint * cs.course.credit;
     }
   }
 
-  const gpaTrends = Object.values(semesterMap).map(s => ({
+  const gpaTrends = Object.values(semesterMap).map((s) => ({
     academicYear: s.academicYear,
     semester: s.semester,
     gpa: s.totalCredits > 0 ? Math.round((s.totalPoints / s.totalCredits) * 100) / 100 : 0,
@@ -31,7 +44,9 @@ export const getMyAnalytics = async (userId) => {
   for (const g of grades) {
     if (g.letterGrade) letterCounts[g.letterGrade] = (letterCounts[g.letterGrade] || 0) + 1;
   }
-  const gradeDistribution = Object.entries(letterCounts).map(([letter, count]) => ({ letter, count })).sort((a, b) => a.letter.localeCompare(b.letter));
+  const gradeDistribution = Object.entries(letterCounts)
+    .map(([letter, count]) => ({ letter, count }))
+    .sort((a, b) => a.letter.localeCompare(b.letter));
 
   const attendanceByCourse = {};
   for (const a of attendances) {
@@ -43,7 +58,8 @@ export const getMyAnalytics = async (userId) => {
     else if (a.status === 'LATE') attendanceByCourse[courseName].late++;
   }
 
-  let cumGpa = 0, totalCred = 0;
+  let cumGpa = 0,
+    totalCred = 0;
   for (const g of grades) {
     if (g.gradePoint !== null) {
       totalCred += g.enrollment.courseSection.course.credit;
@@ -54,11 +70,15 @@ export const getMyAnalytics = async (userId) => {
   return {
     gpaTrends,
     gradeDistribution,
-    attendanceSummary: Object.entries(attendanceByCourse).map(([courseName, data]) => ({ courseName, ...data, rate: data.total > 0 ? Math.round((data.present / data.total) * 100) : 0 })),
+    attendanceSummary: Object.entries(attendanceByCourse).map(([courseName, data]) => ({
+      courseName,
+      ...data,
+      rate: data.total > 0 ? Math.round((data.present / data.total) * 100) : 0,
+    })),
     cumulativeGpa: totalCred > 0 ? Math.round((cumGpa / totalCred) * 100) / 100 : 0,
     totalCredits: totalCred,
     totalCourses: grades.length,
-    passedCourses: grades.filter(g => g.gradePoint > 0).length,
-    failedCourses: grades.filter(g => g.gradePoint === 0).length,
+    passedCourses: grades.filter((g) => g.gradePoint > 0).length,
+    failedCourses: grades.filter((g) => g.gradePoint === 0).length,
   };
 };

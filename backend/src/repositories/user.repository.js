@@ -15,7 +15,11 @@ export const findByIdWithRole = (id) =>
 export const findById = (id) =>
   prisma.user.findUnique({
     where: { id },
-    include: { role: true, student: { include: { department: { include: { faculty: true } } } }, lecturer: { include: { department: { include: { faculty: true } } } } },
+    include: {
+      role: true,
+      student: { include: { department: { include: { faculty: true } } } },
+      lecturer: { include: { department: { include: { faculty: true } } } },
+    },
   });
 
 export const updateLastLogin = (id) =>
@@ -36,8 +40,6 @@ export const findMany = ({ skip = 0, take = 20, where = {}, orderBy = { createdA
     prisma.user.count({ where }),
   ]);
 
-export const create = (data) =>
-  prisma.user.create({ data, include: { role: true } });
+export const create = (data) => prisma.user.create({ data, include: { role: true } });
 
-export const update = (id, data) =>
-  prisma.user.update({ where: { id }, data, include: { role: true } });
+export const update = (id, data) => prisma.user.update({ where: { id }, data, include: { role: true } });

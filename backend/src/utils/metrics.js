@@ -1,23 +1,16 @@
-import {
-  register,
-  getMetrics,
-  metricsContentType,
-  initMetrics
-} from '../observability/metrics/index.js';
+import { register, getMetrics, metricsContentType, initMetrics } from '../observability/metrics/index.js';
 
 import {
   httpRequestsTotal,
-  httpRequestDurationSeconds as httpRequestDuration
+  httpRequestDurationSeconds as httpRequestDuration,
 } from '../observability/metrics/httpMetrics.js';
 
 import {
   redisCacheHitsTotal as redisCacheHits,
-  redisCacheMissesTotal as redisCacheMisses
+  redisCacheMissesTotal as redisCacheMisses,
 } from '../observability/metrics/redisMetrics.js';
 
-import {
-  queueJobsTotal
-} from '../observability/metrics/queueMetrics.js';
+import { queueJobsTotal } from '../observability/metrics/queueMetrics.js';
 
 import client from 'prom-client';
 
@@ -54,4 +47,3 @@ export {
   redisCacheMisses,
   queueJobsTotal,
 };
-

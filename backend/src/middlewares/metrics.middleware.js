@@ -32,6 +32,6 @@ export const metricsMiddleware = (req, res, next) => {
 function normalizeRoute(path) {
   return path
     .replace(/\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, '/:uuid')
-    .replace(/\/c[a-z0-9]{20,30}/gi, '/:id')        // cuid
-    .replace(/\/\d+/g, '/:n');                        // numeric
+    .replace(/\/c[a-z0-9]{20,30}/gi, '/:id') // cuid
+    .replace(/\/\d+/g, '/:n'); // numeric
 }

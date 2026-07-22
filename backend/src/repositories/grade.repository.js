@@ -15,8 +15,7 @@ export const gradeFindTranscript = (studentId) =>
 export const studentFindWithDept = (userId) =>
   prisma.student.findUnique({ where: { userId }, include: { department: { include: { faculty: true } } } });
 
-export const gradeFindById = (enrollmentId) =>
-  prisma.grade.findUnique({ where: { enrollmentId } });
+export const gradeFindById = (enrollmentId) => prisma.grade.findUnique({ where: { enrollmentId } });
 
 export const gradeUpsert = (enrollmentId, data) =>
   prisma.grade.upsert({
@@ -28,5 +27,4 @@ export const gradeUpsert = (enrollmentId, data) =>
 export const gradeFinalize = (enrollmentId) =>
   prisma.grade.update({ where: { enrollmentId }, data: { isFinalized: true } });
 
-export const lecturerFindByUserId = (userId) =>
-  prisma.lecturer.findUnique({ where: { userId }, select: { id: true } });
+export const lecturerFindByUserId = (userId) => prisma.lecturer.findUnique({ where: { userId }, select: { id: true } });

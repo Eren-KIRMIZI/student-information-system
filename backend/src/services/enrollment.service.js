@@ -10,8 +10,18 @@ const paginate = (page, limit) => ({ skip: (Number(page) - 1) * Number(limit), t
 
 export const listEnrollments = async ({ page = 1, limit = 20, status, courseSectionId, studentId, sortBy, order }) => {
   const cappedLimit = Math.min(Number(limit), 100);
-  const [data, total] = await repo.enrollmentFindMany({ ...paginate(page, cappedLimit), status, courseSectionId, studentId, sortBy, order });
-  return { data, pagination: { page: Number(page), limit: cappedLimit, total, totalPages: Math.ceil(total / cappedLimit) } };
+  const [data, total] = await repo.enrollmentFindMany({
+    ...paginate(page, cappedLimit),
+    status,
+    courseSectionId,
+    studentId,
+    sortBy,
+    order,
+  });
+  return {
+    data,
+    pagination: { page: Number(page), limit: cappedLimit, total, totalPages: Math.ceil(total / cappedLimit) },
+  };
 };
 
 export const getMyEnrollments = async (userId) => {
@@ -24,10 +34,12 @@ export const createEnrollment = async (userId, courseSectionId) => {
   const student = await repo.studentFindByUserId(userId);
   if (!student) throw new AppError('Öğrenci profili bulunamadı', 404);
 
-  const section = await import('../config/prisma.js').then(m => m.default.courseSection.findUnique({
-    where: { id: courseSectionId },
-    include: { _count: { select: { enrollments: true } }, course: true },
-  }));
+  const section = await import('../config/prisma.js').then((m) =>
+    m.default.courseSection.findUnique({
+      where: { id: courseSectionId },
+      include: { _count: { select: { enrollments: true } }, course: true },
+    }),
+  );
   if (!section) throw new AppError('Ders şubesi bulunamadı', 404);
 
   // Rule 1: Section closed/archived
@@ -61,7 +73,12 @@ export const createEnrollment = async (userId, courseSectionId) => {
 
   const result = await repo.enrollmentCreate({ studentId: student.id, courseSectionId, status: 'PENDING' });
   await cache.invalidatePattern('dash:*');
-  try { getIO().to('role:admin').to('role:academician').emit('enrollment:created', { enrollmentId: result.id, studentId: student.id }); } catch {}
+  try {
+    getIO()
+      .to('role:admin')
+      .to('role:academician')
+      .emit('enrollment:created', { enrollmentId: result.id, studentId: student.id });
+  } catch {}
   return result;
 };
 
@@ -87,7 +104,9 @@ export const approveEnrollment = async (id, reqUser) => {
   await checkAcademicianSectionOwnership(id, reqUser);
   const result = await repo.enrollmentUpdate(id, { status: 'ACTIVE' });
   await cache.invalidatePattern('dash:*');
-  try { getIO().to(`student:${e.student.userId}`).emit('enrollment:updated', { enrollmentId: id, status: 'ACTIVE' }); } catch {}
+  try {
+    getIO().to(`student:${e.student.userId}`).emit('enrollment:updated', { enrollmentId: id, status: 'ACTIVE' });
+  } catch {}
   return result;
 };
 
@@ -97,7 +116,9 @@ export const rejectEnrollment = async (id, reqUser) => {
   await checkAcademicianSectionOwnership(id, reqUser);
   const result = await repo.enrollmentUpdate(id, { status: 'REJECTED' });
   await cache.invalidatePattern('dash:*');
-  try { getIO().to(`student:${e.student.userId}`).emit('enrollment:updated', { enrollmentId: id, status: 'REJECTED' }); } catch {}
+  try {
+    getIO().to(`student:${e.student.userId}`).emit('enrollment:updated', { enrollmentId: id, status: 'REJECTED' });
+  } catch {}
   return result;
 };
 
