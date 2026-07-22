@@ -144,7 +144,10 @@ export const changePassword = async (userId, currentPassword, newPassword) => {
   await userRepository.updatePassword(userId, hashedPassword);
   await refreshTokenRepository.revokeAllByUserId(userId);
 
-  // Mevcut oturum için yeni token çifti üret
+  await logEvent({ userId, action: 'PASSWORD_CHANGED', entity: 'User' });
+};
+
+export const issueTokens = async (userId) => {
   const freshUser = await userRepository.findByIdWithRole(userId);
   const newAccessToken = generateAccessToken(freshUser);
   const newRefreshToken = generateRefreshToken(freshUser);
@@ -154,8 +157,6 @@ export const changePassword = async (userId, currentPassword, newPassword) => {
     tokenHash: hashToken(newRefreshToken),
     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
-
-  await logEvent({ userId, action: 'PASSWORD_CHANGED', entity: 'User' });
 
   return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 };

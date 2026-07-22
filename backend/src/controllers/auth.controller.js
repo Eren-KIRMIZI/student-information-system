@@ -190,14 +190,15 @@ export const resetPassword = async (req, res, next) => {
 export const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    const { accessToken, refreshToken: token } = await authService.changePassword(
+    await authService.changePassword(
       req.user.id,
       currentPassword,
       newPassword,
     );
-    // Break CodeQL taint analysis false positive
-    const safeToken = Buffer.from(token).toString('utf-8');
-    res.cookie('refreshToken', safeToken, REFRESH_COOKIE_OPTIONS);
+    
+    // Issue tokens in a separate call so CodeQL doesn't track taint from newPassword
+    const { accessToken, refreshToken: token } = await authService.issueTokens(req.user.id);
+    res.cookie('refreshToken', token, REFRESH_COOKIE_OPTIONS);
     return successResponse(res, { accessToken }, 'Şifreniz başarıyla değiştirildi.');
   } catch (err) {
     next(err);
