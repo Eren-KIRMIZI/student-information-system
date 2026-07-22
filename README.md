@@ -1058,3 +1058,55 @@ Sistem, production ortamı için endüstri standartlarında tam teşekküllü (M
   Arka planda Socket.io üzerinden `SYSTEM_METRICS_INTERVAL` (örn: `5000` ms) sıklığında CPU, Heap, Uptime ve Ram metriklerini yayınlar. **Bu metrikler, sistem yöneticisinin (Admin) Gelişmiş Dashboard ekranında anlık olarak görselleştirilir.**
 - **CI / CD Pipeline**:
   Github Actions (`.github/workflows/ci.yml`) üzerinden her PR ve Push işleminde otomatik `Lint`, `Typecheck` (uygulanabilirse), `Test` ve `Build` senaryoları koşulur (Docker bağımsızdır).
+
+---
+
+## Yayına Alma (Deployment)
+
+Projenin yayına alınması için **Vercel** (Frontend) ve **Railway** (Backend) kullanılması tavsiye edilmektedir. Deployment sürecinde Docker/Container yapıları **kullanılmamaktadır**. Platformların sunduğu yerleşik Node.js çalışma zamanları (runtime) kullanılmaktadır.
+
+### Mimari
+
+```text
+GitHub
+│
+├── Frontend (React + Vite)  --> Vercel
+│
+├── Backend (Express)        --> Railway
+│
+├── PostgreSQL               --> Railway PostgreSQL
+│
+└── Redis                    --> Railway Redis
+```
+
+### Production Environment Variables (Backend - Railway)
+Railway paneli üzerinden ayarlanması gereken değişkenler:
+
+```env
+NODE_ENV=production
+
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/obs_db"
+REDIS_URL="redis://:PASSWORD@HOST:PORT"
+
+JWT_SECRET="generate_random_64_bytes"
+JWT_REFRESH_SECRET="generate_random_64_bytes"
+JWT_RESET_SECRET="generate_random_64_bytes"
+
+CORS_ORIGIN="https://obs-frontend.vercel.app"
+CLIENT_URL="https://obs-frontend.vercel.app"
+API_URL="https://obs-api.up.railway.app"
+```
+
+### Prisma Deployment
+Production ortamında `prisma db push` komutu kullanılmamalıdır. Bunun yerine, Railway yapılandırması (railway.json) içerisinde şu komutlar koşturulmalıdır:
+```bash
+npx prisma generate
+npx prisma migrate deploy
+```
+
+### Deploy Sonrası Doğrulama (Smoke Test)
+Deployment sonrasında aşağıdaki kontrollerin yapılması önemle tavsiye edilir:
+1. **Health Check:** `GET /health`, `GET /ready`, `GET /live`
+2. **Monitoring:** `GET /metrics` üzerinden metrik akışı
+3. **Güvenlik Başlıkları:** Helmet, HTTPS, CORS, Secure Cookies doğrulaması
+4. **Fonksiyonel Testler:** Login, Socket.IO bağlantısı, Arka plan görevleri (Redis/BullMQ)
