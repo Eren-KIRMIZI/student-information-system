@@ -118,15 +118,15 @@ model Role {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String
-  roleId        String
-  role          Role      @relation(fields: [roleId], references: [id])
-  isActive      Boolean   @default(true)
-  lastLoginAt   DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  email       String    @unique
+  password    String
+  roleId      String
+  role        Role      @relation(fields: [roleId], references: [id])
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   student       Student?
   lecturer      Lecturer?
@@ -137,7 +137,7 @@ model User {
   qrTokens      QRToken[]
   materials     CourseMaterial[]
   conversations ConversationParticipant[]
-  messages      Message[] @relation("SentMessages")
+  messages      Message[]                 @relation("SentMessages")
 
   @@map("users")
 }
@@ -169,18 +169,18 @@ model Faculty {
 }
 
 model Department {
-  id        String     @id @default(cuid())
-  name      String
-  code      String     @unique
-  facultyId String
-  faculty   Faculty    @relation(fields: [facultyId], references: [id], onDelete: Restrict)
-  students  Student[]
-  lecturers Lecturer[]
-  courses   Course[]
+  id                    String                 @id @default(cuid())
+  name                  String
+  code                  String                 @unique
+  facultyId             String
+  faculty               Faculty                @relation(fields: [facultyId], references: [id], onDelete: Restrict)
+  students              Student[]
+  lecturers             Lecturer[]
+  courses               Course[]
   graduationRequirement GraduationRequirement?
-  courseGroups CourseGroup[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  courseGroups          CourseGroup[]
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
 
   @@index([facultyId])
   @@map("departments")
@@ -259,46 +259,46 @@ model AdvisorAssignment {
 // ==================== ACADEMIC STRUCTURE ====================
 
 model Course {
-  id           String          @id @default(cuid())
-  code         String          @unique
-  name         String
-  credit       Int
-  ects         Int
-  departmentId String
-  department   Department      @relation(fields: [departmentId], references: [id], onDelete: Restrict)
-  description  String?
-  courseType   CourseType      @default(REQUIRED)
-  sections     CourseSection[]
-  prerequisites  Prerequisite[]  @relation("RequiredCourse")
-  requiredBy     Prerequisite[]  @relation("PrereqCourse")
-  groupItems     CourseGroupItem[]
-  createdAt      DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  id            String            @id @default(cuid())
+  code          String            @unique
+  name          String
+  credit        Int
+  ects          Int
+  departmentId  String
+  department    Department        @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  description   String?
+  courseType    CourseType        @default(REQUIRED)
+  sections      CourseSection[]
+  prerequisites Prerequisite[]    @relation("RequiredCourse")
+  requiredBy    Prerequisite[]    @relation("PrereqCourse")
+  groupItems    CourseGroupItem[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
   @@index([departmentId])
   @@map("courses")
 }
 
 model CourseSection {
-  id           String           @id @default(cuid())
-  courseId     String
-  course       Course           @relation(fields: [courseId], references: [id], onDelete: Restrict)
-  lecturerId   String
-  lecturer     Lecturer         @relation(fields: [lecturerId], references: [id], onDelete: Restrict)
-  academicYear String
-  semester     Semester
-  quota        Int
-  classroom    String?
-  isArchived   Boolean          @default(false)
-  enrollments  Enrollment[]
-  weeklySlots  WeeklySchedule[]
-  examSlots    ExamSchedule[]
-  materials    Upload[]
+  id              String           @id @default(cuid())
+  courseId        String
+  course          Course           @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  lecturerId      String
+  lecturer        Lecturer         @relation(fields: [lecturerId], references: [id], onDelete: Restrict)
+  academicYear    String
+  semester        Semester
+  quota           Int
+  classroom       String?
+  isArchived      Boolean          @default(false)
+  enrollments     Enrollment[]
+  weeklySlots     WeeklySchedule[]
+  examSlots       ExamSchedule[]
+  materials       Upload[]
   courseMaterials CourseMaterial[]
-  waitlist     Waitlist[]
-  qrTokens     QRToken[]
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  waitlist        Waitlist[]
+  qrTokens        QRToken[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@unique([courseId, academicYear, semester, lecturerId])
   @@index([academicYear, semester])
@@ -369,7 +369,7 @@ model WeeklySchedule {
   courseSectionId String
   courseSection   CourseSection @relation(fields: [courseSectionId], references: [id], onDelete: Cascade)
   dayOfWeek       DayOfWeek
-  startTime       String        // "09:00" formatı
+  startTime       String // "09:00" formatı
   endTime         String
   classroom       String?
   createdAt       DateTime      @default(now())
@@ -524,12 +524,12 @@ model IdempotencyRecord {
 // ==================== ADVANCED: PREREQUISITES ====================
 
 model Prerequisite {
-  id              String  @id @default(cuid())
-  courseId         String
-  requiredCourse   Course           @relation("RequiredCourse", fields: [courseId], references: [id], onDelete: Cascade)
-  prereqCourseId   String
-  prereqCourse     Course           @relation("PrereqCourse", fields: [prereqCourseId], references: [id], onDelete: Cascade)
-  minGradePoint    Float?
+  id             String @id @default(cuid())
+  courseId       String
+  requiredCourse Course @relation("RequiredCourse", fields: [courseId], references: [id], onDelete: Cascade)
+  prereqCourseId String
+  prereqCourse   Course @relation("PrereqCourse", fields: [prereqCourseId], references: [id], onDelete: Cascade)
+  minGradePoint  Float?
 
   @@unique([courseId, prereqCourseId])
   @@map("prerequisites")
@@ -589,17 +589,17 @@ model QRScan {
 // ==================== ADVANCED: GRADUATION REQUIREMENTS ====================
 
 model GraduationRequirement {
-  id             String   @id @default(cuid())
-  departmentId   String
-  department     Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  totalEcts      Int      @default(240)
-  minGpa         Float    @default(2.0)
-  maxFfCount     Int      @default(0)
-  requiredCredits Int     // zorunlu ders kredisi
-  maxRetakes     Int      @default(3)
-  description    String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              String     @id @default(cuid())
+  departmentId    String
+  department      Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  totalEcts       Int        @default(240)
+  minGpa          Float      @default(2.0)
+  maxFfCount      Int        @default(0)
+  requiredCredits Int // zorunlu ders kredisi
+  maxRetakes      Int        @default(3)
+  description     String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   @@unique([departmentId])
   @@map("graduation_requirements")
@@ -608,25 +608,25 @@ model GraduationRequirement {
 // ==================== ADVANCED: COURSE PREREQUISITE GROUPS ====================
 
 model CourseGroup {
-  id          String          @id @default(cuid())
-  name        String
+  id           String            @id @default(cuid())
+  name         String
   departmentId String
-  department  Department      @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  minCredits  Int
-  courses     CourseGroupItem[]
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  department   Department        @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  minCredits   Int
+  courses      CourseGroupItem[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 
   @@map("course_groups")
 }
 
 model CourseGroupItem {
-  id          String      @id @default(cuid())
-  groupId     String
-  group       CourseGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  courseId     String
-  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  isRequired  Boolean     @default(false)
+  id         String      @id @default(cuid())
+  groupId    String
+  group      CourseGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  courseId   String
+  course     Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  isRequired Boolean     @default(false)
 
   @@unique([groupId, courseId])
   @@map("course_group_items")
@@ -635,7 +635,7 @@ model CourseGroupItem {
 // ==================== ADVANCED: COURSE MATERIALS ====================
 
 model CourseMaterial {
-  id               String         @id @default(cuid())
+  id               String        @id @default(cuid())
   title            String
   description      String?
   week             Int?
@@ -645,14 +645,14 @@ model CourseMaterial {
   fileType         String
   extension        String
   fileSize         Int
-  visibility       String         @default("STUDENTS")
-  downloadCount    Int            @default(0)
+  visibility       String        @default("STUDENTS")
+  downloadCount    Int           @default(0)
   uploaderId       String
-  uploader         User           @relation(fields: [uploaderId], references: [id])
+  uploader         User          @relation(fields: [uploaderId], references: [id])
   courseSectionId  String
-  courseSection    CourseSection  @relation(fields: [courseSectionId], references: [id], onDelete: Cascade)
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  courseSection    CourseSection @relation(fields: [courseSectionId], references: [id], onDelete: Cascade)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
   @@index([courseSectionId])
   @@index([uploaderId])
@@ -662,10 +662,10 @@ model CourseMaterial {
 // ==================== ADVANCED: MESSAGING ====================
 
 model Conversation {
-  id            String   @id @default(cuid())
-  isGroup       Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id            String                    @id @default(cuid())
+  isGroup       Boolean                   @default(false)
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
   lastMessageAt DateTime?
   lastMessageId String?
   participants  ConversationParticipant[]
