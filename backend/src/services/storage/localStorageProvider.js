@@ -14,10 +14,18 @@ export class LocalStorageProvider extends StorageProvider {
   }
 
   async upload(file, purpose = 'OTHER') {
-    const ext = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g, '');
+    const ext = path
+      .extname(file.originalname)
+      .toLowerCase()
+      .replace(/[^.a-z0-9]/g, '');
     const cleanPurpose = path.basename(purpose);
     const storageKey = `${cleanPurpose}/${uuidv4()}${ext}`;
-    const absolutePath = path.join(this.uploadDir, storageKey);
+    const absolutePath = path.resolve(this.uploadDir, storageKey);
+
+    if (!absolutePath.startsWith(this.uploadDir)) {
+      throw new Error('Invalid storage key');
+    }
+
     const relativeUrl = `/uploads/${storageKey}`;
 
     // Ensure the subdirectory exists
