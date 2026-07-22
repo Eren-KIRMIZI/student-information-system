@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { GraduationCap, CalendarClock, Award, BookOpen, Megaphone, Clock } from 'lucide-react';
 import { getDashboardStudent } from '../../api/dashboard.api';
 import { StatCard, CardSkeleton, ErrorState, EmptyState, PageHeader } from '../../components/ui/index';
-import { ExamListItem, DashboardCard, DashboardListItem } from '../../components/feature/index';
+import { ExamListItem, DashboardCard, DashboardListItem, ProgressWidget } from '../../components/feature/index';
 import dayjs from 'dayjs';
 import 'dayjs/locale/tr';
 import { useAnnouncementSocket, useEnrollmentSocket } from '../../hooks/useSocket';
@@ -25,12 +25,60 @@ const StudentDashboard = () => {
       ) : isError ? (
         <ErrorState onRetry={refetch} />
       ) : (
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))', gap:16, marginBottom:24 }}>
-          <StatCard label="Genel Not Ortalaması" value={data?.gpa?.toFixed(2) ?? '—'} icon={Award} color="#2563eb" />
-          <StatCard label="Kayıtlı Ders" value={data?.totalCourses ?? 0} icon={BookOpen} color="#7c3aed" />
-          <StatCard label="Toplam AKTS" value={data?.totalEcts ?? 0} icon={GraduationCap} color="#059669" />
-          <StatCard label="Yaklaşan Sınav" value={data?.upcomingExams?.length ?? 0} icon={CalendarClock} color="#d97706" />
-        </div>
+        <>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))', gap:16, marginBottom:24 }}>
+            <StatCard label="Genel Not Ortalaması" value={data?.gpa?.toFixed(2) ?? '—'} icon={Award} color="#2563eb" />
+            <StatCard label="Kayıtlı Ders" value={data?.totalCourses ?? 0} icon={BookOpen} color="#7c3aed" />
+            <StatCard label="Toplam AKTS" value={data?.totalEcts ?? 0} icon={GraduationCap} color="#059669" />
+            <StatCard label="Yaklaşan Sınav" value={data?.upcomingExams?.length ?? 0} icon={CalendarClock} color="#d97706" />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <ProgressWidget 
+                title="AKTS İlerlemesi" 
+                current={data?.totalEcts || 0} 
+                total={240} 
+                suffix="AKTS" 
+                color="#059669" 
+              />
+              <ProgressWidget 
+                title="Mezuniyet Durumu" 
+                current={data?.totalEcts ? Math.min(100, Math.round((data.totalEcts / 240) * 100)) : 0} 
+                total={100} 
+                suffix="%" 
+                color="#2563eb" 
+              />
+            </div>
+
+            <DashboardCard icon={BookOpen} iconBg="#eff6ff" iconColor="#3b82f6" title="Bugünün Özeti">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px', background: 'var(--color-surface)', borderRadius: 8, border: '1px solid var(--color-border)' }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} />
+                  <div style={{ flex: 1, fontSize: 14 }}>
+                    <span style={{ fontWeight: 600 }}>Yazılım Mühendisliği</span> (10:00 - 12:00)
+                  </div>
+                  <div style={{ fontSize: 12, color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    Yoklama Açık
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px', background: 'var(--color-surface)', borderRadius: 8, border: '1px solid var(--color-border)' }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#6b7280' }} />
+                  <div style={{ flex: 1, fontSize: 14 }}>
+                    <span style={{ fontWeight: 600 }}>Algoritma Analizi</span> (14:00 - 16:00)
+                  </div>
+                </div>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px', background: '#fffbeb', borderRadius: 8, border: '1px solid #fde68a' }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#f59e0b' }} />
+                  <div style={{ flex: 1, fontSize: 14, color: '#92400e' }}>
+                    <span style={{ fontWeight: 600 }}>2</span> adet bekleyen ders kayıt talebiniz var.
+                  </div>
+                </div>
+              </div>
+            </DashboardCard>
+          </div>
+        </>
       )}
 
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>

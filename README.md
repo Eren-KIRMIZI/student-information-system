@@ -129,14 +129,11 @@ Fakulte > Bolum > Ders > Ders Subesi hiyerarsisi uzerinde tam CRUD islemi:
 - Riskli ogrencilerin tespiti (dusuk GPA, cok sayida basarisiz ders)
 - Ogrenci detay gorunumu
 
-#### Gelismis Admin Dashboard
+#### Gelistirilmis Dashboard Arayuzleri
 
-- Sistem genelinde KPI'lar: toplam ogrenci, akademisyen, ders, kayit
-- Harf notu dagilim grafigi
-- Bolum bazli GPA ortalamasi
-- Onay bekleyen kayit sayisi
-- Bolum istatistikleri tablosu
-
+- **Ogrenci Dashboard:** AKTS ve Mezuniyet yuzdesini gosteren ilerleme cubuklari, bugunun dersleri ve yoklama durumunu ozetleyen gosterge panelleri.
+- **Akademisyen Dashboard:** Bugun yoklama alinacak dersler, girilmeyen notlar ve bekleyen kayitlari vurgulayan "Bugunku Gorevler" paneli, ogrenci hareketlerini gosteren zaman cizelgesi (timeline).
+- **Admin Dashboard:** Kullanici, ders ve bolum ekleme islevleri icin hizli islem butonlari (Quick Actions), CPU/RAM ve veritabani baglanti durumlarini gosteren sistem sagligi metrikleri, bildirimler ve yaklasan olaylar icin takvim bileseni. Ayrica bolum bazli GPA ortalamasi ve harf notu dagilimi grafikleri.
 ### Sistem Yonetimi
 
 - Kullanici listeleme, olusturma, guncelleme, aktif/pasif yapma

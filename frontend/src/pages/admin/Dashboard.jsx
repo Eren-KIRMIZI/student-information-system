@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { GraduationCap, Users, BookOpen, ClipboardList, Megaphone, TrendingUp } from 'lucide-react';
 import { getDashboardAdmin } from '../../api/dashboard.api';
 import { StatCard, CardSkeleton, ErrorState, EmptyState, PageHeader, StatusBadge } from '../../components/ui/index';
-import { DashboardCard, DashboardListItem } from '../../components/feature/index';
+import { DashboardCard, DashboardListItem, QuickActions, NotificationWidget, RecentActivity, CalendarWidget, SystemHealth } from '../../components/feature/index';
 import dayjs from 'dayjs';
 import 'dayjs/locale/tr';
 import { useAnnouncementSocket, useEnrollmentSocket } from '../../hooks/useSocket';
@@ -31,6 +31,31 @@ const AdminDashboard = () => {
             <StatCard label="Akademisyen" value={data?.totalLecturers ?? 0} icon={Users} color="#7c3aed" />
             <StatCard label="Ders Sayısı" value={data?.totalCourses ?? 0} icon={BookOpen} color="#059669" />
             <StatCard label="Toplam Kayıt" value={data?.totalEnrollments ?? 0} icon={ClipboardList} color="#d97706" />
+          </div>
+
+          <div style={{ marginBottom: 24 }}>
+            <QuickActions />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+            <NotificationWidget notifications={[
+              { status: 'red', count: 6, text: 'kayıt bekliyor' },
+              { status: 'orange', count: 3, text: 'danışman ataması bekliyor' },
+              { status: 'yellow', count: 8, text: 'öğrencinin mezuniyet kontrolü eksik' },
+              { status: 'green', text: 'Sistem normal çalışıyor' }
+            ]} />
+            <RecentActivity activities={[
+              { time: '09:30', content: 'Ali Veli MAT101\'e kayıt oldu.', color: '#3b82f6' },
+              { time: '09:36', content: 'Ayşe Kaya Final notlarını girdi.', color: '#10b981' },
+              { time: '09:42', content: 'Bilgisayar Mühendisliği duyurusu yayınlandı.', color: '#8b5cf6' },
+              { time: '09:45', content: 'Yeni ders oluşturuldu.', color: '#f59e0b' },
+              { time: '09:48', content: 'Danışman ataması yapıldı.', color: '#ec4899' }
+            ]} />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+            <SystemHealth />
+            <CalendarWidget />
           </div>
 
           <div className="grid-auto-fit">
