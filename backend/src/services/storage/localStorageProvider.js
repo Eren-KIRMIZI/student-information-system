@@ -14,11 +14,14 @@ export class LocalStorageProvider extends StorageProvider {
   }
 
   async upload(file, purpose = 'OTHER') {
-    const ext = path
-      .extname(file.originalname)
-      .toLowerCase()
-      .replace(/[^.a-z0-9]/g, '');
-    const cleanPurpose = path.basename(purpose);
+    // Break taint on file extension using strict validation
+    const rawExt = path.extname(file.originalname || '').toLowerCase();
+    const ext = /^\.[a-z0-9]+$/.test(rawExt) ? rawExt : '';
+
+    // Break taint on purpose using strict validation
+    const rawPurpose = String(purpose || 'OTHER');
+    const cleanPurpose = /^[A-Za-z0-9_-]+$/.test(rawPurpose) ? rawPurpose : 'OTHER';
+
     const storageKey = `${cleanPurpose}/${uuidv4()}${ext}`;
     const absolutePath = path.resolve(this.uploadDir, storageKey);
 
