@@ -158,7 +158,7 @@ const LecturerList = () => {
 
       <Modal open={formOpen} onClose={() => setFormOpen(false)} title="Yeni Akademisyen" maxWidth={600}>
         <form onSubmit={handleSubmit((d) => createMutation.mutate(d))} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Ad</label>
               <input {...register('firstName', { required: 'Zorunlu' })} className={`input ${errors.firstName ? 'error' : ''}`} placeholder="Ayşe" />
@@ -171,7 +171,7 @@ const LecturerList = () => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">E-posta</label>
               <input type="email" {...register('email', { required: 'Zorunlu' })} className={`input ${errors.email ? 'error' : ''}`} placeholder="ayse@uni.edu.tr" />
@@ -184,7 +184,7 @@ const LecturerList = () => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Ünvan</label>
               <select {...register('title')} className="input">

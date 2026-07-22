@@ -1,12 +1,12 @@
 import { body } from 'express-validator';
 
 export const loginValidator = [
-  body('email').isEmail().withMessage('Geçerli bir e-posta adresi giriniz').normalizeEmail(),
+  body('email').trim().isEmail().withMessage('Geçerli bir e-posta adresi giriniz').normalizeEmail(),
   body('password').notEmpty().withMessage('Şifre zorunludur'),
 ];
 
 export const forgotPasswordValidator = [
-  body('email').isEmail().withMessage('Geçerli bir e-posta adresi giriniz').normalizeEmail(),
+  body('email').trim().isEmail().withMessage('Geçerli bir e-posta adresi giriniz').normalizeEmail(),
 ];
 
 export const resetPasswordValidator = [

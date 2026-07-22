@@ -10,7 +10,7 @@ const SharedLayout = () => {
   const role = typeof user?.role === 'object' ? user.role?.name : user?.role;
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="flex min-h-screen">
       <Sidebar role={role} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="layout-main">
         <Topbar onMenuClick={() => setSidebarOpen((o) => !o)} />

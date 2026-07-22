@@ -39,7 +39,11 @@ const Login = () => {
       toast.success('Hoş geldiniz!');
       navigate(roleRedirectMap[user.role] || '/');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'E-posta veya şifre hatalı');
+      if (!err.response) {
+        toast.error('Sunucuya ulaşılamıyor. Lütfen internet bağlantınızı kontrol edin.');
+      } else {
+        toast.error(err.response?.data?.message || 'Giriş yapılamadı, lütfen tekrar deneyin.');
+      }
     }
   };
 

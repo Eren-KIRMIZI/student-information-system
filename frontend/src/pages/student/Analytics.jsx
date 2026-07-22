@@ -19,7 +19,7 @@ const Analytics = () => {
     <div className="animate-fade-in">
       <PageHeader title="Akademik Analizlerim" subtitle="Not trendleri, not dağılımı ve devam istatistikleri" />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="card" style={{ textAlign: 'center', padding: 20 }}>
           <Award size={28} color="#2563eb" style={{ margin: '0 auto 8px' }} />
           <div style={{ fontSize: 28, fontWeight: 800, color: '#2563eb' }}>{data.cumulativeGpa?.toFixed(2) ?? '—'}</div>
@@ -42,7 +42,7 @@ const Analytics = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         <div className="card" style={{ padding: 20 }}>
           <h3 style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
             <TrendingUp size={18} /> Dönemlik GPA Trendi
@@ -91,7 +91,7 @@ const Analytics = () => {
           <h3 style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Clock size={18} /> Ders Bazlı Devam Durumu
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.attendanceSummary.map(a => (
               <div key={a.courseName} style={{ padding: 16, background: 'var(--color-bg-secondary)', borderRadius: 12 }}>
                 <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8 }}>{a.courseName}</div>

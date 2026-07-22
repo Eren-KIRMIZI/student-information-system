@@ -1,13 +1,41 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  getSectionWeeklySchedule, getMyWeeklySchedule, createWeeklySlot, updateWeeklySlot, deleteWeeklySlot,
-  getSectionExamSchedule, getMyExamSchedule, createExamSlot, updateExamSlot, deleteExamSlot,
-  getAnnouncements, getAnnouncement, createAnnouncement, updateAnnouncement, deleteAnnouncement,
-  getCalendarEvents, createCalendarEvent, updateCalendarEvent, deleteCalendarEvent,
-  getAdviseesByLecturer, getAdvisorAssignments, createAdvisorAssignment, deactivateAdvisorAssignment,
-  getMe, updateMe, uploadPhoto, getUsers, createUser, updateUser, updateUserStatus,
-  getRoles, updateRole, getLogs,
-  uploadFile, getSectionMaterials, deleteUpload,
+  getSectionWeeklySchedule,
+  getMyWeeklySchedule,
+  createWeeklySlot,
+  updateWeeklySlot,
+  deleteWeeklySlot,
+  getSectionExamSchedule,
+  getMyExamSchedule,
+  createExamSlot,
+  updateExamSlot,
+  deleteExamSlot,
+  getAnnouncements,
+  getAnnouncement,
+  createAnnouncement,
+  updateAnnouncement,
+  deleteAnnouncement,
+  getCalendarEvents,
+  createCalendarEvent,
+  updateCalendarEvent,
+  deleteCalendarEvent,
+  getAdviseesByLecturer,
+  getAdvisorAssignments,
+  createAdvisorAssignment,
+  deactivateAdvisorAssignment,
+  getMe,
+  updateMe,
+  uploadPhoto,
+  getUsers,
+  createUser,
+  updateUser,
+  updateUserStatus,
+  getRoles,
+  updateRole,
+  getLogs,
+  uploadFile,
+  getSectionMaterials,
+  deleteUpload,
 } from '../api/system.api';
 
 // ====== Weekly Schedule ======
@@ -167,8 +195,7 @@ export const useDeactivateAdvisorAssignment = () => {
 };
 
 // ====== Users / Profile ======
-export const useMe = () =>
-  useQuery({ queryKey: ['me'], queryFn: getMe });
+export const useMe = () => useQuery({ queryKey: ['me'], queryFn: getMe });
 
 export const useUpdateMe = () => {
   const qc = useQueryClient();
@@ -186,8 +213,7 @@ export const useUploadPhoto = () => {
   });
 };
 
-export const useUsers = (params) =>
-  useQuery({ queryKey: ['users', params], queryFn: () => getUsers(params) });
+export const useUsers = (params) => useQuery({ queryKey: ['users', params], queryFn: () => getUsers(params) });
 
 export const useCreateUser = () => {
   const qc = useQueryClient();
@@ -214,8 +240,7 @@ export const useUpdateUserStatus = () => {
 };
 
 // ====== Roles ======
-export const useRoles = () =>
-  useQuery({ queryKey: ['roles'], queryFn: getRoles });
+export const useRoles = () => useQuery({ queryKey: ['roles'], queryFn: getRoles });
 
 export const useUpdateRole = () => {
   const qc = useQueryClient();
@@ -226,8 +251,7 @@ export const useUpdateRole = () => {
 };
 
 // ====== Logs ======
-export const useLogs = (params) =>
-  useQuery({ queryKey: ['logs', params], queryFn: () => getLogs(params) });
+export const useLogs = (params) => useQuery({ queryKey: ['logs', params], queryFn: () => getLogs(params) });
 
 // ====== Uploads / Materials ======
 export const useSectionMaterials = (sectionId) =>

@@ -2,13 +2,8 @@ import { Outlet } from 'react-router-dom';
 
 const AuthLayout = () => {
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6" style={{
       background: 'linear-gradient(135deg, var(--color-primary-900) 0%, var(--color-primary-700) 50%, var(--color-primary-600) 100%)',
-      padding: '24px',
     }}>
       {/* Background decoration */}
       <div style={{

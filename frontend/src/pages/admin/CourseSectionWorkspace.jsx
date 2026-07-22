@@ -25,7 +25,7 @@ const DAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'
 const EXAM_TYPES = ['MIDTERM', 'FINAL', 'MAKEUP'];
 
 const GeneralTab = ({ section }) => (
-  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
     {[
       ['Ders', `${section.course?.code} — ${section.course?.name}`],
       ['Şube Kodu', section.sectionCode],
@@ -100,7 +100,7 @@ const WeeklyScheduleTab = ({ sectionId }) => {
             </select>
             {errors.dayOfWeek && <span className="input-error">{errors.dayOfWeek.message}</span>}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Başlangıç (HH:MM)</label>
               <input {...register('startTime', { required: 'Zorunlu', pattern: { value: /^\d{2}:\d{2}$/, message: 'HH:MM formatı' } })} className={`input ${errors.startTime ? 'error' : ''}`} placeholder="09:00" />
@@ -214,7 +214,7 @@ const ExamScheduleTab = ({ sectionId }) => {
             </select>
             {errors.examType && <span className="input-error">{errors.examType.message}</span>}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Tarih</label>
               <input type="date" {...register('examDate', { required: 'Zorunlu' })} className={`input ${errors.examDate ? 'error' : ''}`} />
@@ -226,7 +226,7 @@ const ExamScheduleTab = ({ sectionId }) => {
               {errors.startTime && <span className="input-error">{errors.startTime.message}</span>}
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Süre (dk)</label>
               <input type="number" min={30} {...register('duration', { required: 'Zorunlu' })} className={`input ${errors.duration ? 'error' : ''}`} placeholder="90" />

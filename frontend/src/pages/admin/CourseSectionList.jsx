@@ -262,7 +262,7 @@ const CourseSectionList = () => {
             {errors.lecturerId && <span className="input-error">{errors.lecturerId.message}</span>}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Akademik Yıl</label>
               <select {...register('academicYear', { required: 'Zorunlu' })} className={`input ${errors.academicYear ? 'error' : ''}`}>
@@ -281,7 +281,7 @@ const CourseSectionList = () => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Şube Kodu</label>
               <input

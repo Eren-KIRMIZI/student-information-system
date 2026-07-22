@@ -298,7 +298,7 @@ const MaterialsTab = ({ sectionId }) => {
     <div>
       <div className="card" style={{ marginBottom: 24, padding: 20 }}>
         <h4 style={{ marginBottom: 16 }}>Yeni Materyal Yükle</h4>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div className="input-wrapper" style={{ margin: 0 }}>
             <label className="input-label">Başlık *</label>
             <input type="text" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Örn: Hafta 1 Sunumu" />

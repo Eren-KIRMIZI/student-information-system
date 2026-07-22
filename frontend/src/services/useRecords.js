@@ -1,10 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  getMyEnrollments, getEnrollments, createEnrollment,
-  approveEnrollment, rejectEnrollment, dropEnrollment,
-  getMyGrades, getMyTranscript, getSectionGrades,
-  updateGrade, finalizeGrade,
-  getSectionAttendance, createAttendance, getMyAttendance,
+  getMyEnrollments,
+  getEnrollments,
+  createEnrollment,
+  approveEnrollment,
+  rejectEnrollment,
+  dropEnrollment,
+  getMyGrades,
+  getMyTranscript,
+  getSectionGrades,
+  updateGrade,
+  finalizeGrade,
+  getSectionAttendance,
+  createAttendance,
+  getMyAttendance,
 } from '../api/records.api';
 
 // ====== Enrollments ======
@@ -53,8 +62,7 @@ export const useDropEnrollment = () => {
 export const useMyGrades = (params) =>
   useQuery({ queryKey: ['grades', 'me', params], queryFn: () => getMyGrades(params) });
 
-export const useMyTranscript = () =>
-  useQuery({ queryKey: ['transcript', 'me'], queryFn: getMyTranscript });
+export const useMyTranscript = () => useQuery({ queryKey: ['transcript', 'me'], queryFn: getMyTranscript });
 
 export const useSectionGrades = (sectionId) =>
   useQuery({
@@ -95,5 +103,4 @@ export const useCreateAttendance = () => {
   });
 };
 
-export const useMyAttendance = () =>
-  useQuery({ queryKey: ['my-attendance'], queryFn: getMyAttendance });
+export const useMyAttendance = () => useQuery({ queryKey: ['my-attendance'], queryFn: getMyAttendance });

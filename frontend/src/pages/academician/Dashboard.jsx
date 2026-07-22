@@ -32,7 +32,7 @@ const AcademicianDashboard = () => {
         isLoading={isLoading} 
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20, marginBottom: 24 }}>
+      <div className="grid grid-cols-1 gap-5 mb-6">
         <LastLoginCard date="22 Temmuz 2026" time="08:45" ip="10.0.1.42" isLoading={isLoading} />
       </div>
 
@@ -49,7 +49,7 @@ const AcademicianDashboard = () => {
             <StatCard label="İndirilen Materyal" value={data?.totalDownloads ?? 0} icon={Download} color="#14b8a6" />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
             <DashboardCard icon={CheckSquare} iconBg="#f0fdf4" iconColor="#16a34a" title="Bugünkü Görevler">
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px', background: 'var(--color-surface)', borderRadius: 8, border: '1px solid var(--color-border)' }}>
@@ -97,7 +97,7 @@ const AcademicianDashboard = () => {
         </>
       )}
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <DashboardCard icon={BookCopy} iconBg="#dbeafe" iconColor="#2563eb" title="Ders Şubelerim">
           {!data?.sections?.length ? (
             <EmptyState icon={BookCopy} title="Ders şubesi yok" />
@@ -131,7 +131,7 @@ const AcademicianDashboard = () => {
           )}
         </DashboardCard>
       </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:20, marginTop: 24 }}>
+      <div className="grid grid-cols-1 gap-5 mt-6">
         <DashboardCard icon={FileText} iconBg="#e0f2fe" iconColor="#0ea5e9" title="Son Yüklediğim Materyaller">
           {!data?.recentMaterials?.length ? (
             <EmptyState icon={FileText} title="Materyal yüklemediniz" />

@@ -105,7 +105,7 @@ const Profile = () => {
         subtitle="Kişisel bilgilerinizi ve hesap ayarlarınızı görüntüleyin"
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 24, maxWidth: 800 }}>
+      <div className="grid grid-cols-1 gap-6 max-w-[800px]">
         {/* Kullanıcı Kartı */}
         <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
           <div style={{ position: 'relative' }}>

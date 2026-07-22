@@ -1,16 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import {
-  getStudents, getStudent, createStudent, updateStudent, updateStudentStatus,
-  getLecturers, getLecturer, createLecturer, updateLecturer, updateLecturerStatus,
+  getStudents,
+  getStudent,
+  createStudent,
+  updateStudent,
+  updateStudentStatus,
+  getLecturers,
+  getLecturer,
+  createLecturer,
+  updateLecturer,
+  updateLecturerStatus,
 } from '../api/people.api';
 
 // ====== Students ======
-export const useStudents = (params) =>
-  useQuery({ queryKey: ['students', params], queryFn: () => getStudents(params) });
+export const useStudents = (params) => useQuery({ queryKey: ['students', params], queryFn: () => getStudents(params) });
 
-export const useStudent = (id) =>
-  useQuery({ queryKey: ['student', id], queryFn: () => getStudent(id), enabled: !!id });
+export const useStudent = (id) => useQuery({ queryKey: ['student', id], queryFn: () => getStudent(id), enabled: !!id });
 
 export const useCreateStudent = () => {
   const qc = useQueryClient();

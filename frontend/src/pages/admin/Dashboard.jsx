@@ -39,7 +39,7 @@ const AdminDashboard = () => {
             <QuickActions />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
             <NotificationWidget notifications={[
               { status: 'red', count: 6, text: 'kayıt bekliyor' },
               { status: 'orange', count: 3, text: 'danışman ataması bekliyor' },
@@ -55,7 +55,7 @@ const AdminDashboard = () => {
             ]} />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
             <SystemHealth />
             <CalendarWidget />
           </div>

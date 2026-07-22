@@ -327,6 +327,8 @@ body {
   overflow-x: auto;
   border-radius: 10px;
   border: 1px solid var(--color-border);
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
 }
 .table {
   width: 100%;
@@ -496,9 +498,7 @@ body {
   .filter-bar .input, .filter-bar .btn, .filter-bar select {
     width: 100%;
   }
-  .detail-grid {
-    grid-template-columns: 1fr !important;
-  }
+
   .modal-box {
     max-width: calc(100vw - 32px) !important;
     margin: 16px;
@@ -508,6 +508,15 @@ body {
   }
   .stat-value {
     font-size: 22px;
+  }
+  .btn {
+    min-height: 44px;
+  }
+  .btn-sm {
+    min-height: 40px;
+  }
+  .table th, .table td {
+    padding: 14px 12px;
   }
 }
 
@@ -547,12 +556,7 @@ body {
 .confirm-dialog p { color: var(--color-text-secondary); font-size: 14px; line-height: 1.6; }
 .confirm-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
 
-/* ==================== DETAIL GRID ==================== */
-.detail-grid {
-  display: grid;
-  gap: 20px;
-  align-items: start;
-}
+
 
 /* ==================== MICRO-ANIMATIONS ==================== */
 .card-hover {

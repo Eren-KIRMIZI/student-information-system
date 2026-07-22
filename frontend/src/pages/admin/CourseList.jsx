@@ -164,7 +164,7 @@ const CourseList = () => {
       {/* Form Modal */}
       <Modal open={formOpen} onClose={() => setFormOpen(false)} title={editItem ? 'Ders Düzenle' : 'Yeni Ders'} maxWidth={560}>
         <form onSubmit={handleSubmit((d) => saveMutation.mutate(d))} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Ders Adı</label>
               <input
@@ -197,7 +197,7 @@ const CourseList = () => {
             {errors.departmentId && <span className="input-error">{errors.departmentId.message}</span>}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Kredi</label>
               <input

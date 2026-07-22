@@ -61,7 +61,7 @@ const GraduationCheck = () => {
         })}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="card" style={{ padding: 20 }}>
           <h3 style={{ margin: '0 0 12px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
             <BookOpen size={18} /> Kalan Dersler ({remainingCourses?.length || 0})

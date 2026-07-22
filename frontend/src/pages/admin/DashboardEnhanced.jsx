@@ -54,7 +54,7 @@ const DashboardEnhanced = () => {
         isLoading={isLoading} 
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20, marginBottom: 24 }}>
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-5 mb-6">
         <GlobalSearchWidget />
         <LastLoginCard date="22 Temmuz 2026" time="23:15" ip="10.0.0.5" isLoading={isLoading} />
       </div>
@@ -85,7 +85,7 @@ const DashboardEnhanced = () => {
       ) : (
         <>
           {systemMetrics && (
-            <div className="card" style={{ padding: '16px 20px', marginBottom: 24, display: 'flex', gap: 24, alignItems: 'center', background: 'var(--color-surface-hover)' }}>
+            <div className="card flex flex-wrap md:flex-nowrap gap-6 items-center p-4 md:p-5 mb-6" style={{ background: 'var(--color-surface-hover)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <Activity size={24} color="#2563eb" />
                 <div>
@@ -147,7 +147,7 @@ const DashboardEnhanced = () => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
             <div className="card" style={{ padding: 20 }}>
               <h3 style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <BarChart3 size={18} /> Harf Notu Dağılımı ({timeFilter === 'week' ? 'Hafta' : timeFilter === 'month' ? 'Ay' : 'Dönem'})

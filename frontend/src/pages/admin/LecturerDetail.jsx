@@ -42,7 +42,7 @@ const LecturerDetail = () => {
     return (
       <div className="animate-fade-in">
         <PageHeader title="Akademisyen Detayı" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-5">
           <div className="card"><Skeleton height={200} /></div>
           <div className="card"><Skeleton height={200} /></div>
         </div>
@@ -76,7 +76,7 @@ const LecturerDetail = () => {
         }
       />
 
-      <div className="detail-grid" style={{ gridTemplateColumns: '320px 1fr' }}>
+      <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-5 items-start">
         {/* Sol — Profil kartı */}
         <div className="card">
           <div style={{ textAlign: 'center', padding: '8px 0 20px' }}>

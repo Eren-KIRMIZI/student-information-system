@@ -32,7 +32,7 @@ const StudentDashboard = () => {
         isLoading={isLoading} 
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20, marginBottom: 24 }}>
+      <div className="grid grid-cols-1 gap-5 mb-6">
         <LastLoginCard date="21 Temmuz 2026" time="15:30" ip="192.168.1.105" isLoading={isLoading} />
       </div>
 
@@ -49,7 +49,7 @@ const StudentDashboard = () => {
             <StatCard label="Okunmamış Mesaj" value={data?.unreadMessages ?? 0} icon={MessageCircle} color="#ec4899" />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <ProgressWidget 
                 title="AKTS İlerlemesi" 
@@ -97,7 +97,7 @@ const StudentDashboard = () => {
         </>
       )}
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <DashboardCard icon={CalendarClock} iconBg="#fef3c7" iconColor="#d97706" title="Yaklaşan Sınavlar">
           {!data?.upcomingExams?.length ? (
             <EmptyState icon={CalendarClock} title="Yaklaşan sınav yok" description="Tüm sınavlarınız tamamlandı" />
@@ -128,7 +128,7 @@ const StudentDashboard = () => {
         </DashboardCard>
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:20, marginTop: 24 }}>
+      <div className="grid grid-cols-1 gap-5 mt-6">
         <DashboardCard icon={FileText} iconBg="#e0f2fe" iconColor="#0ea5e9" title="Son Eklenen Materyaller">
           {!data?.recentMaterials?.length ? (
             <EmptyState icon={FileText} title="Materyal yok" />

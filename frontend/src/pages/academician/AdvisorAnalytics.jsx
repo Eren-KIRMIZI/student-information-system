@@ -21,7 +21,7 @@ const AdvisorAnalytics = () => {
     <div className="animate-fade-in">
       <PageHeader title="Danışmanlık Analizi" subtitle="Öğrencilerinizin akademik durumu ve risk analizi" />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="card" style={{ textAlign: 'center', padding: 20 }}>
           <Users size={28} color="#2563eb" style={{ margin: '0 auto 8px' }} />
           <div style={{ fontSize: 28, fontWeight: 800, color: '#2563eb' }}>{summary.total}</div>
@@ -44,7 +44,7 @@ const AdvisorAnalytics = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         <div className="card" style={{ padding: 20 }}>
           <h3 style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15 }}>Öğrenci GPA Dağılımı</h3>
           {advisees.length > 0 ? (

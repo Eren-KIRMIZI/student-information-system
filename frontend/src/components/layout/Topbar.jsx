@@ -54,7 +54,7 @@ const Topbar = ({ onMenuClick }) => {
       {/* Spacer */}
       <div style={{ flex: 1 }} />
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Notification Center */}
         <NotificationCenter />
 
@@ -77,12 +77,7 @@ const Topbar = ({ onMenuClick }) => {
       <div ref={dropRef} style={{ position: 'relative' }}>
         <button
           onClick={() => setDropOpen((o) => !o)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: 'var(--color-surface-2)', border: '1px solid var(--color-border)',
-            borderRadius: 10, padding: '6px 12px 6px 8px', cursor: 'pointer',
-            transition: 'all 0.15s',
-          }}
+          className="flex items-center gap-2 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-[10px] p-1.5 sm:px-3 sm:py-1.5 cursor-pointer transition-all duration-150"
         >
           {/* Avatar */}
           <div style={{
@@ -93,7 +88,7 @@ const Topbar = ({ onMenuClick }) => {
           }}>
             {displayName.charAt(0).toUpperCase()}
           </div>
-          <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column' }}>
+          <div className="hidden sm:flex flex-col text-left">
             <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)', lineHeight: 1.2 }}>
               {displayName}
             </span>

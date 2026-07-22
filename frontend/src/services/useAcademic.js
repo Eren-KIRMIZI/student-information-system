@@ -1,10 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  getFaculties, getFaculty, createFaculty, updateFaculty, deleteFaculty,
-  getDepartments, getDepartment, createDepartment, updateDepartment, deleteDepartment,
-  getCourses, getCourse, createCourse, updateCourse, deleteCourse,
-  getCourseSections, getCourseSection, createCourseSection, updateCourseSection,
-  archiveCourseSection, deleteCourseSection,
+  getFaculties,
+  getFaculty,
+  createFaculty,
+  updateFaculty,
+  deleteFaculty,
+  getDepartments,
+  getDepartment,
+  createDepartment,
+  updateDepartment,
+  deleteDepartment,
+  getCourses,
+  getCourse,
+  createCourse,
+  updateCourse,
+  deleteCourse,
+  getCourseSections,
+  getCourseSection,
+  createCourseSection,
+  updateCourseSection,
+  archiveCourseSection,
+  deleteCourseSection,
 } from '../api/academic.api';
 
 // ====== Faculties ======
@@ -14,8 +30,7 @@ export const useFaculties = (params) =>
 export const useAllFaculties = () =>
   useQuery({ queryKey: ['faculties-all'], queryFn: () => getFaculties({ limit: 100 }) });
 
-export const useFaculty = (id) =>
-  useQuery({ queryKey: ['faculty', id], queryFn: () => getFaculty(id), enabled: !!id });
+export const useFaculty = (id) => useQuery({ queryKey: ['faculty', id], queryFn: () => getFaculty(id), enabled: !!id });
 
 export const useCreateFaculty = () => {
   const qc = useQueryClient();
@@ -76,14 +91,11 @@ export const useDeleteDepartment = () => {
 };
 
 // ====== Courses ======
-export const useCourses = (params) =>
-  useQuery({ queryKey: ['courses', params], queryFn: () => getCourses(params) });
+export const useCourses = (params) => useQuery({ queryKey: ['courses', params], queryFn: () => getCourses(params) });
 
-export const useAllCourses = () =>
-  useQuery({ queryKey: ['courses-all'], queryFn: () => getCourses({ limit: 500 }) });
+export const useAllCourses = () => useQuery({ queryKey: ['courses-all'], queryFn: () => getCourses({ limit: 500 }) });
 
-export const useCourse = (id) =>
-  useQuery({ queryKey: ['course', id], queryFn: () => getCourse(id), enabled: !!id });
+export const useCourse = (id) => useQuery({ queryKey: ['course', id], queryFn: () => getCourse(id), enabled: !!id });
 
 export const useCreateCourse = () => {
   const qc = useQueryClient();
