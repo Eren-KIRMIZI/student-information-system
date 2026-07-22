@@ -6,6 +6,8 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
+import csurf from 'csurf';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './src/swagger/swagger.config.js';
 import { errorHandler } from './src/middlewares/error.middleware.js';
@@ -98,9 +100,60 @@ app.use(metricsMiddleware);
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Global Rate Limiting
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests from this IP, please try again after 15 minutes',
+});
+app.use(globalLimiter);
+
+// CSRF Protection
+const csrfProtection = csurf({
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+  },
+});
+
+const csrfMiddleware = (req, res, next) => {
+  const openRoutes = ['/api/v1/auth/login', '/api/v1/auth/refresh'];
+  if (openRoutes.includes(req.path)) {
+    // Skip CSRF validation for auth routes but still initialize token
+    const originalMethod = req.method;
+    req.method = 'GET';
+    return csrfProtection(req, res, (err) => {
+      req.method = originalMethod;
+      next(err);
+    });
+  }
+  return csrfProtection(req, res, next);
+};
+app.use(csrfMiddleware);
+
+// Set XSRF-TOKEN cookie for Axios
+app.use((req, res, next) => {
+  if (req.csrfToken) {
+    res.cookie('XSRF-TOKEN', req.csrfToken(), {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+  }
+  next();
+});
+
 app.use(etagMiddleware);
 app.use(auditMiddleware);
 app.use(tracingMiddleware);
+
+// CSRF Token Endpoint for frontend
+app.get('/api/v1/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 // Static uploads — auth required
 app.use('/uploads', authenticate, express.static('uploads'));

@@ -39,8 +39,8 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const ipAddress = req.ip || req.headers['x-forwarded-for'];
-    const { accessToken, refreshToken, user } = await authService.login(email, password, ipAddress);
-    res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
+    const { accessToken, refreshToken: token, user } = await authService.login(email, password, ipAddress);
+    res.cookie('refreshToken', token, REFRESH_COOKIE_OPTIONS);
     return successResponse(res, { accessToken, user });
   } catch (err) {
     next(err);
@@ -65,8 +65,8 @@ export const refresh = async (req, res, next) => {
     const incoming = req.cookies.refreshToken;
     if (!incoming) return next(new AppError('Refresh token bulunamadı', 401));
     const ipAddress = req.ip;
-    const { accessToken, refreshToken } = await authService.refresh(incoming, ipAddress);
-    res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
+    const { accessToken, refreshToken: token } = await authService.refresh(incoming, ipAddress);
+    res.cookie('refreshToken', token, REFRESH_COOKIE_OPTIONS);
     return successResponse(res, { accessToken });
   } catch (err) {
     next(err);
@@ -190,8 +190,8 @@ export const resetPassword = async (req, res, next) => {
 export const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    const { accessToken, refreshToken } = await authService.changePassword(req.user.id, currentPassword, newPassword);
-    res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
+    const { accessToken, refreshToken: token } = await authService.changePassword(req.user.id, currentPassword, newPassword);
+    res.cookie('refreshToken', token, REFRESH_COOKIE_OPTIONS);
     return successResponse(res, { accessToken }, 'Şifreniz başarıyla değiştirildi.');
   } catch (err) {
     next(err);

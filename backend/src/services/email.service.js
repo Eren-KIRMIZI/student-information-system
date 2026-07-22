@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import striptags from 'striptags';
 import { logger } from '../utils/winstonLogger.js';
 
 // ==================== TRANSPORT ====================
@@ -47,7 +48,7 @@ async function sendMail({ to, subject, html, text }) {
     to,
     subject,
     html,
-    text: text || html.replace(/<[^>]*>/g, ''),
+    text: text || striptags(html),
   });
 
   // Dev'de Ethereal URL
