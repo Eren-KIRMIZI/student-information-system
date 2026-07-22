@@ -18,7 +18,7 @@ export class LocalStorageProvider extends StorageProvider {
     const rawExt = path.extname(file.originalname || '').toLowerCase();
     const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.pdf', '.docx', '.pptx', '.txt', '.csv'];
     const ext = allowedExts.includes(rawExt) ? rawExt : '';
-    
+
     // Break taint on purpose using explicit array whitelist
     const allowedPurposes = ['PROFILE_PHOTO', 'COURSE_MATERIAL', 'ANNOUNCEMENT', 'OTHER'];
     const cleanPurpose = allowedPurposes.includes(purpose) ? purpose : 'OTHER';
