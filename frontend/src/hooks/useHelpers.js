@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 export const useLocalState = (key, initialValue) => {
   const [value, setValue] = useState(() => {
@@ -13,7 +13,9 @@ export const useLocalState = (key, initialValue) => {
   useEffect(() => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
-    } catch {}
+    } catch (e) {
+      console.warn('Failed to save state to localStorage', e);
+    }
   }, [key, value]);
 
   return [value, setValue];
