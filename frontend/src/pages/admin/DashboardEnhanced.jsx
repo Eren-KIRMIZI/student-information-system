@@ -3,8 +3,32 @@ import { useQuery } from '@tanstack/react-query';
 import { getAdminKPIs } from '../../api/advanced.api';
 import { PageHeader, CardSkeleton, ErrorState } from '../../components/ui/index';
 import { WelcomeCard, LastLoginCard, GlobalSearchWidget } from '../../components/feature/index';
-import { GraduationCap, Users, BookOpen, ClipboardList, TrendingUp, AlertTriangle, BarChart3, Filter, Activity, Server, Cpu } from 'lucide-react';
-import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import {
+  GraduationCap,
+  Users,
+  BookOpen,
+  ClipboardList,
+  TrendingUp,
+  AlertTriangle,
+  BarChart3,
+  Filter,
+  Activity,
+  Server,
+  Cpu,
+} from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import { useSocketEvent } from '../../hooks/useSocket';
 const COLORS = ['#2563eb', '#7c3aed', '#059669', '#d97706', '#dc2626', '#0891b2', '#c026d3', '#ea580c'];
@@ -29,29 +53,32 @@ const DashboardEnhanced = () => {
     if (!gradeDistribution) return [];
     // Mocking filter effect
     const multiplier = timeFilter === 'week' ? 0.2 : timeFilter === 'month' ? 0.6 : 1;
-    return Object.entries(gradeDistribution).map(([letter, count]) => ({ 
-      letter, 
-      count: Math.max(1, Math.round(count * multiplier)) 
+    return Object.entries(gradeDistribution).map(([letter, count]) => ({
+      letter,
+      count: Math.max(1, Math.round(count * multiplier)),
     }));
   }, [gradeDistribution, timeFilter]);
 
-  const deptData = departments?.map(d => ({ name: d.name.substring(0, 15), students: d.studentCount, courses: d.courseCount })) || [];
-  const gpaData = gpaByDepartment?.map(g => {
-    const dept = departments.find(d => d.id === g.departmentId);
-    return { name: dept?.name?.substring(0, 15) || 'Bilinmiyor', gpa: g.avgGpa, students: g.studentCount };
-  }) || [];
+  const deptData =
+    departments?.map((d) => ({ name: d.name.substring(0, 15), students: d.studentCount, courses: d.courseCount })) ||
+    [];
+  const gpaData =
+    gpaByDepartment?.map((g) => {
+      const dept = departments.find((d) => d.id === g.departmentId);
+      return { name: dept?.name?.substring(0, 15) || 'Bilinmiyor', gpa: g.avgGpa, students: g.studentCount };
+    }) || [];
 
   return (
     <div className="animate-fade-in">
-      <WelcomeCard 
-        user={user} 
-        roleLabel="Sistem Yöneticisi" 
+      <WelcomeCard
+        user={user}
+        roleLabel="Sistem Yöneticisi"
         messages={[
           `${overview?.pendingEnrollments || 0} kayıt onayı bekliyor`,
-          "Bugün 3 yeni kullanıcı oluşturuldu",
-          "Sistem durumu normal"
-        ]} 
-        isLoading={isLoading} 
+          'Bugün 3 yeni kullanıcı oluşturuldu',
+          'Sistem durumu normal',
+        ]}
+        isLoading={isLoading}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-5 mb-6">
@@ -63,12 +90,16 @@ const DashboardEnhanced = () => {
         <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Genel İstatistikler</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Filter size={16} color="var(--color-text-muted)" />
-          <select 
-            value={timeFilter} 
-            onChange={e => setTimeFilter(e.target.value)} 
-            style={{ 
-              padding: '6px 12px', borderRadius: 8, border: '1px solid var(--color-border)',
-              background: 'var(--color-surface)', fontSize: 13, outline: 'none'
+          <select
+            value={timeFilter}
+            onChange={(e) => setTimeFilter(e.target.value)}
+            style={{
+              padding: '6px 12px',
+              borderRadius: 8,
+              border: '1px solid var(--color-border)',
+              background: 'var(--color-surface)',
+              fontSize: 13,
+              outline: 'none',
             }}
           >
             <option value="week">Bu Hafta</option>
@@ -85,41 +116,73 @@ const DashboardEnhanced = () => {
       ) : (
         <>
           {systemMetrics && (
-            <div className="card flex flex-wrap md:flex-nowrap gap-6 items-center p-4 md:p-5 mb-6" style={{ background: 'var(--color-surface-hover)' }}>
+            <div
+              className="card flex flex-wrap md:flex-nowrap gap-6 items-center p-4 md:p-5 mb-6"
+              style={{ background: 'var(--color-surface-hover)' }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <Activity size={24} color="#2563eb" />
                 <div>
-                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', fontWeight: 600 }}>SİSTEM CPU EFORU</div>
-                  <div style={{ fontSize: 18, fontWeight: 700 }}>{systemMetrics.cpu?.[0]?.toFixed(2) || '0.00'} <span style={{fontSize: 12, fontWeight: 500, color: 'var(--color-text-muted)'}}>load</span></div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                    SİSTEM CPU EFORU
+                  </div>
+                  <div style={{ fontSize: 18, fontWeight: 700 }}>
+                    {systemMetrics.cpu?.[0]?.toFixed(2) || '0.00'}{' '}
+                    <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-text-muted)' }}>load</span>
+                  </div>
                 </div>
               </div>
               <div style={{ width: 1, height: 30, background: 'var(--color-border)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <Server size={24} color="#059669" />
                 <div>
-                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', fontWeight: 600 }}>SİSTEM RAM KULLANIMI</div>
-                  <div style={{ fontSize: 18, fontWeight: 700 }}>{((systemMetrics.ram?.total - systemMetrics.ram?.free) / 1024 / 1024 / 1024).toFixed(1)} <span style={{fontSize: 12, fontWeight: 500, color: 'var(--color-text-muted)'}}>GB / {(systemMetrics.ram?.total / 1024 / 1024 / 1024).toFixed(1)} GB</span></div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                    SİSTEM RAM KULLANIMI
+                  </div>
+                  <div style={{ fontSize: 18, fontWeight: 700 }}>
+                    {((systemMetrics.ram?.total - systemMetrics.ram?.free) / 1024 / 1024 / 1024).toFixed(1)}{' '}
+                    <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-text-muted)' }}>
+                      GB / {(systemMetrics.ram?.total / 1024 / 1024 / 1024).toFixed(1)} GB
+                    </span>
+                  </div>
                 </div>
               </div>
               <div style={{ width: 1, height: 30, background: 'var(--color-border)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <Cpu size={24} color="#d97706" />
                 <div>
-                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', fontWeight: 600 }}>NODE HEAP KULLANIMI</div>
-                  <div style={{ fontSize: 18, fontWeight: 700 }}>{(systemMetrics.heap?.used / 1024 / 1024).toFixed(1)} <span style={{fontSize: 12, fontWeight: 500, color: 'var(--color-text-muted)'}}>MB / {(systemMetrics.heap?.total / 1024 / 1024).toFixed(1)} MB</span></div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                    NODE HEAP KULLANIMI
+                  </div>
+                  <div style={{ fontSize: 18, fontWeight: 700 }}>
+                    {(systemMetrics.heap?.used / 1024 / 1024).toFixed(1)}{' '}
+                    <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-text-muted)' }}>
+                      MB / {(systemMetrics.heap?.total / 1024 / 1024).toFixed(1)} MB
+                    </span>
+                  </div>
                 </div>
               </div>
               <div style={{ width: 1, height: 30, background: 'var(--color-border)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--color-text-muted)', fontWeight: 600 }}>UPTIME</div>
-                  <div style={{ fontSize: 18, fontWeight: 700 }}>{Math.floor(systemMetrics.uptime / 60)} <span style={{fontSize: 12, fontWeight: 500, color: 'var(--color-text-muted)'}}>dk</span></div>
+                  <div style={{ fontSize: 18, fontWeight: 700 }}>
+                    {Math.floor(systemMetrics.uptime / 60)}{' '}
+                    <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-text-muted)' }}>dk</span>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+              gap: 16,
+              marginBottom: 24,
+            }}
+          >
             <div className="card" style={{ textAlign: 'center', padding: 20 }}>
               <GraduationCap size={28} color="#2563eb" style={{ margin: '0 auto 8px' }} />
               <div style={{ fontSize: 28, fontWeight: 800, color: '#2563eb' }}>{overview.totalStudents}</div>
@@ -149,8 +212,18 @@ const DashboardEnhanced = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
             <div className="card" style={{ padding: 20 }}>
-              <h3 style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BarChart3 size={18} /> Harf Notu Dağılımı ({timeFilter === 'week' ? 'Hafta' : timeFilter === 'month' ? 'Ay' : 'Dönem'})
+              <h3
+                style={{
+                  margin: '0 0 16px',
+                  fontWeight: 700,
+                  fontSize: 15,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                <BarChart3 size={18} /> Harf Notu Dağılımı (
+                {timeFilter === 'week' ? 'Hafta' : timeFilter === 'month' ? 'Ay' : 'Dönem'})
               </h3>
               {gradeData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={250}>
@@ -172,7 +245,16 @@ const DashboardEnhanced = () => {
             </div>
 
             <div className="card" style={{ padding: 20 }}>
-              <h3 style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3
+                style={{
+                  margin: '0 0 16px',
+                  fontWeight: 700,
+                  fontSize: 15,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
                 <TrendingUp size={18} /> Bölüm Bazlı GPA Ortalaması
               </h3>
               {gpaData.length > 0 ? (
@@ -196,7 +278,14 @@ const DashboardEnhanced = () => {
           </div>
 
           <div className="card" style={{ padding: 0 }}>
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-border)', fontWeight: 700, fontSize: 15 }}>
+            <div
+              style={{
+                padding: '16px 20px',
+                borderBottom: '1px solid var(--color-border)',
+                fontWeight: 700,
+                fontSize: 15,
+              }}
+            >
               Bölüm İstatistikleri
             </div>
             <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
@@ -211,15 +300,21 @@ const DashboardEnhanced = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {departments.map(d => {
-                    const deptGpa = gpaByDepartment.find(g => g.departmentId === d.id);
+                  {departments.map((d) => {
+                    const deptGpa = gpaByDepartment.find((g) => g.departmentId === d.id);
                     return (
                       <tr key={d.id}>
                         <td style={{ fontWeight: 600 }}>{d.name}</td>
                         <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{d.faculty}</td>
                         <td style={{ textAlign: 'center' }}>{d.studentCount}</td>
                         <td style={{ textAlign: 'center' }}>{d.courseCount}</td>
-                        <td style={{ textAlign: 'center', fontWeight: 700, color: deptGpa?.avgGpa < 2.0 ? '#dc2626' : '#059669' }}>
+                        <td
+                          style={{
+                            textAlign: 'center',
+                            fontWeight: 700,
+                            color: deptGpa?.avgGpa < 2.0 ? '#dc2626' : '#059669',
+                          }}
+                        >
                           {deptGpa?.avgGpa?.toFixed(2) ?? '—'}
                         </td>
                       </tr>
@@ -236,4 +331,3 @@ const DashboardEnhanced = () => {
 };
 
 export default DashboardEnhanced;
-

@@ -14,7 +14,7 @@ const Chat = () => {
   const { user } = useAuth();
   const qc = useQueryClient();
   const scrollRef = useRef(null);
-  
+
   const [content, setContent] = useState('');
 
   const { data, isLoading, isError, refetch } = useQuery({
@@ -28,12 +28,12 @@ const Chat = () => {
       setContent('');
       qc.invalidateQueries({ queryKey: ['messages', id] });
       qc.invalidateQueries({ queryKey: ['conversations'] });
-    }
+    },
   });
 
   const markReadMutation = useMutation({
     mutationFn: () => markAsRead(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['conversations'] })
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['conversations'] }),
   });
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const Chat = () => {
     if (!token) return;
 
     const socket = io('http://localhost:5000', { auth: { token } });
-    
+
     socket.on('message:new', (msg) => {
       if (msg.conversationId === id) {
         qc.setQueryData(['messages', id], (old) => {
@@ -69,13 +69,21 @@ const Chat = () => {
     }
   }, [data?.data?.length]);
 
-  if (isLoading) return <div className="animate-fade-in"><Skeleton height={500} /></div>;
+  if (isLoading)
+    return (
+      <div className="animate-fade-in">
+        <Skeleton height={500} />
+      </div>
+    );
   if (isError) return <ErrorState onRetry={refetch} />;
 
   const messages = data?.data || [];
 
   return (
-    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)' }}>
+    <div
+      className="animate-fade-in"
+      style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)' }}
+    >
       <PageHeader
         title="Sohbet"
         action={
@@ -85,8 +93,11 @@ const Chat = () => {
         }
       />
 
-      <div className="card" style={{ flex: 1, padding: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div 
+      <div
+        className="card"
+        style={{ flex: 1, padding: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+      >
+        <div
           ref={scrollRef}
           style={{ flex: 1, overflowY: 'auto', padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}
         >
@@ -95,25 +106,34 @@ const Chat = () => {
               Mesaj geçmişi bulunmuyor. İlk mesajı gönderin!
             </div>
           )}
-          
+
           {messages.map((m) => {
             const isMe = m.senderId === user.id;
             return (
               <div key={m.id} style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', maxWidth: '75%' }}>
-                <div style={{
-                  background: isMe ? 'var(--color-primary)' : 'var(--color-bg-secondary)',
-                  color: isMe ? '#fff' : 'var(--color-text)',
-                  padding: '12px 16px',
-                  borderRadius: 16,
-                  borderBottomRightRadius: isMe ? 4 : 16,
-                  borderBottomLeftRadius: isMe ? 16 : 4,
-                  fontSize: 14,
-                  lineHeight: 1.5,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                }}>
+                <div
+                  style={{
+                    background: isMe ? 'var(--color-primary)' : 'var(--color-bg-secondary)',
+                    color: isMe ? '#fff' : 'var(--color-text)',
+                    padding: '12px 16px',
+                    borderRadius: 16,
+                    borderBottomRightRadius: isMe ? 4 : 16,
+                    borderBottomLeftRadius: isMe ? 16 : 4,
+                    fontSize: 14,
+                    lineHeight: 1.5,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                  }}
+                >
                   {m.content}
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 4, textAlign: isMe ? 'right' : 'left' }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: 'var(--color-text-muted)',
+                    marginTop: 4,
+                    textAlign: isMe ? 'right' : 'left',
+                  }}
+                >
                   {dayjs(m.createdAt).format('HH:mm')}
                 </div>
               </div>

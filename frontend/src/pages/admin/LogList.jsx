@@ -21,15 +21,12 @@ const LogList = () => {
     INFO: <Info size={16} color="var(--color-info)" />,
     WARN: <ShieldAlert size={16} color="var(--color-warning)" />,
     ERROR: <XCircle size={16} color="var(--color-danger)" />,
-    SUCCESS: <CheckCircle size={16} color="var(--color-success)" />
+    SUCCESS: <CheckCircle size={16} color="var(--color-success)" />,
   };
 
   return (
     <div className="animate-fade-in">
-      <PageHeader
-        title="Sistem Logları"
-        subtitle="Uygulama üzerindeki işlem hareketleri ve hatalar"
-      />
+      <PageHeader title="Sistem Logları" subtitle="Uygulama üzerindeki işlem hareketleri ve hatalar" />
 
       <FilterBar>
         <div style={{ position: 'relative', flex: 1, maxWidth: 300 }}>
@@ -40,10 +37,21 @@ const LogList = () => {
             placeholder="Log mesajı ara..."
             style={{ paddingLeft: 36 }}
             value={search}
-            onChange={e => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
           />
         </div>
-        <select className="input" style={{ width: 140 }} value={level} onChange={e => { setLevel(e.target.value); setPage(1); }}>
+        <select
+          className="input"
+          style={{ width: 140 }}
+          value={level}
+          onChange={(e) => {
+            setLevel(e.target.value);
+            setPage(1);
+          }}
+        >
           <option value="">Tüm Seviyeler</option>
           <option value="INFO">Bilgi (Info)</option>
           <option value="SUCCESS">Başarılı</option>
@@ -72,7 +80,7 @@ const LogList = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.data.map(log => (
+                  {data.data.map((log) => (
                     <tr key={log.id}>
                       <td style={{ whiteSpace: 'nowrap', fontSize: 13 }}>
                         {dayjs(log.createdAt).format('DD MMM YYYY, HH:mm:ss')}
@@ -85,7 +93,11 @@ const LogList = () => {
                       </td>
                       <td>
                         <div style={{ fontWeight: 500 }}>{log.action || log.message}</div>
-                        {log.action && <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>{log.message}</div>}
+                        {log.action && (
+                          <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>
+                            {log.message}
+                          </div>
+                        )}
                       </td>
                       <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
                         {log.user ? log.user.email : 'Sistem'}
@@ -98,10 +110,32 @@ const LogList = () => {
             </div>
 
             {data.pagination && data.pagination.totalPages > 1 && (
-              <div style={{ display: 'flex', gap: 10, padding: 16, borderTop: '1px solid var(--color-border)', justifyContent: 'center' }}>
-                <button className="btn btn-secondary btn-sm" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Önceki</button>
-                <div style={{ padding: '6px 12px', fontSize: 13, fontWeight: 600 }}>{page} / {data.pagination.totalPages}</div>
-                <button className="btn btn-secondary btn-sm" disabled={page === data.pagination.totalPages} onClick={() => setPage(p => p + 1)}>Sonraki</button>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 10,
+                  padding: 16,
+                  borderTop: '1px solid var(--color-border)',
+                  justifyContent: 'center',
+                }}
+              >
+                <button
+                  className="btn btn-secondary btn-sm"
+                  disabled={page === 1}
+                  onClick={() => setPage((p) => p - 1)}
+                >
+                  Önceki
+                </button>
+                <div style={{ padding: '6px 12px', fontSize: 13, fontWeight: 600 }}>
+                  {page} / {data.pagination.totalPages}
+                </div>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  disabled={page === data.pagination.totalPages}
+                  onClick={() => setPage((p) => p + 1)}
+                >
+                  Sonraki
+                </button>
               </div>
             )}
           </>

@@ -3,9 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
 import { getAdviseesByLecturer } from '../../api/system.api';
 import { getEnrollments, approveEnrollment, rejectEnrollment } from '../../api/records.api';
-import {
-  PageHeader, StatusBadge, TableSkeleton, EmptyState, ErrorState, Tabs,
-} from '../../components/ui/index';
+import { PageHeader, StatusBadge, TableSkeleton, EmptyState, ErrorState, Tabs } from '../../components/ui/index';
 import { PersonRow } from '../../components/feature/index';
 import { Users, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -21,7 +19,12 @@ const PendingApprovalsTab = ({ lecturerId }) => {
 
   const adviseeIds = advisees.map((s) => s.id);
 
-  const { data: enrollData, isLoading: enLoading, isError, refetch } = useQuery({
+  const {
+    data: enrollData,
+    isLoading: enLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['pending-enrollments', lecturerId],
     queryFn: () => getEnrollments({ status: 'PENDING', limit: 100 }),
     enabled: adviseeIds.length > 0,
@@ -48,9 +51,7 @@ const PendingApprovalsTab = ({ lecturerId }) => {
   if (advLoading || enLoading) return <TableSkeleton rows={4} cols={5} />;
   if (isError) return <ErrorState onRetry={refetch} />;
 
-  const pendingEnrollments = (enrollData?.data ?? []).filter((e) =>
-    adviseeIds.includes(e.student?.id ?? e.studentId)
-  );
+  const pendingEnrollments = (enrollData?.data ?? []).filter((e) => adviseeIds.includes(e.student?.id ?? e.studentId));
 
   if (!pendingEnrollments.length) {
     return (
@@ -88,10 +89,10 @@ const PendingApprovalsTab = ({ lecturerId }) => {
                 <div style={{ fontWeight: 600, fontSize: 13 }}>{e.courseSection?.course?.name}</div>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{e.courseSection?.course?.code}</div>
               </td>
-              <td><span className="badge badge-blue">{e.courseSection?.sectionCode}</span></td>
-              <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
-                {e.courseSection?.academicYear}
+              <td>
+                <span className="badge badge-blue">{e.courseSection?.sectionCode}</span>
               </td>
+              <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{e.courseSection?.academicYear}</td>
               <td>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <button
@@ -120,7 +121,12 @@ const PendingApprovalsTab = ({ lecturerId }) => {
 };
 
 const AdviseesTab = ({ lecturerId }) => {
-  const { data: students = [], isLoading, isError, refetch } = useQuery({
+  const {
+    data: students = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['advisees', lecturerId],
     queryFn: () => getAdviseesByLecturer(lecturerId),
     enabled: !!lecturerId,
@@ -155,7 +161,9 @@ const AdviseesTab = ({ lecturerId }) => {
               </td>
               <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{s.department?.name ?? '—'}</td>
               <td style={{ fontSize: 13 }}>{s.classYear}. Sınıf</td>
-              <td><StatusBadge status={s.user?.isActive} /></td>
+              <td>
+                <StatusBadge status={s.user?.isActive} />
+              </td>
             </tr>
           ))}
         </tbody>
@@ -177,10 +185,7 @@ const Advisees = () => {
 
   return (
     <div className="animate-fade-in">
-      <PageHeader
-        title="Danışman Öğrencilerim"
-        subtitle="Danışmanlık öğrencilerinin ders kayıtlarını yönetin"
-      />
+      <PageHeader title="Danışman Öğrencilerim" subtitle="Danışmanlık öğrencilerinin ders kayıtlarını yönetin" />
 
       <div className="card" style={{ padding: 0 }}>
         <div style={{ padding: '0 24px', borderBottom: '1px solid var(--color-border)' }}>

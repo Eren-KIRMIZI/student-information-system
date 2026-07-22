@@ -1,7 +1,16 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAnnouncements, createAnnouncement, deleteAnnouncement } from '../../api/system.api';
-import { PageHeader, SearchInput, FilterBar, TableSkeleton, ErrorState, EmptyState, ConfirmDialog, Modal } from '../../components/ui/index';
+import {
+  PageHeader,
+  SearchInput,
+  FilterBar,
+  TableSkeleton,
+  ErrorState,
+  EmptyState,
+  ConfirmDialog,
+  Modal,
+} from '../../components/ui/index';
 import { AnnouncementCard } from '../../components/feature/index';
 import { Megaphone, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -27,7 +36,12 @@ const AnnouncementList = () => {
     queryFn: () => getAnnouncements({ page, limit: 12, search }),
   });
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
   const createMutation = useMutation({
     mutationFn: createAnnouncement,
@@ -59,17 +73,28 @@ const AnnouncementList = () => {
       <PageHeader
         title="Duyurular"
         subtitle="Genel sistem, akademik ve idari duyurular"
-        action={isAdmin ? (
-                  <button className="btn btn-primary" onClick={() => { reset(); setIsModalOpen(true); }}>
-                    <Megaphone size={16} /> Yeni Duyuru
-                  </button>
-                ) : undefined}
+        action={
+          isAdmin ? (
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                reset();
+                setIsModalOpen(true);
+              }}
+            >
+              <Megaphone size={16} /> Yeni Duyuru
+            </button>
+          ) : undefined
+        }
       />
 
       <FilterBar>
         <SearchInput
           value={search}
-          onChange={(v) => { setSearch(v); setPage(1); }}
+          onChange={(v) => {
+            setSearch(v);
+            setPage(1);
+          }}
           placeholder="Duyurularda ara..."
           style={{ maxWidth: 400 }}
         />
@@ -83,12 +108,10 @@ const AnnouncementList = () => {
         <EmptyState icon={Megaphone} title="Duyuru bulunamadı" />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {data.data.map(item => (
+          {data.data.map((item) => (
             <div key={item.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
               <div style={{ flex: 1 }}>
-                <AnnouncementCard
-                  item={item}
-                />
+                <AnnouncementCard item={item} />
               </div>
               {isAdmin && (
                 <button
@@ -114,14 +137,24 @@ const AnnouncementList = () => {
         <form onSubmit={handleSubmit(handleCreate)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="input-wrapper">
             <label className="input-label">Başlık *</label>
-            <input type="text" className={`input ${errors.title ? 'error' : ''}`} {...register('title', { required: true })} />
+            <input
+              type="text"
+              className={`input ${errors.title ? 'error' : ''}`}
+              {...register('title', { required: true })}
+            />
           </div>
           <div className="input-wrapper">
             <label className="input-label">İçerik *</label>
-            <textarea className={`input ${errors.content ? 'error' : ''}`} rows={6} {...register('content', { required: true })} />
+            <textarea
+              className={`input ${errors.content ? 'error' : ''}`}
+              rows={6}
+              {...register('content', { required: true })}
+            />
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
-            <button type="button" className="btn btn-ghost" onClick={() => setIsModalOpen(false)}>İptal</button>
+            <button type="button" className="btn btn-ghost" onClick={() => setIsModalOpen(false)}>
+              İptal
+            </button>
             <button type="submit" className="btn btn-primary" disabled={createMutation.isPending}>
               {createMutation.isPending ? 'Yayınlanıyor...' : 'Yayınla'}
             </button>

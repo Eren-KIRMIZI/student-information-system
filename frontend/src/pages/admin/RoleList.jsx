@@ -10,7 +10,12 @@ const RoleList = () => {
   const qc = useQueryClient();
   const [editingRole, setEditingRole] = useState(null);
 
-  const { data: roles, isLoading, isError, refetch } = useQuery({
+  const {
+    data: roles,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['roles'],
     queryFn: getRoles,
   });
@@ -38,10 +43,7 @@ const RoleList = () => {
 
   return (
     <div className="animate-fade-in">
-      <PageHeader
-        title="Rol Yönetimi"
-        subtitle="Sistemde tanımlı yetki grupları (Roller kritik yapıtaşlarıdır)"
-      />
+      <PageHeader title="Rol Yönetimi" subtitle="Sistemde tanımlı yetki grupları (Roller kritik yapıtaşlarıdır)" />
 
       <div className="card" style={{ padding: 0 }}>
         {isLoading ? (
@@ -61,11 +63,14 @@ const RoleList = () => {
                 </tr>
               </thead>
               <tbody>
-                {roles.map(r => (
+                {roles.map((r) => (
                   <tr key={r.id}>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <ShieldAlert size={16} color={r.name === 'ADMIN' ? '#7c3aed' : r.name === 'ACADEMICIAN' ? '#2563eb' : '#94a3b8'} />
+                        <ShieldAlert
+                          size={16}
+                          color={r.name === 'ADMIN' ? '#7c3aed' : r.name === 'ACADEMICIAN' ? '#2563eb' : '#94a3b8'}
+                        />
                         <span style={{ fontWeight: 700, letterSpacing: '0.05em' }}>{r.name}</span>
                       </div>
                     </td>
@@ -90,14 +95,28 @@ const RoleList = () => {
           <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div className="input-wrapper">
               <label className="input-label">Rol Adı (Kritik)</label>
-              <input type="text" className="input" {...register('name')} readOnly style={{ opacity: 0.7 }} title="Sistem rol adları değiştirilemez" />
+              <input
+                type="text"
+                className="input"
+                {...register('name')}
+                readOnly
+                style={{ opacity: 0.7 }}
+                title="Sistem rol adları değiştirilemez"
+              />
             </div>
             <div className="input-wrapper">
               <label className="input-label">Açıklama</label>
-              <textarea className="input" rows={3} {...register('description')} placeholder="Rol hakkında açıklayıcı bilgi" />
+              <textarea
+                className="input"
+                rows={3}
+                {...register('description')}
+                placeholder="Rol hakkında açıklayıcı bilgi"
+              />
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
-              <button type="button" className="btn btn-ghost" onClick={() => setEditingRole(null)}>İptal</button>
+              <button type="button" className="btn btn-ghost" onClick={() => setEditingRole(null)}>
+                İptal
+              </button>
               <button type="submit" className="btn btn-primary" disabled={updateMutation.isPending}>
                 {updateMutation.isPending ? 'Kaydediliyor...' : 'Kaydet'}
               </button>

@@ -5,8 +5,14 @@ import { useAuth } from '../../context/AuthContext';
 import { getCourseSections } from '../../api/academic.api';
 import { getLecturers } from '../../api/people.api';
 import {
-  PageHeader, StatusBadge, TableSkeleton, CardSkeleton,
-  EmptyState, ErrorState, Pagination, SearchInput,
+  PageHeader,
+  StatusBadge,
+  TableSkeleton,
+  CardSkeleton,
+  EmptyState,
+  ErrorState,
+  Pagination,
+  SearchInput,
 } from '../../components/ui/index';
 import { CourseSectionCard } from '../../components/feature/index';
 import { SEMESTERS, SEMESTER_LABELS, ACADEMIC_YEAR_OPTIONS } from '../../utils/constants';
@@ -31,12 +37,15 @@ const MyCourseSections = () => {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['my-course-sections', page, search, academicYear, semester, lecturerId],
-    queryFn: () => getCourseSections({
-      page, limit: 20, search,
-      academicYear: academicYear || undefined,
-      semester: semester || undefined,
-      lecturerId,
-    }),
+    queryFn: () =>
+      getCourseSections({
+        page,
+        limit: 20,
+        search,
+        academicYear: academicYear || undefined,
+        semester: semester || undefined,
+        lecturerId,
+      }),
     enabled: !!lecturerId,
   });
 
@@ -68,31 +77,54 @@ const MyCourseSections = () => {
       <div className="filter-bar">
         <SearchInput
           value={search}
-          onChange={(v) => { setSearch(v); setPage(1); }}
+          onChange={(v) => {
+            setSearch(v);
+            setPage(1);
+          }}
           placeholder="Ders adı veya kodu ara..."
         />
         <select
           className="input"
           style={{ width: 'auto', minWidth: 150 }}
           value={academicYear}
-          onChange={(e) => { setAcademicYear(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setAcademicYear(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="">Tüm Yıllar</option>
-          {ACADEMIC_YEAR_OPTIONS.map((y) => <option key={y} value={y}>{y}</option>)}
+          {ACADEMIC_YEAR_OPTIONS.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
         </select>
         <select
           className="input"
           style={{ width: 'auto', minWidth: 130 }}
           value={semester}
-          onChange={(e) => { setSemester(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setSemester(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="">Tüm Yarıyıllar</option>
-          {SEMESTERS.map((s) => <option key={s} value={s}>{SEMESTER_LABELS[s]}</option>)}
+          {SEMESTERS.map((s) => (
+            <option key={s} value={s}>
+              {SEMESTER_LABELS[s]}
+            </option>
+          ))}
         </select>
       </div>
 
       {!lecturerId || isLoading ? (
-        viewMode === 'card' ? <CardSkeleton count={4} /> : <div className="card" style={{ padding: 0 }}><TableSkeleton rows={5} cols={6} /></div>
+        viewMode === 'card' ? (
+          <CardSkeleton count={4} />
+        ) : (
+          <div className="card" style={{ padding: 0 }}>
+            <TableSkeleton rows={5} cols={6} />
+          </div>
+        )
       ) : isError ? (
         <ErrorState onRetry={refetch} />
       ) : !sections.length ? (
@@ -145,7 +177,9 @@ const MyCourseSections = () => {
                         <div style={{ fontWeight: 600 }}>{s.course?.name}</div>
                         <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{s.course?.code}</div>
                       </td>
-                      <td><span className="badge badge-blue">{s.sectionCode}</span></td>
+                      <td>
+                        <span className="badge badge-blue">{s.sectionCode}</span>
+                      </td>
                       <td>
                         <div style={{ fontSize: 13 }}>{s.academicYear}</div>
                         <StatusBadge status={s.semester} />

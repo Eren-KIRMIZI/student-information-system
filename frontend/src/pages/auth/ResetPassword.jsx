@@ -9,7 +9,8 @@ import axiosInstance from '../../api/axiosInstance';
 
 const schema = z
   .object({
-    newPassword:     z.string()
+    newPassword: z
+      .string()
       .min(8, 'En az 8 karakter')
       .regex(/[A-Z]/, 'En az bir büyük harf')
       .regex(/[a-z]/, 'En az bir küçük harf')
@@ -28,7 +29,11 @@ const ResetPassword = () => {
   const token = searchParams.get('token');
   const [showPwd, setShowPwd] = useState(false);
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
     resolver: zodResolver(schema),
   });
 
@@ -52,9 +57,7 @@ const ResetPassword = () => {
 
   return (
     <div className="animate-fade-in">
-      <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>
-        Yeni Şifre Belirle
-      </h2>
+      <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Yeni Şifre Belirle</h2>
       <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>
         En az 8 karakter, büyük harf, küçük harf, rakam ve özel karakter içermelidir.
       </p>
@@ -70,8 +73,21 @@ const ResetPassword = () => {
               placeholder="••••••••"
               style={{ paddingRight: 42 }}
             />
-            <button type="button" onClick={() => setShowPwd((v) => !v)}
-              style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex' }}>
+            <button
+              type="button"
+              onClick={() => setShowPwd((v) => !v)}
+              style={{
+                position: 'absolute',
+                right: 12,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#94a3b8',
+                display: 'flex',
+              }}
+            >
               {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
@@ -89,7 +105,12 @@ const ResetPassword = () => {
           {errors.confirmPassword && <span className="input-error">{errors.confirmPassword.message}</span>}
         </div>
 
-        <button type="submit" disabled={isSubmitting} className="btn btn-primary" style={{ width: '100%', padding: '12px' }}>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="btn btn-primary"
+          style={{ width: '100%', padding: '12px' }}
+        >
           {isSubmitting ? <span className="spinner" /> : <Lock size={17} />}
           {isSubmitting ? 'Kaydediliyor...' : 'Şifremi Güncelle'}
         </button>

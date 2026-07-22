@@ -3,20 +3,34 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getCourseSection } from '../../api/academic.api';
 import {
-  getSectionWeeklySchedule, createWeeklySlot, deleteWeeklySlot,
-  getSectionExamSchedule, createExamSlot, deleteExamSlot,
+  getSectionWeeklySchedule,
+  createWeeklySlot,
+  deleteWeeklySlot,
+  getSectionExamSchedule,
+  createExamSlot,
+  deleteExamSlot,
 } from '../../api/system.api';
 import { getEnrollments } from '../../api/records.api';
 import {
-  PageHeader, StatusBadge, Skeleton, ErrorState, Tabs,
-  Modal, ConfirmDialog, EmptyState,
+  PageHeader,
+  StatusBadge,
+  Skeleton,
+  ErrorState,
+  Tabs,
+  Modal,
+  ConfirmDialog,
+  EmptyState,
 } from '../../components/ui/index';
 import { ScheduleGrid } from '../../components/feature/index';
-import { SEMESTERS, SEMESTER_LABELS, DAY_LABELS_SHORT, EXAM_TYPE_LABELS, ATTENDANCE_STATUSES, ATTENDANCE_LABELS } from '../../utils/constants';
 import {
-  ArrowLeft, Calendar, ClipboardList, Users, Clock,
-  Plus, Trash2, Info,
-} from 'lucide-react';
+  SEMESTERS,
+  SEMESTER_LABELS,
+  DAY_LABELS_SHORT,
+  EXAM_TYPE_LABELS,
+  ATTENDANCE_STATUSES,
+  ATTENDANCE_LABELS,
+} from '../../utils/constants';
+import { ArrowLeft, Calendar, ClipboardList, Users, Clock, Plus, Trash2, Info } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import dayjs from 'dayjs';
@@ -32,12 +46,26 @@ const GeneralTab = ({ section }) => (
       ['Akademisyen', section.lecturer ? `${section.lecturer.firstName} ${section.lecturer.lastName}` : '—'],
       ['Akademik Yıl', section.academicYear],
       ['Yarıyıl', SEMESTER_LABELS[section.semester] ?? section.semester],
-      ['Kontenjan', `${(section.quota - (section.remainingQuota ?? 0))} / ${section.quota} (${section.remainingQuota ?? 0} boş)`],
+      [
+        'Kontenjan',
+        `${section.quota - (section.remainingQuota ?? 0)} / ${section.quota} (${section.remainingQuota ?? 0} boş)`,
+      ],
       ['Derslik', section.classroom || '—'],
       ['Bölüm', section.course?.department?.name || '—'],
     ].map(([label, value]) => (
       <div key={label} style={{ padding: '12px 0', borderBottom: '1px solid var(--color-border)' }}>
-        <div style={{ fontSize: 11, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600, marginBottom: 4 }}>{label}</div>
+        <div
+          style={{
+            fontSize: 11,
+            color: 'var(--color-text-muted)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            fontWeight: 600,
+            marginBottom: 4,
+          }}
+        >
+          {label}
+        </div>
         <div style={{ fontSize: 15, fontWeight: 500 }}>{value}</div>
       </div>
     ))}
@@ -48,7 +76,12 @@ const WeeklyScheduleTab = ({ sectionId }) => {
   const qc = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);
   const [deleteItem, setDeleteItem] = useState(null);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
   const { data: slots = [], isLoading } = useQuery({
     queryKey: ['weekly-schedule', sectionId],
@@ -60,7 +93,8 @@ const WeeklyScheduleTab = ({ sectionId }) => {
     onSuccess: () => {
       toast.success('Program slotu eklendi');
       qc.invalidateQueries({ queryKey: ['weekly-schedule', sectionId] });
-      setAddOpen(false); reset({});
+      setAddOpen(false);
+      reset({});
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Eklenemedi'),
   });
@@ -80,35 +114,61 @@ const WeeklyScheduleTab = ({ sectionId }) => {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-        <button className="btn btn-primary btn-sm" onClick={() => { reset({}); setAddOpen(true); }}>
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={() => {
+            reset({});
+            setAddOpen(true);
+          }}
+        >
           <Plus size={14} /> Slot Ekle
         </button>
       </div>
-      {!slots.length ? (
-        <EmptyState icon={Clock} title="Haftalık program slotu yok" />
-      ) : (
-        <ScheduleGrid slots={slots} />
-      )}
+      {!slots.length ? <EmptyState icon={Clock} title="Haftalık program slotu yok" /> : <ScheduleGrid slots={slots} />}
 
       <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Program Slotu Ekle" maxWidth={420}>
-        <form onSubmit={handleSubmit((d) => addMutation.mutate(d))} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <form
+          onSubmit={handleSubmit((d) => addMutation.mutate(d))}
+          style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+        >
           <div className="input-wrapper">
             <label className="input-label">Gün</label>
-            <select {...register('dayOfWeek', { required: 'Zorunlu' })} className={`input ${errors.dayOfWeek ? 'error' : ''}`}>
+            <select
+              {...register('dayOfWeek', { required: 'Zorunlu' })}
+              className={`input ${errors.dayOfWeek ? 'error' : ''}`}
+            >
               <option value="">Seçin...</option>
-              {DAYS.map((d) => <option key={d} value={d}>{DAY_LABELS_SHORT[d]}</option>)}
+              {DAYS.map((d) => (
+                <option key={d} value={d}>
+                  {DAY_LABELS_SHORT[d]}
+                </option>
+              ))}
             </select>
             {errors.dayOfWeek && <span className="input-error">{errors.dayOfWeek.message}</span>}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Başlangıç (HH:MM)</label>
-              <input {...register('startTime', { required: 'Zorunlu', pattern: { value: /^\d{2}:\d{2}$/, message: 'HH:MM formatı' } })} className={`input ${errors.startTime ? 'error' : ''}`} placeholder="09:00" />
+              <input
+                {...register('startTime', {
+                  required: 'Zorunlu',
+                  pattern: { value: /^\d{2}:\d{2}$/, message: 'HH:MM formatı' },
+                })}
+                className={`input ${errors.startTime ? 'error' : ''}`}
+                placeholder="09:00"
+              />
               {errors.startTime && <span className="input-error">{errors.startTime.message}</span>}
             </div>
             <div className="input-wrapper">
               <label className="input-label">Bitiş (HH:MM)</label>
-              <input {...register('endTime', { required: 'Zorunlu', pattern: { value: /^\d{2}:\d{2}$/, message: 'HH:MM formatı' } })} className={`input ${errors.endTime ? 'error' : ''}`} placeholder="11:00" />
+              <input
+                {...register('endTime', {
+                  required: 'Zorunlu',
+                  pattern: { value: /^\d{2}:\d{2}$/, message: 'HH:MM formatı' },
+                })}
+                className={`input ${errors.endTime ? 'error' : ''}`}
+                placeholder="11:00"
+              />
               {errors.endTime && <span className="input-error">{errors.endTime.message}</span>}
             </div>
           </div>
@@ -117,7 +177,9 @@ const WeeklyScheduleTab = ({ sectionId }) => {
             <input {...register('classroom')} className="input" placeholder="D-201" />
           </div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setAddOpen(false)}>İptal</button>
+            <button type="button" className="btn btn-secondary" onClick={() => setAddOpen(false)}>
+              İptal
+            </button>
             <button type="submit" className="btn btn-primary" disabled={addMutation.isPending}>
               {addMutation.isPending ? <span className="spinner" /> : null} Ekle
             </button>
@@ -140,7 +202,12 @@ const ExamScheduleTab = ({ sectionId }) => {
   const qc = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);
   const [deleteItem, setDeleteItem] = useState(null);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
   const { data: exams = [], isLoading } = useQuery({
     queryKey: ['exam-schedule', sectionId],
@@ -152,7 +219,8 @@ const ExamScheduleTab = ({ sectionId }) => {
     onSuccess: () => {
       toast.success('Sınav eklendi');
       qc.invalidateQueries({ queryKey: ['exam-schedule', sectionId] });
-      setAddOpen(false); reset({});
+      setAddOpen(false);
+      reset({});
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Eklenemedi'),
   });
@@ -172,7 +240,13 @@ const ExamScheduleTab = ({ sectionId }) => {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-        <button className="btn btn-primary btn-sm" onClick={() => { reset({}); setAddOpen(true); }}>
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={() => {
+            reset({});
+            setAddOpen(true);
+          }}
+        >
           <Plus size={14} /> Sınav Ekle
         </button>
       </div>
@@ -182,18 +256,31 @@ const ExamScheduleTab = ({ sectionId }) => {
         <div className="table-container">
           <table className="table">
             <thead>
-              <tr><th>Tür</th><th>Tarih</th><th>Saat</th><th>Süre</th><th>Salon</th><th style={{ width: 60 }}></th></tr>
+              <tr>
+                <th>Tür</th>
+                <th>Tarih</th>
+                <th>Saat</th>
+                <th>Süre</th>
+                <th>Salon</th>
+                <th style={{ width: 60 }}></th>
+              </tr>
             </thead>
             <tbody>
               {exams.map((e) => (
                 <tr key={e.id}>
-                  <td><StatusBadge status={e.examType} /></td>
+                  <td>
+                    <StatusBadge status={e.examType} />
+                  </td>
                   <td>{dayjs(e.examDate).format('DD.MM.YYYY')}</td>
                   <td>{e.startTime}</td>
                   <td>{e.duration} dk</td>
                   <td>{e.classroom || '—'}</td>
                   <td>
-                    <button className="btn btn-ghost btn-sm" style={{ color: 'var(--color-danger)' }} onClick={() => setDeleteItem(e)}>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      style={{ color: 'var(--color-danger)' }}
+                      onClick={() => setDeleteItem(e)}
+                    >
                       <Trash2 size={13} />
                     </button>
                   </td>
@@ -205,31 +292,55 @@ const ExamScheduleTab = ({ sectionId }) => {
       )}
 
       <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Sınav Ekle" maxWidth={440}>
-        <form onSubmit={handleSubmit((d) => addMutation.mutate(d))} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <form
+          onSubmit={handleSubmit((d) => addMutation.mutate(d))}
+          style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+        >
           <div className="input-wrapper">
             <label className="input-label">Sınav Türü</label>
-            <select {...register('examType', { required: 'Zorunlu' })} className={`input ${errors.examType ? 'error' : ''}`}>
+            <select
+              {...register('examType', { required: 'Zorunlu' })}
+              className={`input ${errors.examType ? 'error' : ''}`}
+            >
               <option value="">Seçin...</option>
-              {EXAM_TYPES.map((t) => <option key={t} value={t}>{EXAM_TYPE_LABELS[t]}</option>)}
+              {EXAM_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {EXAM_TYPE_LABELS[t]}
+                </option>
+              ))}
             </select>
             {errors.examType && <span className="input-error">{errors.examType.message}</span>}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Tarih</label>
-              <input type="date" {...register('examDate', { required: 'Zorunlu' })} className={`input ${errors.examDate ? 'error' : ''}`} />
+              <input
+                type="date"
+                {...register('examDate', { required: 'Zorunlu' })}
+                className={`input ${errors.examDate ? 'error' : ''}`}
+              />
               {errors.examDate && <span className="input-error">{errors.examDate.message}</span>}
             </div>
             <div className="input-wrapper">
               <label className="input-label">Saat (HH:MM)</label>
-              <input {...register('startTime', { required: 'Zorunlu' })} className={`input ${errors.startTime ? 'error' : ''}`} placeholder="09:00" />
+              <input
+                {...register('startTime', { required: 'Zorunlu' })}
+                className={`input ${errors.startTime ? 'error' : ''}`}
+                placeholder="09:00"
+              />
               {errors.startTime && <span className="input-error">{errors.startTime.message}</span>}
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Süre (dk)</label>
-              <input type="number" min={30} {...register('duration', { required: 'Zorunlu' })} className={`input ${errors.duration ? 'error' : ''}`} placeholder="90" />
+              <input
+                type="number"
+                min={30}
+                {...register('duration', { required: 'Zorunlu' })}
+                className={`input ${errors.duration ? 'error' : ''}`}
+                placeholder="90"
+              />
               {errors.duration && <span className="input-error">{errors.duration.message}</span>}
             </div>
             <div className="input-wrapper">
@@ -238,7 +349,9 @@ const ExamScheduleTab = ({ sectionId }) => {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setAddOpen(false)}>İptal</button>
+            <button type="button" className="btn btn-secondary" onClick={() => setAddOpen(false)}>
+              İptal
+            </button>
             <button type="submit" className="btn btn-primary" disabled={addMutation.isPending}>
               {addMutation.isPending ? <span className="spinner" /> : null} Ekle
             </button>
@@ -274,16 +387,27 @@ const EnrolledStudentsTab = ({ sectionId }) => {
         <div className="table-container">
           <table className="table">
             <thead>
-              <tr><th>Öğrenci</th><th>Numara</th><th>Durum</th><th>Kayıt Tarihi</th></tr>
+              <tr>
+                <th>Öğrenci</th>
+                <th>Numara</th>
+                <th>Durum</th>
+                <th>Kayıt Tarihi</th>
+              </tr>
             </thead>
             <tbody>
               {enrollments.map((e) => (
                 <tr key={e.id}>
                   <td>
-                    <div style={{ fontWeight: 600 }}>{e.student?.firstName} {e.student?.lastName}</div>
+                    <div style={{ fontWeight: 600 }}>
+                      {e.student?.firstName} {e.student?.lastName}
+                    </div>
                   </td>
-                  <td><span className="badge badge-gray">{e.student?.studentNumber}</span></td>
-                  <td><StatusBadge status={e.status} /></td>
+                  <td>
+                    <span className="badge badge-gray">{e.student?.studentNumber}</span>
+                  </td>
+                  <td>
+                    <StatusBadge status={e.status} />
+                  </td>
                   <td style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
                     {dayjs(e.createdAt).format('DD.MM.YYYY')}
                   </td>
@@ -302,7 +426,12 @@ const AdminCourseSectionWorkspace = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('general');
 
-  const { data: section, isLoading, isError, refetch } = useQuery({
+  const {
+    data: section,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['course-section', id],
     queryFn: () => getCourseSection(id),
   });
@@ -318,7 +447,9 @@ const AdminCourseSectionWorkspace = () => {
     return (
       <div className="animate-fade-in">
         <PageHeader title="Ders Şubesi" />
-        <div className="card"><Skeleton height={300} /></div>
+        <div className="card">
+          <Skeleton height={300} />
+        </div>
       </div>
     );
   }

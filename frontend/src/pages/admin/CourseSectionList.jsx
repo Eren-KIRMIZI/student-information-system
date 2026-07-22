@@ -2,14 +2,24 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import {
-  getCourseSections, createCourseSection, updateCourseSection,
-  archiveCourseSection, deleteCourseSection,
+  getCourseSections,
+  createCourseSection,
+  updateCourseSection,
+  archiveCourseSection,
+  deleteCourseSection,
 } from '../../api/academic.api';
 import { getCourses } from '../../api/academic.api';
 import { getLecturers } from '../../api/people.api';
 import {
-  PageHeader, SearchInput, StatusBadge, TableSkeleton,
-  EmptyState, ErrorState, Pagination, Modal, ConfirmDialog,
+  PageHeader,
+  SearchInput,
+  StatusBadge,
+  TableSkeleton,
+  EmptyState,
+  ErrorState,
+  Pagination,
+  Modal,
+  ConfirmDialog,
 } from '../../components/ui/index';
 import { Plus, Pencil, Trash2, Archive, ExternalLink, Layers } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -31,11 +41,13 @@ const CourseSectionList = () => {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['course-sections', page, academicYear, semester],
-    queryFn: () => getCourseSections({
-      page, limit: 20,
-      academicYear: academicYear || undefined,
-      semester: semester || undefined,
-    }),
+    queryFn: () =>
+      getCourseSections({
+        page,
+        limit: 20,
+        academicYear: academicYear || undefined,
+        semester: semester || undefined,
+      }),
   });
 
   const { data: courseData } = useQuery({
@@ -48,9 +60,18 @@ const CourseSectionList = () => {
     queryFn: () => getLecturers({ limit: 500 }),
   });
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm();
 
-  const openAdd = () => { setEditItem(null); reset({}); setFormOpen(true); };
+  const openAdd = () => {
+    setEditItem(null);
+    reset({});
+    setFormOpen(true);
+  };
   const openEdit = (item) => {
     setEditItem(item);
     reset({
@@ -122,19 +143,33 @@ const CourseSectionList = () => {
           className="input"
           style={{ width: 'auto', minWidth: 160 }}
           value={academicYear}
-          onChange={(e) => { setAcademicYear(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setAcademicYear(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="">Tüm Dönemler</option>
-          {yearOptions.map((y) => <option key={y} value={y}>{y}</option>)}
+          {yearOptions.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
         </select>
         <select
           className="input"
           style={{ width: 'auto', minWidth: 140 }}
           value={semester}
-          onChange={(e) => { setSemester(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setSemester(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="">Tüm Yarıyıllar</option>
-          {SEMESTERS.map((s) => <option key={s} value={s}>{SEM_LABELS[s]}</option>)}
+          {SEMESTERS.map((s) => (
+            <option key={s} value={s}>
+              {SEM_LABELS[s]}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -147,7 +182,11 @@ const CourseSectionList = () => {
           <EmptyState
             icon={Layers}
             title="Ders şubesi bulunamadı"
-            action={<button className="btn btn-primary" onClick={openAdd}><Plus size={15} /> Şube Ekle</button>}
+            action={
+              <button className="btn btn-primary" onClick={openAdd}>
+                <Plus size={15} /> Şube Ekle
+              </button>
+            }
           />
         ) : (
           <>
@@ -166,7 +205,7 @@ const CourseSectionList = () => {
                 </thead>
                 <tbody>
                   {data.data.map((s) => {
-                    const remaining = s.remainingQuota ?? (s.quota - (s._count?.enrollments ?? 0));
+                    const remaining = s.remainingQuota ?? s.quota - (s._count?.enrollments ?? 0);
                     const isFull = remaining <= 0;
                     return (
                       <tr key={s.id}>
@@ -174,7 +213,9 @@ const CourseSectionList = () => {
                           <div style={{ fontWeight: 600, fontSize: 14 }}>{s.course?.name}</div>
                           <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{s.course?.code}</div>
                         </td>
-                        <td><span className="badge badge-blue">{s.sectionCode}</span></td>
+                        <td>
+                          <span className="badge badge-blue">{s.sectionCode}</span>
+                        </td>
                         <td style={{ fontSize: 13 }}>
                           {s.lecturer ? `${s.lecturer.firstName} ${s.lecturer.lastName}` : '—'}
                         </td>
@@ -183,16 +224,19 @@ const CourseSectionList = () => {
                           <StatusBadge status={s.semester} />
                         </td>
                         <td>
-                          <span style={{ color: isFull ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
+                          <span
+                            style={{ color: isFull ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}
+                          >
                             {remaining}
                           </span>
                           <span style={{ color: 'var(--color-text-muted)', fontSize: 12 }}> / {s.quota}</span>
                         </td>
                         <td>
-                          {s.isArchived
-                            ? <span className="badge badge-gray">Arşiv</span>
-                            : <span className="badge badge-green">Aktif</span>
-                          }
+                          {s.isArchived ? (
+                            <span className="badge badge-gray">Arşiv</span>
+                          ) : (
+                            <span className="badge badge-green">Aktif</span>
+                          )}
                         </td>
                         <td>
                           <div style={{ display: 'flex', gap: 2 }}>
@@ -238,14 +282,27 @@ const CourseSectionList = () => {
       </div>
 
       {/* Form Modal */}
-      <Modal open={formOpen} onClose={() => setFormOpen(false)} title={editItem ? 'Şube Düzenle' : 'Yeni Şube'} maxWidth={580}>
-        <form onSubmit={handleSubmit((d) => saveMutation.mutate(d))} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <Modal
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        title={editItem ? 'Şube Düzenle' : 'Yeni Şube'}
+        maxWidth={580}
+      >
+        <form
+          onSubmit={handleSubmit((d) => saveMutation.mutate(d))}
+          style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+        >
           <div className="input-wrapper">
             <label className="input-label">Ders</label>
-            <select {...register('courseId', { required: 'Zorunlu' })} className={`input ${errors.courseId ? 'error' : ''}`}>
+            <select
+              {...register('courseId', { required: 'Zorunlu' })}
+              className={`input ${errors.courseId ? 'error' : ''}`}
+            >
               <option value="">Ders seçin...</option>
               {courseData?.data?.map((c) => (
-                <option key={c.id} value={c.id}>{c.code} — {c.name}</option>
+                <option key={c.id} value={c.id}>
+                  {c.code} — {c.name}
+                </option>
               ))}
             </select>
             {errors.courseId && <span className="input-error">{errors.courseId.message}</span>}
@@ -253,10 +310,15 @@ const CourseSectionList = () => {
 
           <div className="input-wrapper">
             <label className="input-label">Akademisyen</label>
-            <select {...register('lecturerId', { required: 'Zorunlu' })} className={`input ${errors.lecturerId ? 'error' : ''}`}>
+            <select
+              {...register('lecturerId', { required: 'Zorunlu' })}
+              className={`input ${errors.lecturerId ? 'error' : ''}`}
+            >
               <option value="">Akademisyen seçin...</option>
               {lecturerData?.data?.map((l) => (
-                <option key={l.id} value={l.id}>{l.title} {l.firstName} {l.lastName}</option>
+                <option key={l.id} value={l.id}>
+                  {l.title} {l.firstName} {l.lastName}
+                </option>
               ))}
             </select>
             {errors.lecturerId && <span className="input-error">{errors.lecturerId.message}</span>}
@@ -265,17 +327,31 @@ const CourseSectionList = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Akademik Yıl</label>
-              <select {...register('academicYear', { required: 'Zorunlu' })} className={`input ${errors.academicYear ? 'error' : ''}`}>
+              <select
+                {...register('academicYear', { required: 'Zorunlu' })}
+                className={`input ${errors.academicYear ? 'error' : ''}`}
+              >
                 <option value="">Seçin...</option>
-                {yearOptions.map((y) => <option key={y} value={y}>{y}</option>)}
+                {yearOptions.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
               </select>
               {errors.academicYear && <span className="input-error">{errors.academicYear.message}</span>}
             </div>
             <div className="input-wrapper">
               <label className="input-label">Yarıyıl</label>
-              <select {...register('semester', { required: 'Zorunlu' })} className={`input ${errors.semester ? 'error' : ''}`}>
+              <select
+                {...register('semester', { required: 'Zorunlu' })}
+                className={`input ${errors.semester ? 'error' : ''}`}
+              >
                 <option value="">Seçin...</option>
-                {SEMESTERS.map((s) => <option key={s} value={s}>{SEM_LABELS[s]}</option>)}
+                {SEMESTERS.map((s) => (
+                  <option key={s} value={s}>
+                    {SEM_LABELS[s]}
+                  </option>
+                ))}
               </select>
               {errors.semester && <span className="input-error">{errors.semester.message}</span>}
             </div>
@@ -306,17 +382,15 @@ const CourseSectionList = () => {
 
           <div className="input-wrapper">
             <label className="input-label">Derslik (opsiyonel)</label>
-            <input
-              {...register('classroom')}
-              className="input"
-              placeholder="D-101"
-            />
+            <input {...register('classroom')} className="input" placeholder="D-101" />
           </div>
 
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setFormOpen(false)}>İptal</button>
+            <button type="button" className="btn btn-secondary" onClick={() => setFormOpen(false)}>
+              İptal
+            </button>
             <button type="submit" className="btn btn-primary" disabled={isSubmitting || saveMutation.isPending}>
-              {(isSubmitting || saveMutation.isPending) ? <span className="spinner" /> : null}
+              {isSubmitting || saveMutation.isPending ? <span className="spinner" /> : null}
               {editItem ? 'Güncelle' : 'Oluştur'}
             </button>
           </div>

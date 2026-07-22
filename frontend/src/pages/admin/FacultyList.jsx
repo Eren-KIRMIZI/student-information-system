@@ -1,7 +1,17 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getFaculties, createFaculty, updateFaculty, deleteFaculty } from '../../api/academic.api';
-import { PageHeader, SearchInput, StatusBadge, TableSkeleton, EmptyState, ErrorState, Pagination, Modal, ConfirmDialog } from '../../components/ui/index';
+import {
+  PageHeader,
+  SearchInput,
+  StatusBadge,
+  TableSkeleton,
+  EmptyState,
+  ErrorState,
+  Pagination,
+  Modal,
+  ConfirmDialog,
+} from '../../components/ui/index';
 import { Plus, Pencil, Trash2, Building2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -19,13 +29,26 @@ const FacultyList = () => {
     queryFn: () => getFaculties({ page, limit: 20, search }),
   });
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm();
 
-  const openAdd  = () => { setEditItem(null); reset({}); setFormOpen(true); };
-  const openEdit = (item) => { setEditItem(item); reset({ name: item.name, code: item.code }); setFormOpen(true); };
+  const openAdd = () => {
+    setEditItem(null);
+    reset({});
+    setFormOpen(true);
+  };
+  const openEdit = (item) => {
+    setEditItem(item);
+    reset({ name: item.name, code: item.code });
+    setFormOpen(true);
+  };
 
   const saveMutation = useMutation({
-    mutationFn: (d) => editItem ? updateFaculty(editItem.id, d) : createFaculty(d),
+    mutationFn: (d) => (editItem ? updateFaculty(editItem.id, d) : createFaculty(d)),
     onSuccess: () => {
       toast.success(editItem ? 'Fakülte güncellendi' : 'Fakülte oluşturuldu');
       qc.invalidateQueries({ queryKey: ['faculties'] });
@@ -66,7 +89,16 @@ const FacultyList = () => {
         ) : isError ? (
           <ErrorState onRetry={refetch} />
         ) : !data?.data?.length ? (
-          <EmptyState icon={Building2} title="Fakülte bulunamadı" action={<button className="btn btn-primary" onClick={openAdd}><Plus size={15}/>Fakülte Ekle</button>} />
+          <EmptyState
+            icon={Building2}
+            title="Fakülte bulunamadı"
+            action={
+              <button className="btn btn-primary" onClick={openAdd}>
+                <Plus size={15} />
+                Fakülte Ekle
+              </button>
+            }
+          />
         ) : (
           <>
             <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
@@ -83,14 +115,21 @@ const FacultyList = () => {
                   {data.data.map((f) => (
                     <tr key={f.id}>
                       <td style={{ fontWeight: 600 }}>{f.name}</td>
-                      <td><span className="badge badge-blue">{f.code}</span></td>
+                      <td>
+                        <span className="badge badge-blue">{f.code}</span>
+                      </td>
                       <td>{f._count?.departments ?? 0} bölüm</td>
                       <td>
                         <div style={{ display: 'flex', gap: 4 }}>
                           <button className="btn btn-ghost btn-sm" onClick={() => openEdit(f)} title="Düzenle">
                             <Pencil size={14} />
                           </button>
-                          <button className="btn btn-ghost btn-sm" onClick={() => setDeleteItem(f)} title="Sil" style={{ color: 'var(--color-danger)' }}>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={() => setDeleteItem(f)}
+                            title="Sil"
+                            style={{ color: 'var(--color-danger)' }}
+                          >
                             <Trash2 size={14} />
                           </button>
                         </div>
@@ -107,21 +146,35 @@ const FacultyList = () => {
 
       {/* Form Modal */}
       <Modal open={formOpen} onClose={() => setFormOpen(false)} title={editItem ? 'Fakülte Düzenle' : 'Yeni Fakülte'}>
-        <form onSubmit={handleSubmit((d) => saveMutation.mutate(d))} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <form
+          onSubmit={handleSubmit((d) => saveMutation.mutate(d))}
+          style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+        >
           <div className="input-wrapper">
             <label className="input-label">Fakülte Adı</label>
-            <input {...register('name', { required: 'Zorunlu' })} className={`input ${errors.name ? 'error' : ''}`} placeholder="Mühendislik Fakültesi" />
+            <input
+              {...register('name', { required: 'Zorunlu' })}
+              className={`input ${errors.name ? 'error' : ''}`}
+              placeholder="Mühendislik Fakültesi"
+            />
             {errors.name && <span className="input-error">{errors.name.message}</span>}
           </div>
           <div className="input-wrapper">
             <label className="input-label">Kod</label>
-            <input {...register('code', { required: 'Zorunlu' })} className={`input ${errors.code ? 'error' : ''}`} placeholder="MF" style={{ textTransform: 'uppercase' }} />
+            <input
+              {...register('code', { required: 'Zorunlu' })}
+              className={`input ${errors.code ? 'error' : ''}`}
+              placeholder="MF"
+              style={{ textTransform: 'uppercase' }}
+            />
             {errors.code && <span className="input-error">{errors.code.message}</span>}
           </div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setFormOpen(false)}>İptal</button>
+            <button type="button" className="btn btn-secondary" onClick={() => setFormOpen(false)}>
+              İptal
+            </button>
             <button type="submit" className="btn btn-primary" disabled={isSubmitting || saveMutation.isPending}>
-              {(isSubmitting || saveMutation.isPending) ? <span className="spinner" /> : null}
+              {isSubmitting || saveMutation.isPending ? <span className="spinner" /> : null}
               {editItem ? 'Güncelle' : 'Oluştur'}
             </button>
           </div>

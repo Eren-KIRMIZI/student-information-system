@@ -31,10 +31,19 @@ export const GlobalSearchWidget = () => {
       </div>
 
       <form onSubmit={handleSearch} style={{ position: 'relative', marginBottom: 16 }}>
-        <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-        <input 
-          type="text" 
-          placeholder="Sistemde bir şey arayın..." 
+        <Search
+          size={16}
+          style={{
+            position: 'absolute',
+            left: 12,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: 'var(--color-text-muted)',
+          }}
+        />
+        <input
+          type="text"
+          placeholder="Sistemde bir şey arayın..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           style={{
@@ -47,10 +56,22 @@ export const GlobalSearchWidget = () => {
             outline: 'none',
           }}
         />
-        <button type="submit" style={{ display: 'none' }}>Ara</button>
+        <button type="submit" style={{ display: 'none' }}>
+          Ara
+        </button>
       </form>
 
-      <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 8, fontWeight: 600, textTransform: 'uppercase' }}>Hızlı Yönlendirmeler</div>
+      <div
+        style={{
+          fontSize: 12,
+          color: 'var(--color-text-muted)',
+          marginBottom: 8,
+          fontWeight: 600,
+          textTransform: 'uppercase',
+        }}
+      >
+        Hızlı Yönlendirmeler
+      </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {quickLinks.map((link, idx) => {
           const Icon = link.icon;
@@ -59,13 +80,18 @@ export const GlobalSearchWidget = () => {
               key={idx}
               onClick={() => navigate(link.path)}
               style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '6px 12px', borderRadius: 16,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '6px 12px',
+                borderRadius: 16,
                 border: '1px solid var(--color-border)',
                 background: 'var(--color-surface)',
                 color: 'var(--color-text-secondary)',
-                fontSize: 12, fontWeight: 500, cursor: 'pointer',
-                transition: 'all 0.15s ease'
+                fontSize: 12,
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = 'var(--color-primary-400)';
@@ -78,7 +104,7 @@ export const GlobalSearchWidget = () => {
             >
               <Icon size={14} /> {link.label}
             </button>
-          )
+          );
         })}
       </div>
     </div>

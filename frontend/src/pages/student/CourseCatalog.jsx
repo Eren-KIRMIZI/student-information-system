@@ -3,8 +3,14 @@ import { useQuery } from '@tanstack/react-query';
 import { getCourseSections } from '../../api/academic.api';
 import { useNavigate } from 'react-router-dom';
 import {
-  PageHeader, SearchInput, StatusBadge, TableSkeleton, CardSkeleton,
-  EmptyState, ErrorState, Pagination,
+  PageHeader,
+  SearchInput,
+  StatusBadge,
+  TableSkeleton,
+  CardSkeleton,
+  EmptyState,
+  ErrorState,
+  Pagination,
 } from '../../components/ui/index';
 import { CourseSectionCard } from '../../components/feature/index';
 import { SEMESTER_OPTIONS } from '../../utils/constants';
@@ -21,11 +27,14 @@ const CourseCatalog = () => {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['catalog-sections', page, search, academicYear, semester],
-    queryFn: () => getCourseSections({
-      page, limit: 20, search,
-      academicYear: academicYear || undefined,
-      semester: semester || undefined,
-    }),
+    queryFn: () =>
+      getCourseSections({
+        page,
+        limit: 20,
+        search,
+        academicYear: academicYear || undefined,
+        semester: semester || undefined,
+      }),
   });
 
   const sections = data?.data ?? [];
@@ -56,45 +65,68 @@ const CourseCatalog = () => {
       <div className="filter-bar">
         <SearchInput
           value={search}
-          onChange={(v) => { setSearch(v); setPage(1); }}
+          onChange={(v) => {
+            setSearch(v);
+            setPage(1);
+          }}
           placeholder="Ders adı veya kodu ara..."
         />
         <select
           className="input"
           style={{ width: 'auto', minWidth: 150 }}
           value={academicYear}
-          onChange={(e) => { setAcademicYear(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setAcademicYear(e.target.value);
+            setPage(1);
+          }}
         >
-          {ACADEMIC_YEAR_OPTIONS.map((y) => <option key={y} value={y}>{y}</option>)}
+          {ACADEMIC_YEAR_OPTIONS.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
         </select>
         <select
           className="input"
           style={{ width: 'auto', minWidth: 130 }}
           value={semester}
-          onChange={(e) => { setSemester(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setSemester(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="">Tüm Yarıyıllar</option>
-          {SEMESTER_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+          {SEMESTER_OPTIONS.map((s) => (
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
+          ))}
         </select>
       </div>
 
       {isLoading ? (
-        viewMode === 'card' ? <CardSkeleton count={8} /> : <div className="card" style={{ padding: 0 }}><TableSkeleton rows={8} cols={6} /></div>
+        viewMode === 'card' ? (
+          <CardSkeleton count={8} />
+        ) : (
+          <div className="card" style={{ padding: 0 }}>
+            <TableSkeleton rows={8} cols={6} />
+          </div>
+        )
       ) : isError ? (
         <ErrorState onRetry={refetch} />
       ) : !sections.length ? (
         <div className="card">
-          <EmptyState icon={BookOpen} title="Ders bulunamadı" description="Seçtiğiniz döneme ait açık ders şubesi bulunmuyor." />
+          <EmptyState
+            icon={BookOpen}
+            title="Ders bulunamadı"
+            description="Seçtiğiniz döneme ait açık ders şubesi bulunmuyor."
+          />
         </div>
       ) : viewMode === 'card' ? (
         <>
           <div className="grid-auto-fill">
             {sections.map((s) => (
-              <CourseSectionCard
-                key={s.id}
-                section={s}
-                onClick={() => navigate('/student/course-selection')}
-              />
+              <CourseSectionCard key={s.id} section={s} onClick={() => navigate('/student/course-selection')} />
             ))}
           </div>
           {data?.pagination && (
@@ -132,14 +164,23 @@ const CourseCatalog = () => {
                       <td style={{ fontSize: 13 }}>
                         {s.lecturer ? `${s.lecturer.firstName} ${s.lecturer.lastName}` : '—'}
                       </td>
-                      <td><span className="badge badge-blue">{s.sectionCode}</span></td>
+                      <td>
+                        <span className="badge badge-blue">{s.sectionCode}</span>
+                      </td>
                       <td>
                         <div style={{ fontSize: 13 }}>{s.academicYear}</div>
                         <StatusBadge status={s.semester} />
                       </td>
-                      <td style={{ fontSize: 13 }}>{s.course?.credits} / {s.course?.ects}</td>
+                      <td style={{ fontSize: 13 }}>
+                        {s.course?.credits} / {s.course?.ects}
+                      </td>
                       <td>
-                        <span style={{ color: remaining <= 0 ? 'var(--color-danger)' : 'var(--color-success)', fontWeight: 600 }}>
+                        <span
+                          style={{
+                            color: remaining <= 0 ? 'var(--color-danger)' : 'var(--color-success)',
+                            fontWeight: 600,
+                          }}
+                        >
                           {remaining}
                         </span>
                         <span style={{ color: 'var(--color-text-muted)', fontSize: 12 }}> / {s.quota}</span>

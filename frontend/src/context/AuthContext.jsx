@@ -5,7 +5,7 @@ import { connectSocket, disconnectSocket } from '../lib/socket';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser]       = useState(null);
+  const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -43,11 +43,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateUser = (updatedUser) => setUser(updatedUser);
 
-  return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, updateUser }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ user, isLoading, login, logout, updateUser }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);

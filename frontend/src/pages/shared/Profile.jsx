@@ -11,17 +11,26 @@ const Profile = () => {
   const qc = useQueryClient();
   const { user } = useAuth();
   const fileInputRef = useRef(null);
-  
+
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['me'],
     queryFn: getMe,
   });
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
   useEffect(() => {
     if (data) {
-      reset({ email: data.email, phone: data.student?.phone || data.lecturer?.phone || '', address: data.student?.address || '' });
+      reset({
+        email: data.email,
+        phone: data.student?.phone || data.lecturer?.phone || '',
+        address: data.student?.address || '',
+      });
     }
   }, [data, reset]);
 
@@ -87,7 +96,7 @@ const Profile = () => {
   // Kullanıcı detaylarını çıkaralım
   let name = 'Sistem Yöneticisi';
   let title = '';
-  
+
   if (data.student) {
     name = `${data.student.firstName} ${data.student.lastName}`;
     title = 'Öğrenci';
@@ -100,35 +109,79 @@ const Profile = () => {
 
   return (
     <div className="animate-fade-in">
-      <PageHeader
-        title="Profilim"
-        subtitle="Kişisel bilgilerinizi ve hesap ayarlarınızı görüntüleyin"
-      />
+      <PageHeader title="Profilim" subtitle="Kişisel bilgilerinizi ve hesap ayarlarınızı görüntüleyin" />
 
       <div className="grid grid-cols-1 gap-6 max-w-[800px]">
         {/* Kullanıcı Kartı */}
         <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
           <div style={{ position: 'relative' }}>
-            {(data.student?.photoUrl || data.lecturer?.photoUrl) ? (
-              <img src={`${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/${data.student?.photoUrl || data.lecturer?.photoUrl}`}
-                alt={name} style={{ width: 80, height: 80, borderRadius: 20, objectFit: 'cover' }} />
+            {data.student?.photoUrl || data.lecturer?.photoUrl ? (
+              <img
+                src={`${import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}/${data.student?.photoUrl || data.lecturer?.photoUrl}`}
+                alt={name}
+                style={{ width: 80, height: 80, borderRadius: 20, objectFit: 'cover' }}
+              />
             ) : (
-              <div style={{ width: 80, height: 80, borderRadius: 20, background: 'linear-gradient(135deg, var(--color-primary-600), var(--color-primary-400))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 32, fontWeight: 800 }}>
+              <div
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 20,
+                  background: 'linear-gradient(135deg, var(--color-primary-600), var(--color-primary-400))',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  fontSize: 32,
+                  fontWeight: 800,
+                }}
+              >
                 {name.charAt(0)}
               </div>
             )}
-            <button type="button" onClick={() => fileInputRef.current?.click()}
-              style={{ position: 'absolute', bottom: -4, right: -4, width: 28, height: 28, borderRadius: 8, background: 'var(--color-primary-600)', border: '2px solid var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff' }}
-              title="Fotoğraf değiştir">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              style={{
+                position: 'absolute',
+                bottom: -4,
+                right: -4,
+                width: 28,
+                height: 28,
+                borderRadius: 8,
+                background: 'var(--color-primary-600)',
+                border: '2px solid var(--color-surface)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: '#fff',
+              }}
+              title="Fotoğraf değiştir"
+            >
               <Camera size={14} />
             </button>
-            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoChange} style={{ display: 'none' }} />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handlePhotoChange}
+              style={{ display: 'none' }}
+            />
           </div>
           <div style={{ flex: 1 }}>
             <h2 style={{ fontSize: 24, fontWeight: 800, margin: '0 0 4px', color: 'var(--color-text-primary)' }}>
               {name}
             </h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 14, color: 'var(--color-text-secondary)' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                fontSize: 14,
+                color: 'var(--color-text-secondary)',
+              }}
+            >
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Shield size={16} /> {title}
               </span>
@@ -141,37 +194,81 @@ const Profile = () => {
 
         {/* Hesap Ayarları */}
         <div className="card">
-          <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 20px', borderBottom: '1px solid var(--color-border)', paddingBottom: 16 }}>
+          <h3
+            style={{
+              fontSize: 16,
+              fontWeight: 700,
+              margin: '0 0 20px',
+              borderBottom: '1px solid var(--color-border)',
+              paddingBottom: 16,
+            }}
+          >
             Hesap Ayarları
           </h3>
-          <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 500 }}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 500 }}
+          >
             <div className="input-wrapper">
-              <label className="input-label"><Mail size={14} /> E-Posta Adresi</label>
-              <input type="email" className={`input ${errors.email ? 'error' : ''}`} {...register('email', { required: true })} />
+              <label className="input-label">
+                <Mail size={14} /> E-Posta Adresi
+              </label>
+              <input
+                type="email"
+                className={`input ${errors.email ? 'error' : ''}`}
+                {...register('email', { required: true })}
+              />
             </div>
 
             {(data.student || data.lecturer) && (
               <div className="input-wrapper">
-                <label className="input-label"><Phone size={14} /> Telefon</label>
-                <input type="tel" placeholder="Telefon numaranız" className="input"
-                  {...register('phone')} defaultValue={data.student?.phone || data.lecturer?.phone || ''} />
+                <label className="input-label">
+                  <Phone size={14} /> Telefon
+                </label>
+                <input
+                  type="tel"
+                  placeholder="Telefon numaranız"
+                  className="input"
+                  {...register('phone')}
+                  defaultValue={data.student?.phone || data.lecturer?.phone || ''}
+                />
               </div>
             )}
 
             {data.student && (
               <div className="input-wrapper">
-                <label className="input-label"><MapPin size={14} /> Adres</label>
-                <textarea placeholder="Adresiniz" className="input" rows={2}
-                  {...register('address')} defaultValue={data.student?.address || ''} />
+                <label className="input-label">
+                  <MapPin size={14} /> Adres
+                </label>
+                <textarea
+                  placeholder="Adresiniz"
+                  className="input"
+                  rows={2}
+                  {...register('address')}
+                  defaultValue={data.student?.address || ''}
+                />
               </div>
             )}
 
             <div className="input-wrapper">
-              <label className="input-label"><Lock size={14} /> Yeni Şifre</label>
-              <input type="password" placeholder="Değiştirmek istemiyorsanız boş bırakın" className={`input ${errors.password ? 'error' : ''}`}
-                {...register('password', { minLength: 8, pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/ })} />
-              {errors.password?.type === 'minLength' && <span className="input-error">Şifre en az 8 karakter olmalıdır</span>}
-              {errors.password?.type === 'pattern' && <span className="input-error">Büyük harf, küçük harf, rakam ve özel karakter içermelidir</span>}
+              <label className="input-label">
+                <Lock size={14} /> Yeni Şifre
+              </label>
+              <input
+                type="password"
+                placeholder="Değiştirmek istemiyorsanız boş bırakın"
+                className={`input ${errors.password ? 'error' : ''}`}
+                {...register('password', {
+                  minLength: 8,
+                  pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
+                })}
+              />
+              {errors.password?.type === 'minLength' && (
+                <span className="input-error">Şifre en az 8 karakter olmalıdır</span>
+              )}
+              {errors.password?.type === 'pattern' && (
+                <span className="input-error">Büyük harf, küçük harf, rakam ve özel karakter içermelidir</span>
+              )}
             </div>
 
             <div style={{ marginTop: 8 }}>

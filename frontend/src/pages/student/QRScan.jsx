@@ -40,9 +40,15 @@ const QRScan = () => {
             onChange={(e) => setToken(e.target.value)}
             placeholder="QR kodunu buraya yapıştırın..."
             style={{
-              width: '100%', padding: '14px 16px', fontSize: 14, borderRadius: 10,
-              border: '2px solid var(--color-border)', outline: 'none',
-              textAlign: 'center', fontFamily: 'monospace', letterSpacing: 1,
+              width: '100%',
+              padding: '14px 16px',
+              fontSize: 14,
+              borderRadius: 10,
+              border: '2px solid var(--color-border)',
+              outline: 'none',
+              textAlign: 'center',
+              fontFamily: 'monospace',
+              letterSpacing: 1,
             }}
           />
           <button
@@ -55,12 +61,38 @@ const QRScan = () => {
           </button>
         </form>
         {mutation.isSuccess && (
-          <div style={{ marginTop: 16, padding: 12, background: '#f0fdf4', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: '#059669', fontWeight: 600 }}>
+          <div
+            style={{
+              marginTop: 16,
+              padding: 12,
+              background: '#f0fdf4',
+              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              color: '#059669',
+              fontWeight: 600,
+            }}
+          >
             <CheckCircle size={18} /> Yoklama başarıyla alındı!
           </div>
         )}
         {mutation.isError && (
-          <div style={{ marginTop: 16, padding: 12, background: '#fef2f2', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: '#dc2626', fontWeight: 600 }}>
+          <div
+            style={{
+              marginTop: 16,
+              padding: 12,
+              background: '#fef2f2',
+              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              color: '#dc2626',
+              fontWeight: 600,
+            }}
+          >
             <XCircle size={18} /> {mutation.error?.response?.data?.message || 'Hata'}
           </div>
         )}

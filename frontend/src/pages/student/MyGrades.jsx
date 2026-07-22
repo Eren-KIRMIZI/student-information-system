@@ -10,14 +10,19 @@ const MyGrades = () => {
   useGradeSocket();
   const [tab, setTab] = useState('active');
 
-  const { data: enrollments, isLoading, isError, refetch } = useQuery({
+  const {
+    data: enrollments,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['enrollments', 'me'],
     queryFn: getMyEnrollments,
   });
 
-  const active    = enrollments?.filter(e => ['ACTIVE','APPROVED'].includes(e.status)) ?? [];
-  const completed = enrollments?.filter(e => e.status === 'COMPLETED') ?? [];
-  const current   = tab === 'active' ? active : completed;
+  const active = enrollments?.filter((e) => ['ACTIVE', 'APPROVED'].includes(e.status)) ?? [];
+  const completed = enrollments?.filter((e) => e.status === 'COMPLETED') ?? [];
+  const current = tab === 'active' ? active : completed;
 
   return (
     <div className="animate-fade-in">
@@ -25,7 +30,7 @@ const MyGrades = () => {
 
       <Tabs
         tabs={[
-          { id: 'active',    label: 'Aktif Dersler', badge: active.length },
+          { id: 'active', label: 'Aktif Dersler', badge: active.length },
           { id: 'completed', label: 'Geçmiş Dersler', badge: completed.length },
         ]}
         active={tab}
@@ -38,7 +43,11 @@ const MyGrades = () => {
         ) : isError ? (
           <ErrorState onRetry={refetch} />
         ) : !current.length ? (
-          <EmptyState icon={BookOpen} title="Kayıt bulunamadı" description={tab === 'active' ? 'Aktif ders kaydınız yok' : 'Geçmiş ders kaydınız yok'} />
+          <EmptyState
+            icon={BookOpen}
+            title="Kayıt bulunamadı"
+            description={tab === 'active' ? 'Aktif ders kaydınız yok' : 'Geçmiş ders kaydınız yok'}
+          />
         ) : (
           <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
             <table className="table">
@@ -46,14 +55,14 @@ const MyGrades = () => {
                 <tr>
                   <th>Ders</th>
                   <th>Akademisyen</th>
-                  <th style={{ textAlign:'center' }}>Vize</th>
-                  <th style={{ textAlign:'center' }}>Final</th>
-                  <th style={{ textAlign:'center' }}>Harf Notu</th>
-                  <th style={{ textAlign:'center' }}>Durum</th>
+                  <th style={{ textAlign: 'center' }}>Vize</th>
+                  <th style={{ textAlign: 'center' }}>Final</th>
+                  <th style={{ textAlign: 'center' }}>Harf Notu</th>
+                  <th style={{ textAlign: 'center' }}>Durum</th>
                 </tr>
               </thead>
               <tbody>
-                {current.map(e => {
+                {current.map((e) => {
                   const g = e.grade;
                   const letter = g?.letterGrade;
                   return (
@@ -69,16 +78,19 @@ const MyGrades = () => {
                           ? `${e.courseSection.lecturer.title ?? ''} ${e.courseSection.lecturer.firstName} ${e.courseSection.lecturer.lastName}`.trim()
                           : '—'}
                       </td>
-                      <td style={{ textAlign:'center', fontWeight:600 }}>{g?.midtermScore ?? '—'}</td>
-                      <td style={{ textAlign:'center', fontWeight:600 }}>{g?.makeupScore ?? g?.finalScore ?? '—'}</td>
-                      <td style={{ textAlign:'center' }}>
+                      <td style={{ textAlign: 'center', fontWeight: 600 }}>{g?.midtermScore ?? '—'}</td>
+                      <td style={{ textAlign: 'center', fontWeight: 600 }}>{g?.makeupScore ?? g?.finalScore ?? '—'}</td>
+                      <td style={{ textAlign: 'center' }}>
                         <GradeBadge letter={letter} />
                       </td>
-                      <td style={{ textAlign:'center' }}>
-                        {g?.isFinalized
-                          ? <span className="badge badge-green">Kesinleşti</span>
-                          : g ? <span className="badge badge-yellow">Taslak</span>
-                          : <span className="badge badge-gray">Girilmedi</span>}
+                      <td style={{ textAlign: 'center' }}>
+                        {g?.isFinalized ? (
+                          <span className="badge badge-green">Kesinleşti</span>
+                        ) : g ? (
+                          <span className="badge badge-yellow">Taslak</span>
+                        ) : (
+                          <span className="badge badge-gray">Girilmedi</span>
+                        )}
                       </td>
                     </tr>
                   );

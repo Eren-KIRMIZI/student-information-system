@@ -4,8 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getMyEnrollments } from '../../api/records.api';
 import {
-  PageHeader, StatusBadge, TableSkeleton, CardSkeleton,
-  EmptyState, ErrorState, Pagination, SearchInput,
+  PageHeader,
+  StatusBadge,
+  TableSkeleton,
+  CardSkeleton,
+  EmptyState,
+  ErrorState,
+  Pagination,
+  SearchInput,
 } from '../../components/ui/index';
 import { CourseSectionCard } from '../../components/feature/index';
 import { SEMESTERS, SEMESTER_LABELS, ACADEMIC_YEAR_OPTIONS } from '../../utils/constants';
@@ -22,11 +28,14 @@ const MyCourses = () => {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['my-enrollments', page, search, academicYear, semester, user?.studentId],
-    queryFn: () => getMyEnrollments({
-      page, limit: 20, search,
-      academicYear: academicYear || undefined,
-      semester: semester || undefined,
-    }),
+    queryFn: () =>
+      getMyEnrollments({
+        page,
+        limit: 20,
+        search,
+        academicYear: academicYear || undefined,
+        semester: semester || undefined,
+      }),
     enabled: !!user?.studentId,
   });
 
@@ -58,40 +67,59 @@ const MyCourses = () => {
       <div className="filter-bar">
         <SearchInput
           value={search}
-          onChange={(v) => { setSearch(v); setPage(1); }}
+          onChange={(v) => {
+            setSearch(v);
+            setPage(1);
+          }}
           placeholder="Ders ara..."
         />
         <select
           className="input"
           style={{ width: 'auto', minWidth: 150 }}
           value={academicYear}
-          onChange={(e) => { setAcademicYear(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setAcademicYear(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="">Tüm Yıllar</option>
-          {ACADEMIC_YEAR_OPTIONS.map((y) => <option key={y} value={y}>{y}</option>)}
+          {ACADEMIC_YEAR_OPTIONS.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
         </select>
         <select
           className="input"
           style={{ width: 'auto', minWidth: 130 }}
           value={semester}
-          onChange={(e) => { setSemester(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setSemester(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="">Tüm Yarıyıllar</option>
-          {SEMESTERS.map((s) => <option key={s} value={s}>{SEMESTER_LABELS[s]}</option>)}
+          {SEMESTERS.map((s) => (
+            <option key={s} value={s}>
+              {SEMESTER_LABELS[s]}
+            </option>
+          ))}
         </select>
       </div>
 
       {isLoading ? (
-        viewMode === 'card' ? <CardSkeleton count={4} /> : <div className="card" style={{ padding: 0 }}><TableSkeleton rows={5} cols={5} /></div>
+        viewMode === 'card' ? (
+          <CardSkeleton count={4} />
+        ) : (
+          <div className="card" style={{ padding: 0 }}>
+            <TableSkeleton rows={5} cols={5} />
+          </div>
+        )
       ) : isError ? (
         <ErrorState onRetry={refetch} />
       ) : !enrollments.length ? (
         <div className="card">
-          <EmptyState
-            icon={Layers}
-            title="Ders bulunamadı"
-            description="Kayıtlı olduğunuz bir ders bulunmuyor."
-          />
+          <EmptyState icon={Layers} title="Ders bulunamadı" description="Kayıtlı olduğunuz bir ders bulunmuyor." />
         </div>
       ) : viewMode === 'card' ? (
         <>
@@ -135,12 +163,16 @@ const MyCourses = () => {
                         <div style={{ fontWeight: 600 }}>{s.course?.name}</div>
                         <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{s.course?.code}</div>
                       </td>
-                      <td><span className="badge badge-blue">{s.sectionCode}</span></td>
+                      <td>
+                        <span className="badge badge-blue">{s.sectionCode}</span>
+                      </td>
                       <td>
                         <div style={{ fontSize: 13 }}>{s.academicYear}</div>
                         <StatusBadge status={s.semester} />
                       </td>
-                      <td style={{ fontSize: 13 }}>{s.lecturer?.firstName} {s.lecturer?.lastName}</td>
+                      <td style={{ fontSize: 13 }}>
+                        {s.lecturer?.firstName} {s.lecturer?.lastName}
+                      </td>
                       <td>
                         <button
                           className="btn btn-ghost btn-sm"

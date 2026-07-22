@@ -2,7 +2,21 @@ import { useQuery } from '@tanstack/react-query';
 import { getMyAnalytics } from '../../api/advanced.api';
 import { PageHeader, CardSkeleton, ErrorState } from '../../components/ui/index';
 import { BarChart3, TrendingUp, Award, BookOpen, Clock } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 const COLORS = ['#2563eb', '#7c3aed', '#059669', '#d97706', '#dc2626', '#0891b2', '#c026d3', '#ea580c'];
 
 const Analytics = () => {
@@ -44,12 +58,19 @@ const Analytics = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         <div className="card" style={{ padding: 20 }}>
-          <h3 style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h3
+            style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}
+          >
             <TrendingUp size={18} /> Dönemlik GPA Trendi
           </h3>
           {data.gpaTrends?.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={data.gpaTrends.map(t => ({ name: `${t.academicYear} ${t.semester === 'FALL' ? 'Güz' : t.semester === 'SPRING' ? 'Bahar' : 'Yaz'}`, gpa: t.gpa }))}>
+              <LineChart
+                data={data.gpaTrends.map((t) => ({
+                  name: `${t.academicYear} ${t.semester === 'FALL' ? 'Güz' : t.semester === 'SPRING' ? 'Bahar' : 'Yaz'}`,
+                  gpa: t.gpa,
+                }))}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" fontSize={12} />
                 <YAxis domain={[0, 4]} fontSize={12} />
@@ -63,7 +84,9 @@ const Analytics = () => {
         </div>
 
         <div className="card" style={{ padding: 20 }}>
-          <h3 style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h3
+            style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}
+          >
             <BarChart3 size={18} /> Harf Notu Dağılımı
           </h3>
           {data.gradeDistribution?.length > 0 ? (
@@ -88,12 +111,17 @@ const Analytics = () => {
 
       {data.attendanceSummary?.length > 0 && (
         <div className="card" style={{ padding: 20 }}>
-          <h3 style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h3
+            style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}
+          >
             <Clock size={18} /> Ders Bazlı Devam Durumu
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.attendanceSummary.map(a => (
-              <div key={a.courseName} style={{ padding: 16, background: 'var(--color-bg-secondary)', borderRadius: 12 }}>
+            {data.attendanceSummary.map((a) => (
+              <div
+                key={a.courseName}
+                style={{ padding: 16, background: 'var(--color-bg-secondary)', borderRadius: 12 }}
+              >
                 <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8 }}>{a.courseName}</div>
                 <div style={{ display: 'flex', gap: 16, fontSize: 13, marginBottom: 8 }}>
                   <span style={{ color: '#059669' }}>Geldi: {a.present}</span>
@@ -101,9 +129,19 @@ const Analytics = () => {
                   <span style={{ color: '#d97706' }}>Geç: {a.late}</span>
                 </div>
                 <div style={{ height: 8, background: 'var(--color-border)', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${a.rate}%`, background: a.rate >= 70 ? '#059669' : a.rate >= 50 ? '#d97706' : '#dc2626', borderRadius: 4, transition: 'width 0.5s' }} />
+                  <div
+                    style={{
+                      height: '100%',
+                      width: `${a.rate}%`,
+                      background: a.rate >= 70 ? '#059669' : a.rate >= 50 ? '#d97706' : '#dc2626',
+                      borderRadius: 4,
+                      transition: 'width 0.5s',
+                    }}
+                  />
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 4, textAlign: 'right' }}>%{a.rate}</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 4, textAlign: 'right' }}>
+                  %{a.rate}
+                </div>
               </div>
             ))}
           </div>

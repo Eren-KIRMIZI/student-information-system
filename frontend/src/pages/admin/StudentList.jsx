@@ -4,8 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { getStudents, createStudent, updateStudentStatus } from '../../api/people.api';
 import { getDepartments } from '../../api/academic.api';
 import {
-  PageHeader, SearchInput, StatusBadge, TableSkeleton,
-  EmptyState, ErrorState, Pagination, Modal,
+  PageHeader,
+  SearchInput,
+  StatusBadge,
+  TableSkeleton,
+  EmptyState,
+  ErrorState,
+  Pagination,
+  Modal,
 } from '../../components/ui/index';
 import { PersonRow } from '../../components/feature/index';
 import { CLASS_YEAR_OPTIONS } from '../../utils/constants';
@@ -24,11 +30,14 @@ const StudentList = () => {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['students', page, search, deptFilter, classYear],
-    queryFn: () => getStudents({
-      page, limit: 20, search,
-      departmentId: deptFilter || undefined,
-      classYear: classYear || undefined,
-    }),
+    queryFn: () =>
+      getStudents({
+        page,
+        limit: 20,
+        search,
+        departmentId: deptFilter || undefined,
+        classYear: classYear || undefined,
+      }),
   });
 
   const { data: deptData } = useQuery({
@@ -36,7 +45,12 @@ const StudentList = () => {
     queryFn: () => getDepartments({ limit: 200 }),
   });
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm();
 
   const createMutation = useMutation({
     mutationFn: (d) => createStudent({ ...d, classYear: Number(d.classYear) || 1 }),
@@ -64,33 +78,58 @@ const StudentList = () => {
         title="Öğrenci Yönetimi"
         subtitle={`Toplam ${data?.pagination?.total ?? 0} öğrenci`}
         action={
-          <button className="btn btn-primary" onClick={() => { reset({}); setFormOpen(true); }}>
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              reset({});
+              setFormOpen(true);
+            }}
+          >
             <Plus size={16} /> Öğrenci Ekle
           </button>
         }
       />
 
       <div className="filter-bar">
-        <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder="Ad, soyad veya numara ara..." />
+        <SearchInput
+          value={search}
+          onChange={(v) => {
+            setSearch(v);
+            setPage(1);
+          }}
+          placeholder="Ad, soyad veya numara ara..."
+        />
         <select
           className="input"
           style={{ width: 'auto', minWidth: 180 }}
           value={deptFilter}
-          onChange={(e) => { setDeptFilter(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setDeptFilter(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="">Tüm Bölümler</option>
           {deptData?.data?.map((d) => (
-            <option key={d.id} value={d.id}>{d.name}</option>
+            <option key={d.id} value={d.id}>
+              {d.name}
+            </option>
           ))}
         </select>
         <select
           className="input"
           style={{ width: 'auto', minWidth: 120 }}
           value={classYear}
-          onChange={(e) => { setClassYear(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setClassYear(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="">Tüm Sınıflar</option>
-          {CLASS_YEAR_OPTIONS.map((y) => <option key={y} value={y}>{y}. Sınıf</option>)}
+          {CLASS_YEAR_OPTIONS.map((y) => (
+            <option key={y} value={y}>
+              {y}. Sınıf
+            </option>
+          ))}
         </select>
       </div>
 
@@ -103,7 +142,17 @@ const StudentList = () => {
           <EmptyState
             icon={Users}
             title="Öğrenci bulunamadı"
-            action={<button className="btn btn-primary" onClick={() => { reset({}); setFormOpen(true); }}><Plus size={15} /> Öğrenci Ekle</button>}
+            action={
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  reset({});
+                  setFormOpen(true);
+                }}
+              >
+                <Plus size={15} /> Öğrenci Ekle
+              </button>
+            }
           />
         ) : (
           <>
@@ -134,7 +183,9 @@ const StudentList = () => {
                         {s.department?.name ?? '—'}
                       </td>
                       <td style={{ fontSize: 13 }}>{s.classYear}. Sınıf</td>
-                      <td><StatusBadge status={s.user?.isActive} /></td>
+                      <td>
+                        <StatusBadge status={s.user?.isActive} />
+                      </td>
                       <td>
                         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                           <button
@@ -142,7 +193,18 @@ const StudentList = () => {
                             onClick={() => navigate(`/admin/students/${s.id}`)}
                             title="Detay"
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                              <polyline points="15 3 21 3 21 9" />
+                              <line x1="10" y1="14" x2="21" y2="3" />
+                            </svg>
                           </button>
                           <button
                             className="btn btn-ghost btn-sm"
@@ -165,16 +227,27 @@ const StudentList = () => {
       </div>
 
       <Modal open={formOpen} onClose={() => setFormOpen(false)} title="Yeni Öğrenci" maxWidth={600}>
-        <form onSubmit={handleSubmit((d) => createMutation.mutate(d))} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <form
+          onSubmit={handleSubmit((d) => createMutation.mutate(d))}
+          style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Ad</label>
-              <input {...register('firstName', { required: 'Zorunlu' })} className={`input ${errors.firstName ? 'error' : ''}`} placeholder="Ahmet" />
+              <input
+                {...register('firstName', { required: 'Zorunlu' })}
+                className={`input ${errors.firstName ? 'error' : ''}`}
+                placeholder="Ahmet"
+              />
               {errors.firstName && <span className="input-error">{errors.firstName.message}</span>}
             </div>
             <div className="input-wrapper">
               <label className="input-label">Soyad</label>
-              <input {...register('lastName', { required: 'Zorunlu' })} className={`input ${errors.lastName ? 'error' : ''}`} placeholder="Yılmaz" />
+              <input
+                {...register('lastName', { required: 'Zorunlu' })}
+                className={`input ${errors.lastName ? 'error' : ''}`}
+                placeholder="Yılmaz"
+              />
               {errors.lastName && <span className="input-error">{errors.lastName.message}</span>}
             </div>
           </div>
@@ -182,12 +255,22 @@ const StudentList = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">E-posta</label>
-              <input type="email" {...register('email', { required: 'Zorunlu' })} className={`input ${errors.email ? 'error' : ''}`} placeholder="ahmet@uni.edu.tr" />
+              <input
+                type="email"
+                {...register('email', { required: 'Zorunlu' })}
+                className={`input ${errors.email ? 'error' : ''}`}
+                placeholder="ahmet@uni.edu.tr"
+              />
               {errors.email && <span className="input-error">{errors.email.message}</span>}
             </div>
             <div className="input-wrapper">
               <label className="input-label">Şifre</label>
-              <input type="password" {...register('password', { required: 'Zorunlu', minLength: { value: 8, message: 'En az 8 karakter' } })} className={`input ${errors.password ? 'error' : ''}`} placeholder="••••••••" />
+              <input
+                type="password"
+                {...register('password', { required: 'Zorunlu', minLength: { value: 8, message: 'En az 8 karakter' } })}
+                className={`input ${errors.password ? 'error' : ''}`}
+                placeholder="••••••••"
+              />
               {errors.password && <span className="input-error">{errors.password.message}</span>}
             </div>
           </div>
@@ -195,7 +278,11 @@ const StudentList = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Öğrenci No</label>
-              <input {...register('studentNumber', { required: 'Zorunlu' })} className={`input ${errors.studentNumber ? 'error' : ''}`} placeholder="2024001" />
+              <input
+                {...register('studentNumber', { required: 'Zorunlu' })}
+                className={`input ${errors.studentNumber ? 'error' : ''}`}
+                placeholder="2024001"
+              />
               {errors.studentNumber && <span className="input-error">{errors.studentNumber.message}</span>}
             </div>
             <div className="input-wrapper">
@@ -207,24 +294,37 @@ const StudentList = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Bölüm</label>
-              <select {...register('departmentId', { required: 'Zorunlu' })} className={`input ${errors.departmentId ? 'error' : ''}`}>
+              <select
+                {...register('departmentId', { required: 'Zorunlu' })}
+                className={`input ${errors.departmentId ? 'error' : ''}`}
+              >
                 <option value="">Bölüm seçin...</option>
-                {deptData?.data?.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                {deptData?.data?.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
               </select>
               {errors.departmentId && <span className="input-error">{errors.departmentId.message}</span>}
             </div>
             <div className="input-wrapper">
               <label className="input-label">Sınıf</label>
               <select {...register('classYear')} className="input">
-                {CLASS_YEAR_OPTIONS.map((y) => <option key={y} value={y}>{y}. Sınıf</option>)}
+                {CLASS_YEAR_OPTIONS.map((y) => (
+                  <option key={y} value={y}>
+                    {y}. Sınıf
+                  </option>
+                ))}
               </select>
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setFormOpen(false)}>İptal</button>
+            <button type="button" className="btn btn-secondary" onClick={() => setFormOpen(false)}>
+              İptal
+            </button>
             <button type="submit" className="btn btn-primary" disabled={isSubmitting || createMutation.isPending}>
-              {(isSubmitting || createMutation.isPending) ? <span className="spinner" /> : null}
+              {isSubmitting || createMutation.isPending ? <span className="spinner" /> : null}
               Oluştur
             </button>
           </div>

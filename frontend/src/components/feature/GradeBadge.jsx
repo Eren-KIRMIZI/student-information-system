@@ -11,14 +11,16 @@ export const GradeBadge = ({ letter, size = 'md' }) => {
   };
 
   return (
-    <span style={{
-      display: 'inline-block',
-      borderRadius: 20,
-      fontWeight: 800,
-      background: color + '22',
-      color,
-      ...sizes[size],
-    }}>
+    <span
+      style={{
+        display: 'inline-block',
+        borderRadius: 20,
+        fontWeight: 800,
+        background: color + '22',
+        color,
+        ...sizes[size],
+      }}
+    >
       {letter}
     </span>
   );
@@ -27,13 +29,17 @@ export const GradeBadge = ({ letter, size = 'md' }) => {
 export const GradeCell = ({ score, letter, isFinalized }) => (
   <>
     <td style={{ textAlign: 'center', fontWeight: 600 }}>{score ?? '—'}</td>
-    <td style={{ textAlign: 'center' }}><GradeBadge letter={letter} /></td>
     <td style={{ textAlign: 'center' }}>
-      {isFinalized
-        ? <span className="badge badge-green">Kesinleşti</span>
-        : score
-          ? <span className="badge badge-yellow">Taslak</span>
-          : <span className="badge badge-gray">Girilmedi</span>}
+      <GradeBadge letter={letter} />
+    </td>
+    <td style={{ textAlign: 'center' }}>
+      {isFinalized ? (
+        <span className="badge badge-green">Kesinleşti</span>
+      ) : score ? (
+        <span className="badge badge-yellow">Taslak</span>
+      ) : (
+        <span className="badge badge-gray">Girilmedi</span>
+      )}
     </td>
   </>
 );

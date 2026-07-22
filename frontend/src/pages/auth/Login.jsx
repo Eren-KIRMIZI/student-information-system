@@ -8,28 +8,41 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 
 const schema = z.object({
-  email:    z.string().email('Geçerli bir e-posta giriniz'),
+  email: z.string().email('Geçerli bir e-posta giriniz'),
   password: z.string().min(1, 'Şifre zorunludur'),
 });
 
 const roleRedirectMap = {
-  ADMIN:       '/admin/dashboard',
+  ADMIN: '/admin/dashboard',
   ACADEMICIAN: '/academician/dashboard',
-  STUDENT:     '/student/dashboard',
+  STUDENT: '/student/dashboard',
 };
 
-const devAccounts = import.meta.env.DEV ? [
-  { label: 'Admin', email: 'admin@obs.edu.tr', password: 'Admin123!', icon: Shield, color: '#dc2626' },
-  { label: 'Akademisyen', email: 'ayse.kaya@obs.edu.tr', password: 'Academic123!', icon: GraduationCap, color: '#2563eb' },
-  { label: 'Öğrenci', email: 'ali.veli@obs.edu.tr', password: 'Student123!', icon: BookOpen, color: '#16a34a' },
-] : [];
+const devAccounts = import.meta.env.DEV
+  ? [
+      { label: 'Admin', email: 'admin@obs.edu.tr', password: 'Admin123!', icon: Shield, color: '#dc2626' },
+      {
+        label: 'Akademisyen',
+        email: 'ayse.kaya@obs.edu.tr',
+        password: 'Academic123!',
+        icon: GraduationCap,
+        color: '#2563eb',
+      },
+      { label: 'Öğrenci', email: 'ali.veli@obs.edu.tr', password: 'Student123!', icon: BookOpen, color: '#16a34a' },
+    ]
+  : [];
 
 const Login = () => {
   const { login } = useAuth();
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
   const [showPwd, setShowPwd] = useState(false);
 
-  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm({
     resolver: zodResolver(schema),
   });
 
@@ -49,12 +62,8 @@ const Login = () => {
 
   return (
     <div className="animate-fade-in">
-      <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>
-        Giriş Yap
-      </h2>
-      <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>
-        Hesabınıza erişmek için bilgilerinizi girin
-      </p>
+      <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Giriş Yap</h2>
+      <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>Hesabınıza erişmek için bilgilerinizi girin</p>
 
       {devAccounts.length > 0 && (
         <>
@@ -63,21 +72,40 @@ const Login = () => {
               <button
                 key={acc.label}
                 type="button"
-                onClick={() => { setValue('email', acc.email); setValue('password', acc.password); }}
-                style={{
-                  flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-                  padding: '10px 6px', borderRadius: 8, border: `1.5px solid ${acc.color}20`,
-                  background: `${acc.color}08`, cursor: 'pointer', transition: 'all 0.15s',
+                onClick={() => {
+                  setValue('email', acc.email);
+                  setValue('password', acc.password);
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = acc.color; e.currentTarget.style.background = `${acc.color}15`; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = `${acc.color}20`; e.currentTarget.style.background = `${acc.color}08`; }}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '10px 6px',
+                  borderRadius: 8,
+                  border: `1.5px solid ${acc.color}20`,
+                  background: `${acc.color}08`,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = acc.color;
+                  e.currentTarget.style.background = `${acc.color}15`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = `${acc.color}20`;
+                  e.currentTarget.style.background = `${acc.color}08`;
+                }}
               >
                 <acc.icon size={18} color={acc.color} />
                 <span style={{ fontSize: 11, fontWeight: 600, color: acc.color }}>{acc.label}</span>
               </button>
             ))}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, color: '#cbd5e1', fontSize: 12 }}>
+          <div
+            style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, color: '#cbd5e1', fontSize: 12 }}
+          >
             <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
             <span>veya elle girin</span>
             <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
@@ -115,8 +143,14 @@ const Login = () => {
               type="button"
               onClick={() => setShowPwd((v) => !v)}
               style={{
-                position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-                background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8',
+                position: 'absolute',
+                right: 12,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#94a3b8',
                 display: 'flex',
               }}
             >
@@ -128,7 +162,10 @@ const Login = () => {
 
         {/* Forgot */}
         <div style={{ textAlign: 'right', marginTop: -8 }}>
-          <Link to="/forgot-password" style={{ fontSize: 13, color: '#2563eb', textDecoration: 'none', fontWeight: 500 }}>
+          <Link
+            to="/forgot-password"
+            style={{ fontSize: 13, color: '#2563eb', textDecoration: 'none', fontWeight: 500 }}
+          >
             Şifremi unuttum
           </Link>
         </div>

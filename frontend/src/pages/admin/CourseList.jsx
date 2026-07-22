@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  getCourses, createCourse, updateCourse, deleteCourse,
-} from '../../api/academic.api';
+import { getCourses, createCourse, updateCourse, deleteCourse } from '../../api/academic.api';
 import { getDepartments } from '../../api/academic.api';
 import {
-  PageHeader, SearchInput, TableSkeleton,
-  EmptyState, ErrorState, Pagination, Modal, ConfirmDialog,
+  PageHeader,
+  SearchInput,
+  TableSkeleton,
+  EmptyState,
+  ErrorState,
+  Pagination,
+  Modal,
+  ConfirmDialog,
 } from '../../components/ui/index';
 import { Plus, Pencil, Trash2, BookOpen } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -31,9 +35,18 @@ const CourseList = () => {
     queryFn: () => getDepartments({ limit: 200 }),
   });
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm();
 
-  const openAdd = () => { setEditItem(null); reset({}); setFormOpen(true); };
+  const openAdd = () => {
+    setEditItem(null);
+    reset({});
+    setFormOpen(true);
+  };
   const openEdit = (item) => {
     setEditItem(item);
     reset({
@@ -83,16 +96,28 @@ const CourseList = () => {
       />
 
       <div className="filter-bar">
-        <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder="Ders ara..." />
+        <SearchInput
+          value={search}
+          onChange={(v) => {
+            setSearch(v);
+            setPage(1);
+          }}
+          placeholder="Ders ara..."
+        />
         <select
           className="input"
           style={{ width: 'auto', minWidth: 200 }}
           value={deptFilter}
-          onChange={(e) => { setDeptFilter(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setDeptFilter(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="">Tüm Bölümler</option>
           {deptData?.data?.map((d) => (
-            <option key={d.id} value={d.id}>{d.name}</option>
+            <option key={d.id} value={d.id}>
+              {d.name}
+            </option>
           ))}
         </select>
       </div>
@@ -106,7 +131,11 @@ const CourseList = () => {
           <EmptyState
             icon={BookOpen}
             title="Ders bulunamadı"
-            action={<button className="btn btn-primary" onClick={openAdd}><Plus size={15} /> Ders Ekle</button>}
+            action={
+              <button className="btn btn-primary" onClick={openAdd}>
+                <Plus size={15} /> Ders Ekle
+              </button>
+            }
           />
         ) : (
           <>
@@ -127,7 +156,9 @@ const CourseList = () => {
                   {data.data.map((c) => (
                     <tr key={c.id}>
                       <td style={{ fontWeight: 600 }}>{c.name}</td>
-                      <td><span className="badge badge-blue">{c.code}</span></td>
+                      <td>
+                        <span className="badge badge-blue">{c.code}</span>
+                      </td>
                       <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
                         {c.department?.name ?? '—'}
                       </td>
@@ -162,8 +193,16 @@ const CourseList = () => {
       </div>
 
       {/* Form Modal */}
-      <Modal open={formOpen} onClose={() => setFormOpen(false)} title={editItem ? 'Ders Düzenle' : 'Yeni Ders'} maxWidth={560}>
-        <form onSubmit={handleSubmit((d) => saveMutation.mutate(d))} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <Modal
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        title={editItem ? 'Ders Düzenle' : 'Yeni Ders'}
+        maxWidth={560}
+      >
+        <form
+          onSubmit={handleSubmit((d) => saveMutation.mutate(d))}
+          style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="input-wrapper">
               <label className="input-label">Ders Adı</label>
@@ -188,10 +227,15 @@ const CourseList = () => {
 
           <div className="input-wrapper">
             <label className="input-label">Bölüm</label>
-            <select {...register('departmentId', { required: 'Zorunlu' })} className={`input ${errors.departmentId ? 'error' : ''}`}>
+            <select
+              {...register('departmentId', { required: 'Zorunlu' })}
+              className={`input ${errors.departmentId ? 'error' : ''}`}
+            >
               <option value="">Bölüm seçin...</option>
               {deptData?.data?.map((d) => (
-                <option key={d.id} value={d.id}>{d.name}</option>
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
               ))}
             </select>
             {errors.departmentId && <span className="input-error">{errors.departmentId.message}</span>}
@@ -202,7 +246,8 @@ const CourseList = () => {
               <label className="input-label">Kredi</label>
               <input
                 type="number"
-                min={1} max={10}
+                min={1}
+                max={10}
                 {...register('credits', { required: 'Zorunlu', min: 1 })}
                 className={`input ${errors.credits ? 'error' : ''}`}
                 placeholder="3"
@@ -213,7 +258,8 @@ const CourseList = () => {
               <label className="input-label">AKTS</label>
               <input
                 type="number"
-                min={1} max={30}
+                min={1}
+                max={30}
                 {...register('ects', { required: 'Zorunlu', min: 1 })}
                 className={`input ${errors.ects ? 'error' : ''}`}
                 placeholder="5"
@@ -223,9 +269,11 @@ const CourseList = () => {
           </div>
 
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setFormOpen(false)}>İptal</button>
+            <button type="button" className="btn btn-secondary" onClick={() => setFormOpen(false)}>
+              İptal
+            </button>
             <button type="submit" className="btn btn-primary" disabled={isSubmitting || saveMutation.isPending}>
-              {(isSubmitting || saveMutation.isPending) ? <span className="spinner" /> : null}
+              {isSubmitting || saveMutation.isPending ? <span className="spinner" /> : null}
               {editItem ? 'Güncelle' : 'Oluştur'}
             </button>
           </div>

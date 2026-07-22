@@ -15,18 +15,52 @@ export const LastLoginCard = ({ date, time, ip, device = 'Web Tarayıcı', isLoa
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, flex: 1 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--color-surface-2)', padding: 12, borderRadius: 8 }}>
-          <div style={{ background: 'var(--color-primary-50)', color: 'var(--color-primary-600)', padding: 8, borderRadius: '50%' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            background: 'var(--color-surface-2)',
+            padding: 12,
+            borderRadius: 8,
+          }}
+        >
+          <div
+            style={{
+              background: 'var(--color-primary-50)',
+              color: 'var(--color-primary-600)',
+              padding: 8,
+              borderRadius: '50%',
+            }}
+          >
             <Clock size={16} />
           </div>
           <div>
             <div style={{ fontSize: 12, color: 'var(--color-text-muted)', fontWeight: 500 }}>Tarih / Saat</div>
-            <div style={{ fontSize: 13, fontWeight: 600 }}>{date} - {time}</div>
+            <div style={{ fontSize: 13, fontWeight: 600 }}>
+              {date} - {time}
+            </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--color-surface-2)', padding: 12, borderRadius: 8 }}>
-          <div style={{ background: 'var(--color-primary-50)', color: 'var(--color-primary-600)', padding: 8, borderRadius: '50%' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            background: 'var(--color-surface-2)',
+            padding: 12,
+            borderRadius: 8,
+          }}
+        >
+          <div
+            style={{
+              background: 'var(--color-primary-50)',
+              color: 'var(--color-primary-600)',
+              padding: 8,
+              borderRadius: '50%',
+            }}
+          >
             <MapPin size={16} />
           </div>
           <div>
@@ -34,9 +68,26 @@ export const LastLoginCard = ({ date, time, ip, device = 'Web Tarayıcı', isLoa
             <div style={{ fontSize: 13, fontWeight: 600 }}>{ip || '192.168.1.1'}</div>
           </div>
         </div>
-        
-        <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 12, background: 'var(--color-surface-2)', padding: 12, borderRadius: 8 }}>
-          <div style={{ background: 'var(--color-primary-50)', color: 'var(--color-primary-600)', padding: 8, borderRadius: '50%' }}>
+
+        <div
+          style={{
+            gridColumn: '1 / -1',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            background: 'var(--color-surface-2)',
+            padding: 12,
+            borderRadius: 8,
+          }}
+        >
+          <div
+            style={{
+              background: 'var(--color-primary-50)',
+              color: 'var(--color-primary-600)',
+              padding: 8,
+              borderRadius: '50%',
+            }}
+          >
             <MonitorSmartphone size={16} />
           </div>
           <div>

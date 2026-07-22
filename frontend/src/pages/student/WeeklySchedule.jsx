@@ -5,7 +5,12 @@ import { ScheduleGrid } from '../../components/feature/index';
 import { CalendarDays } from 'lucide-react';
 
 const WeeklySchedule = () => {
-  const { data: slots = [], isLoading, isError, refetch } = useQuery({
+  const {
+    data: slots = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['weekly-schedule', 'me'],
     queryFn: getMyWeeklySchedule,
   });
@@ -19,7 +24,11 @@ const WeeklySchedule = () => {
       ) : isError ? (
         <ErrorState onRetry={refetch} />
       ) : !slots.length ? (
-        <EmptyState icon={CalendarDays} title="Program bulunamadı" description="Kayıtlı aktif dersiniz yok ya da program henüz girilmemiş" />
+        <EmptyState
+          icon={CalendarDays}
+          title="Program bulunamadı"
+          description="Kayıtlı aktif dersiniz yok ya da program henüz girilmemiş"
+        />
       ) : (
         <ScheduleGrid slots={slots} />
       )}

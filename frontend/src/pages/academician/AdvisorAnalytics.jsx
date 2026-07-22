@@ -49,14 +49,17 @@ const AdvisorAnalytics = () => {
           <h3 style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15 }}>Öğrenci GPA Dağılımı</h3>
           {advisees.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={advisees.map(s => ({ name: `${s.firstName} ${s.lastName}`, gpa: s.gpa }))}>
+              <BarChart data={advisees.map((s) => ({ name: `${s.firstName} ${s.lastName}`, gpa: s.gpa }))}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" fontSize={11} />
                 <YAxis domain={[0, 4]} fontSize={12} />
                 <Tooltip />
                 <Bar dataKey="gpa" name="GPA" radius={[4, 4, 0, 0]}>
                   {advisees.map((s, i) => (
-                    <Bar key={i} fill={s.riskLevel === 'HIGH' ? '#dc2626' : s.riskLevel === 'MEDIUM' ? '#d97706' : '#059669'} />
+                    <Bar
+                      key={i}
+                      fill={s.riskLevel === 'HIGH' ? '#dc2626' : s.riskLevel === 'MEDIUM' ? '#d97706' : '#059669'}
+                    />
                   ))}
                 </Bar>
               </BarChart>
@@ -70,11 +73,13 @@ const AdvisorAnalytics = () => {
           <h3 style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15 }}>Risk Durumu</h3>
           {advisees.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={[
-                { name: 'Yüksek', count: summary.highRisk },
-                { name: 'Orta', count: summary.mediumRisk },
-                { name: 'Düşük', count: summary.lowRisk },
-              ]}>
+              <BarChart
+                data={[
+                  { name: 'Yüksek', count: summary.highRisk },
+                  { name: 'Orta', count: summary.mediumRisk },
+                  { name: 'Düşük', count: summary.lowRisk },
+                ]}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" fontSize={12} />
                 <YAxis fontSize={12} />
@@ -95,7 +100,9 @@ const AdvisorAnalytics = () => {
       </div>
 
       <div className="card" style={{ padding: 0 }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-border)', fontWeight: 700, fontSize: 15 }}>
+        <div
+          style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-border)', fontWeight: 700, fontSize: 15 }}
+        >
           Danışan Öğrenci Listesi
         </div>
         <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
@@ -112,22 +119,32 @@ const AdvisorAnalytics = () => {
               </tr>
             </thead>
             <tbody>
-              {advisees.map(s => (
+              {advisees.map((s) => (
                 <tr key={s.id}>
-                  <td style={{ fontWeight: 600 }}>{s.firstName} {s.lastName}</td>
+                  <td style={{ fontWeight: 600 }}>
+                    {s.firstName} {s.lastName}
+                  </td>
                   <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{s.department}</td>
                   <td style={{ fontSize: 13 }}>{s.classYear}. Sınıf</td>
                   <td style={{ fontWeight: 700, color: s.gpa < 2.0 ? '#dc2626' : s.gpa < 3.0 ? '#d97706' : '#059669' }}>
                     {s.gpa?.toFixed(2)}
                   </td>
                   <td style={{ textAlign: 'center' }}>{s.activeCourses}</td>
-                  <td style={{ textAlign: 'center', color: s.failedCourses > 0 ? '#dc2626' : undefined }}>{s.failedCourses}</td>
+                  <td style={{ textAlign: 'center', color: s.failedCourses > 0 ? '#dc2626' : undefined }}>
+                    {s.failedCourses}
+                  </td>
                   <td>
-                    <span style={{
-                      padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600,
-                      background: s.riskLevel === 'HIGH' ? '#fef2f2' : s.riskLevel === 'MEDIUM' ? '#fffbeb' : '#f0fdf4',
-                      color: s.riskLevel === 'HIGH' ? '#dc2626' : s.riskLevel === 'MEDIUM' ? '#d97706' : '#059669',
-                    }}>
+                    <span
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: 20,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        background:
+                          s.riskLevel === 'HIGH' ? '#fef2f2' : s.riskLevel === 'MEDIUM' ? '#fffbeb' : '#f0fdf4',
+                        color: s.riskLevel === 'HIGH' ? '#dc2626' : s.riskLevel === 'MEDIUM' ? '#d97706' : '#059669',
+                      }}
+                    >
                       {s.riskLevel === 'HIGH' ? 'Yüksek' : s.riskLevel === 'MEDIUM' ? 'Orta' : 'Düşük'}
                     </span>
                   </td>

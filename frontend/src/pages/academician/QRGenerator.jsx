@@ -64,12 +64,24 @@ const QRGenerator = () => {
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <select
             value={selectedSection}
-            onChange={(e) => { setSelectedSection(e.target.value); setShowQR(false); setQrData(null); }}
-            style={{ flex: 1, padding: '10px 14px', borderRadius: 10, border: '2px solid var(--color-border)', fontSize: 14 }}
+            onChange={(e) => {
+              setSelectedSection(e.target.value);
+              setShowQR(false);
+              setQrData(null);
+            }}
+            style={{
+              flex: 1,
+              padding: '10px 14px',
+              borderRadius: 10,
+              border: '2px solid var(--color-border)',
+              fontSize: 14,
+            }}
           >
             <option value="">-- Ders Şubesi Seçin --</option>
-            {sections.map(s => (
-              <option key={s.id} value={s.id}>{s.course?.name} - {s.sectionCode || 'Şube'}</option>
+            {sections.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.course?.name} - {s.sectionCode || 'Şube'}
+              </option>
             ))}
           </select>
           <button
@@ -85,7 +97,15 @@ const QRGenerator = () => {
       {showQR && qrData && (
         <div className="card" style={{ padding: 40, textAlign: 'center', marginBottom: 20 }}>
           <h3 style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 18, color: '#2563eb' }}>Aktif QR Kodu</h3>
-          <div style={{ background: 'white', padding: 24, borderRadius: 16, display: 'inline-block', border: '2px solid var(--color-border)' }}>
+          <div
+            style={{
+              background: 'white',
+              padding: 24,
+              borderRadius: 16,
+              display: 'inline-block',
+              border: '2px solid var(--color-border)',
+            }}
+          >
             <img
               src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData.token)}`}
               alt="QR Kod"
@@ -96,7 +116,17 @@ const QRGenerator = () => {
             <Clock size={14} style={{ marginRight: 4, verticalAlign: 'text-bottom' }} />
             Süre: {qrData.expiresAt ? new Date(qrData.expiresAt).toLocaleTimeString('tr-TR') : 'Bilinmiyor'}
           </div>
-          <div style={{ marginTop: 8, fontSize: 12, fontFamily: 'monospace', background: 'var(--color-bg-secondary)', padding: '8px 16px', borderRadius: 8, display: 'inline-block' }}>
+          <div
+            style={{
+              marginTop: 8,
+              fontSize: 12,
+              fontFamily: 'monospace',
+              background: 'var(--color-bg-secondary)',
+              padding: '8px 16px',
+              borderRadius: 8,
+              display: 'inline-block',
+            }}
+          >
             {qrData.token}
           </div>
           <div style={{ marginTop: 16 }}>
@@ -113,7 +143,9 @@ const QRGenerator = () => {
 
       {selectedSection && (
         <div className="card" style={{ padding: 20 }}>
-          <h3 style={{ margin: '0 0 12px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h3
+            style={{ margin: '0 0 12px', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}
+          >
             <Users size={18} /> Son Taramalar
           </h3>
           {recentScans.length > 0 ? (
@@ -129,8 +161,12 @@ const QRGenerator = () => {
                 <tbody>
                   {recentScans.map((scan, i) => (
                     <tr key={i}>
-                      <td style={{ fontWeight: 600 }}>{scan.student?.firstName} {scan.student?.lastName}</td>
-                      <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{scan.student?.studentNumber}</td>
+                      <td style={{ fontWeight: 600 }}>
+                        {scan.student?.firstName} {scan.student?.lastName}
+                      </td>
+                      <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                        {scan.student?.studentNumber}
+                      </td>
                       <td style={{ fontSize: 13 }}>{new Date(scan.scannedAt).toLocaleTimeString('tr-TR')}</td>
                     </tr>
                   ))}
@@ -138,7 +174,11 @@ const QRGenerator = () => {
               </table>
             </div>
           ) : (
-            <EmptyState icon={Users} title="Henüz tarama yok" description="Öğrenciler QR kodu tarattıkça burada görünecek" />
+            <EmptyState
+              icon={Users}
+              title="Henüz tarama yok"
+              description="Öğrenciler QR kodu tarattıkça burada görünecek"
+            />
           )}
         </div>
       )}

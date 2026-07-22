@@ -4,8 +4,15 @@ import { getAdvisorAssignments, createAdvisorAssignment, deactivateAdvisorAssign
 import { getStudents } from '../../api/people.api';
 import { getLecturers } from '../../api/people.api';
 import {
-  PageHeader, SearchInput, StatusBadge, TableSkeleton,
-  EmptyState, ErrorState, Pagination, Modal, ConfirmDialog,
+  PageHeader,
+  SearchInput,
+  StatusBadge,
+  TableSkeleton,
+  EmptyState,
+  ErrorState,
+  Pagination,
+  Modal,
+  ConfirmDialog,
 } from '../../components/ui/index';
 import { Plus, UserCheck, XCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -33,7 +40,12 @@ const AdvisorAssignmentList = () => {
     queryFn: () => getLecturers({ limit: 500 }),
   });
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm();
 
   const createMutation = useMutation({
     mutationFn: (d) => createAdvisorAssignment(d),
@@ -62,7 +74,13 @@ const AdvisorAssignmentList = () => {
         title="Danışman Atamaları"
         subtitle={`Toplam ${data?.pagination?.total ?? 0} atama`}
         action={
-          <button className="btn btn-primary" onClick={() => { reset({}); setFormOpen(true); }}>
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              reset({});
+              setFormOpen(true);
+            }}
+          >
             <Plus size={16} /> Atama Yap
           </button>
         }
@@ -77,7 +95,17 @@ const AdvisorAssignmentList = () => {
           <EmptyState
             icon={UserCheck}
             title="Danışman ataması bulunamadı"
-            action={<button className="btn btn-primary" onClick={() => { reset({}); setFormOpen(true); }}><Plus size={15} /> Atama Yap</button>}
+            action={
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  reset({});
+                  setFormOpen(true);
+                }}
+              >
+                <Plus size={15} /> Atama Yap
+              </button>
+            }
           />
         ) : (
           <>
@@ -96,21 +124,26 @@ const AdvisorAssignmentList = () => {
                   {data.data.map((a) => (
                     <tr key={a.id}>
                       <td>
-                        <div style={{ fontWeight: 600 }}>{a.student?.firstName} {a.student?.lastName}</div>
+                        <div style={{ fontWeight: 600 }}>
+                          {a.student?.firstName} {a.student?.lastName}
+                        </div>
                         <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{a.student?.studentNumber}</div>
                       </td>
                       <td>
-                        <div style={{ fontWeight: 600 }}>{a.lecturer?.firstName} {a.lecturer?.lastName}</div>
+                        <div style={{ fontWeight: 600 }}>
+                          {a.lecturer?.firstName} {a.lecturer?.lastName}
+                        </div>
                         <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{a.lecturer?.title}</div>
                       </td>
                       <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
                         {dayjs(a.assignedAt).format('DD.MM.YYYY')}
                       </td>
                       <td>
-                        {a.isActive
-                          ? <span className="badge badge-green">Aktif</span>
-                          : <span className="badge badge-gray">Pasif</span>
-                        }
+                        {a.isActive ? (
+                          <span className="badge badge-green">Aktif</span>
+                        ) : (
+                          <span className="badge badge-gray">Pasif</span>
+                        )}
                       </td>
                       <td>
                         {a.isActive && (
@@ -136,31 +169,46 @@ const AdvisorAssignmentList = () => {
 
       {/* Create Modal */}
       <Modal open={formOpen} onClose={() => setFormOpen(false)} title="Danışman Ataması Yap" maxWidth={500}>
-        <form onSubmit={handleSubmit((d) => createMutation.mutate(d))} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <form
+          onSubmit={handleSubmit((d) => createMutation.mutate(d))}
+          style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+        >
           <div className="input-wrapper">
             <label className="input-label">Öğrenci</label>
-            <select {...register('studentId', { required: 'Zorunlu' })} className={`input ${errors.studentId ? 'error' : ''}`}>
+            <select
+              {...register('studentId', { required: 'Zorunlu' })}
+              className={`input ${errors.studentId ? 'error' : ''}`}
+            >
               <option value="">Öğrenci seçin...</option>
               {studentData?.data?.map((s) => (
-                <option key={s.id} value={s.id}>{s.firstName} {s.lastName} ({s.studentNumber})</option>
+                <option key={s.id} value={s.id}>
+                  {s.firstName} {s.lastName} ({s.studentNumber})
+                </option>
               ))}
             </select>
             {errors.studentId && <span className="input-error">{errors.studentId.message}</span>}
           </div>
           <div className="input-wrapper">
             <label className="input-label">Danışman</label>
-            <select {...register('lecturerId', { required: 'Zorunlu' })} className={`input ${errors.lecturerId ? 'error' : ''}`}>
+            <select
+              {...register('lecturerId', { required: 'Zorunlu' })}
+              className={`input ${errors.lecturerId ? 'error' : ''}`}
+            >
               <option value="">Akademisyen seçin...</option>
               {lecturerData?.data?.map((l) => (
-                <option key={l.id} value={l.id}>{l.title} {l.firstName} {l.lastName}</option>
+                <option key={l.id} value={l.id}>
+                  {l.title} {l.firstName} {l.lastName}
+                </option>
               ))}
             </select>
             {errors.lecturerId && <span className="input-error">{errors.lecturerId.message}</span>}
           </div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setFormOpen(false)}>İptal</button>
+            <button type="button" className="btn btn-secondary" onClick={() => setFormOpen(false)}>
+              İptal
+            </button>
             <button type="submit" className="btn btn-primary" disabled={isSubmitting || createMutation.isPending}>
-              {(isSubmitting || createMutation.isPending) ? <span className="spinner" /> : null}
+              {isSubmitting || createMutation.isPending ? <span className="spinner" /> : null}
               Atama Yap
             </button>
           </div>

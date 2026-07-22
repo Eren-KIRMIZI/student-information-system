@@ -3,17 +3,19 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getCourseSection } from '../../api/academic.api';
 import { getSectionMaterials, downloadMaterial } from '../../api/material.api';
-import {
-  PageHeader, Skeleton, ErrorState, Tabs,
-  EmptyState,
-} from '../../components/ui/index';
+import { PageHeader, Skeleton, ErrorState, Tabs, EmptyState } from '../../components/ui/index';
 import { ArrowLeft, BookOpen, FileText, Download, Eye } from 'lucide-react';
 import dayjs from 'dayjs';
 import io from 'socket.io-client';
 
 // ===== Materials Tab =====
 const MaterialsTab = ({ sectionId }) => {
-  const { data: response, isLoading, isError, refetch } = useQuery({
+  const {
+    data: response,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['student-section-materials', sectionId],
     queryFn: () => getSectionMaterials(sectionId),
   });
@@ -77,7 +79,10 @@ const MaterialsTab = ({ sectionId }) => {
                         </button>
                       )}
                       <button className="btn btn-primary btn-sm" onClick={() => handleDownload(m)} title="İndir">
-                        <Download size={14} /> {m.downloadCount > 0 && <span style={{ marginLeft: 4, opacity: 0.8 }}>({m.downloadCount})</span>}
+                        <Download size={14} />{' '}
+                        {m.downloadCount > 0 && (
+                          <span style={{ marginLeft: 4, opacity: 0.8 }}>({m.downloadCount})</span>
+                        )}
                       </button>
                     </div>
                   </td>
@@ -97,7 +102,12 @@ const StudentCourseSectionWorkspace = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('materials');
 
-  const { data: section, isLoading, isError, refetch } = useQuery({
+  const {
+    data: section,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['course-section', id],
     queryFn: () => getCourseSection(id),
   });
@@ -112,7 +122,9 @@ const StudentCourseSectionWorkspace = () => {
     return (
       <div className="animate-fade-in">
         <PageHeader title="Ders Sayfası" />
-        <div className="card"><Skeleton height={400} /></div>
+        <div className="card">
+          <Skeleton height={400} />
+        </div>
       </div>
     );
   }

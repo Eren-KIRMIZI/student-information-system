@@ -10,7 +10,7 @@ const actions = [
   { label: 'Bölüm Oluştur', icon: Building, color: '#f59e0b', bg: '#fffbeb', path: '/admin/departments' },
   { label: 'Duyuru Yayınla', icon: Megaphone, color: '#ec4899', bg: '#fdf2f8', path: '/admin' },
   { label: 'Akademik Takvim', icon: CalendarPlus, color: '#6366f1', bg: '#eef2ff', path: '/admin' },
-  { label: 'Danışman Ata', icon: UserCheck, color: '#14b8a6', bg: '#f0fdfa', path: '/admin/advisors' }
+  { label: 'Danışman Ata', icon: UserCheck, color: '#14b8a6', bg: '#f0fdfa', path: '/admin/advisors' },
 ];
 
 export const QuickActions = ({ isLoading, isError, onRetry }) => {
@@ -19,7 +19,7 @@ export const QuickActions = ({ isLoading, isError, onRetry }) => {
   return (
     <div className="card" style={{ height: '100%' }}>
       <div style={{ marginBottom: 16, fontWeight: 700, fontSize: 16 }}>Hızlı İşlemler</div>
-      
+
       {isLoading ? (
         <CardSkeleton count={5} />
       ) : isError ? (
@@ -54,11 +54,18 @@ export const QuickActions = ({ isLoading, isError, onRetry }) => {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <div style={{ 
-                  width: 40, height: 40, borderRadius: '50%', 
-                  background: action.bg, color: action.color,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>
+                <div
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: '50%',
+                    background: action.bg,
+                    color: action.color,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
                   <Icon size={20} />
                 </div>
                 <span style={{ fontSize: 13, fontWeight: 500, textAlign: 'center', color: 'var(--color-text)' }}>

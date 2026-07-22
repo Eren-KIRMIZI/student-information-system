@@ -14,15 +14,20 @@ export const CalendarWidget = ({ events = [], isLoading, isError, onRetry }) => 
   ];
 
   const displayEvents = events.length > 0 ? events : defaultEvents;
-  const filteredEvents = displayEvents.filter(e => e.day === activeTab);
+  const filteredEvents = displayEvents.filter((e) => e.day === activeTab);
 
   const getEventColor = (type) => {
-    switch(type) {
-      case 'sınav': return '#ef4444'; // red
-      case 'kayıt dönemi': return '#3b82f6'; // blue
-      case 'danışman onayı': return '#f59e0b'; // amber
-      case 'tatil': return '#10b981'; // green
-      default: return '#6b7280'; // gray
+    switch (type) {
+      case 'sınav':
+        return '#ef4444'; // red
+      case 'kayıt dönemi':
+        return '#3b82f6'; // blue
+      case 'danışman onayı':
+        return '#f59e0b'; // amber
+      case 'tatil':
+        return '#10b981'; // green
+      default:
+        return '#6b7280'; // gray
     }
   };
 
@@ -39,8 +44,16 @@ export const CalendarWidget = ({ events = [], isLoading, isError, onRetry }) => 
         <ErrorState message="Takvim yüklenemedi." onRetry={onRetry} />
       ) : (
         <>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16, borderBottom: '1px solid var(--color-border)', paddingBottom: 8 }}>
-            {['today', 'tomorrow', 'week', 'month'].map(tab => (
+          <div
+            style={{
+              display: 'flex',
+              gap: 8,
+              marginBottom: 16,
+              borderBottom: '1px solid var(--color-border)',
+              paddingBottom: 8,
+            }}
+          >
+            {['today', 'tomorrow', 'week', 'month'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -53,7 +66,7 @@ export const CalendarWidget = ({ events = [], isLoading, isError, onRetry }) => 
                   color: activeTab === tab ? '#fff' : 'var(--color-text-muted)',
                   border: 'none',
                   cursor: 'pointer',
-                  textTransform: 'capitalize'
+                  textTransform: 'capitalize',
                 }}
               >
                 {tab === 'today' ? 'Bugün' : tab === 'tomorrow' ? 'Yarın' : tab === 'week' ? 'Bu Hafta' : 'Bu Ay'}
@@ -64,16 +77,26 @@ export const CalendarWidget = ({ events = [], isLoading, isError, onRetry }) => 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
             {filteredEvents.length > 0 ? (
               filteredEvents.map((event, idx) => (
-                <div key={idx} style={{ 
-                  display: 'flex', alignItems: 'center', gap: 12, 
-                  padding: '12px', borderRadius: 8, 
-                  background: 'var(--color-background)',
-                  borderLeft: `4px solid ${getEventColor(event.type)}`
-                }}>
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: '12px',
+                    borderRadius: 8,
+                    background: 'var(--color-background)',
+                    borderLeft: `4px solid ${getEventColor(event.type)}`,
+                  }}
+                >
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: 'var(--color-text)' }}>{event.title}</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: 'var(--color-text)' }}>
+                      {event.title}
+                    </div>
                     <div style={{ display: 'flex', gap: 12, fontSize: 12, color: 'var(--color-text-muted)' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={12}/> {event.time}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Clock size={12} /> {event.time}
+                      </span>
                       <span style={{ textTransform: 'capitalize' }}>• {event.type}</span>
                     </div>
                   </div>

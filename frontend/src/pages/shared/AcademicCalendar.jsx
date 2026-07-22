@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getCalendarEvents, createCalendarEvent, deleteCalendarEvent } from '../../api/system.api';
-import { PageHeader, FilterBar, TableSkeleton, ErrorState, EmptyState, ConfirmDialog, Modal } from '../../components/ui/index';
+import {
+  PageHeader,
+  FilterBar,
+  TableSkeleton,
+  ErrorState,
+  EmptyState,
+  ConfirmDialog,
+  Modal,
+} from '../../components/ui/index';
 import { CalendarDays, Plus, Trash2, Search, Calendar as CalIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
@@ -20,7 +28,7 @@ const AcademicCalendar = () => {
 
   const [year, setYear] = useState('2026-2027');
   const [search, setSearch] = useState('');
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
@@ -29,7 +37,12 @@ const AcademicCalendar = () => {
     queryFn: () => getCalendarEvents({ academicYear: year, search }),
   });
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
   const createMutation = useMutation({
     mutationFn: createCalendarEvent,
@@ -56,7 +69,12 @@ const AcademicCalendar = () => {
     createMutation.mutate(d);
   };
 
-  const typeColor = { ACADEMIC: 'badge-blue', HOLIDAY: 'badge-yellow', EXAM: 'badge-red', REGISTRATION: 'badge-purple' };
+  const typeColor = {
+    ACADEMIC: 'badge-blue',
+    HOLIDAY: 'badge-yellow',
+    EXAM: 'badge-red',
+    REGISTRATION: 'badge-purple',
+  };
   const typeLabel = { ACADEMIC: 'Akademik', HOLIDAY: 'Tatil', EXAM: 'Sınav', REGISTRATION: 'Kayıt' };
 
   return (
@@ -64,11 +82,19 @@ const AcademicCalendar = () => {
       <PageHeader
         title="Akademik Takvim"
         subtitle="Önemli tarihler, sınav dönemleri ve tatiller"
-        action={isAdmin ? (
-                  <button className="btn btn-primary" onClick={() => { reset(); setIsModalOpen(true); }}>
-                    <Plus size={16} /> Yeni Etkinlik
-                  </button>
-                ) : undefined}
+        action={
+          isAdmin ? (
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                reset();
+                setIsModalOpen(true);
+              }}
+            >
+              <Plus size={16} /> Yeni Etkinlik
+            </button>
+          ) : undefined
+        }
       />
 
       <FilterBar>
@@ -80,10 +106,10 @@ const AcademicCalendar = () => {
             placeholder="Etkinlik ara..."
             style={{ paddingLeft: 36 }}
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <select className="input" style={{ width: 160 }} value={year} onChange={e => setYear(e.target.value)}>
+        <select className="input" style={{ width: 160 }} value={year} onChange={(e) => setYear(e.target.value)}>
           <option value="2026-2027">2026-2027</option>
           <option value="2025-2026">2025-2026</option>
         </select>
@@ -95,7 +121,11 @@ const AcademicCalendar = () => {
         ) : isError ? (
           <ErrorState onRetry={refetch} />
         ) : !data?.data?.length ? (
-          <EmptyState icon={CalendarDays} title="Takvim boş" description="Seçili dönem için kayıtlı etkinlik bulunamadı." />
+          <EmptyState
+            icon={CalendarDays}
+            title="Takvim boş"
+            description="Seçili dönem için kayıtlı etkinlik bulunamadı."
+          />
         ) : (
           <div className="table-container" style={{ border: 'none', borderRadius: 0 }}>
             <table className="table">
@@ -108,12 +138,15 @@ const AcademicCalendar = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.data.map(item => (
+                {data.data.map((item) => (
                   <tr key={item.id}>
                     <td style={{ whiteSpace: 'nowrap' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 }}>
                         <CalIcon size={14} color="var(--color-text-muted)" />
-                        {dayjs(item.startDate).format('DD MMM')} {item.endDate ? `- ${dayjs(item.endDate).format('DD MMM YYYY')}` : dayjs(item.startDate).format('YYYY')}
+                        {dayjs(item.startDate).format('DD MMM')}{' '}
+                        {item.endDate
+                          ? `- ${dayjs(item.endDate).format('DD MMM YYYY')}`
+                          : dayjs(item.startDate).format('YYYY')}
                       </div>
                     </td>
                     <td style={{ fontWeight: 600 }}>{item.title}</td>
@@ -141,13 +174,21 @@ const AcademicCalendar = () => {
         <form onSubmit={handleSubmit(handleCreate)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="input-wrapper">
             <label className="input-label">Başlık *</label>
-            <input type="text" className={`input ${errors.title ? 'error' : ''}`} {...register('title', { required: true })} />
+            <input
+              type="text"
+              className={`input ${errors.title ? 'error' : ''}`}
+              {...register('title', { required: true })}
+            />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div className="input-wrapper">
               <label className="input-label">Başlangıç Tarihi *</label>
-              <input type="date" className={`input ${errors.startDate ? 'error' : ''}`} {...register('startDate', { required: true })} />
+              <input
+                type="date"
+                className={`input ${errors.startDate ? 'error' : ''}`}
+                {...register('startDate', { required: true })}
+              />
             </div>
             <div className="input-wrapper">
               <label className="input-label">Bitiş Tarihi</label>
@@ -167,12 +208,19 @@ const AcademicCalendar = () => {
             </div>
             <div className="input-wrapper">
               <label className="input-label">Akademik Yıl *</label>
-              <input type="text" className={`input ${errors.academicYear ? 'error' : ''}`} defaultValue="2026-2027" {...register('academicYear', { required: true })} />
+              <input
+                type="text"
+                className={`input ${errors.academicYear ? 'error' : ''}`}
+                defaultValue="2026-2027"
+                {...register('academicYear', { required: true })}
+              />
             </div>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
-            <button type="button" className="btn btn-ghost" onClick={() => setIsModalOpen(false)}>İptal</button>
+            <button type="button" className="btn btn-ghost" onClick={() => setIsModalOpen(false)}>
+              İptal
+            </button>
             <button type="submit" className="btn btn-primary" disabled={createMutation.isPending}>
               {createMutation.isPending ? 'Ekleniyor...' : 'Ekle'}
             </button>

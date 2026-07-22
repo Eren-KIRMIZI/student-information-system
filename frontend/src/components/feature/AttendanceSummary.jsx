@@ -10,7 +10,7 @@ export const AttendanceSummary = ({ section, records = [] }) => {
       else if (r.status === 'EXCUSED') acc.excused++;
       return acc;
     },
-    { present: 0, absent: 0, excused: 0 }
+    { present: 0, absent: 0, excused: 0 },
   );
 
   const total = counts.present + counts.absent + counts.excused;
@@ -48,16 +48,30 @@ export const AttendanceProgressBar = ({ records = [] }) => {
 
   return (
     <div style={{ padding: '10px 20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 6 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          fontSize: 12,
+          color: 'var(--color-text-muted)',
+          marginBottom: 6,
+        }}
+      >
         <span>Devamsızlık oranı</span>
-        <span style={{ fontWeight: 600, color: isRisky ? 'var(--color-danger)' : 'var(--color-text-primary)' }}>%{pct}</span>
+        <span style={{ fontWeight: 600, color: isRisky ? 'var(--color-danger)' : 'var(--color-text-primary)' }}>
+          %{pct}
+        </span>
       </div>
       <div style={{ background: 'var(--color-border)', borderRadius: 4, height: 6 }}>
-        <div style={{
-          width: `${pct}%`, height: '100%', borderRadius: 4,
-          background: isRisky ? 'var(--color-danger)' : pct >= 20 ? 'var(--color-warning)' : 'var(--color-success)',
-          transition: 'width 0.4s ease',
-        }} />
+        <div
+          style={{
+            width: `${pct}%`,
+            height: '100%',
+            borderRadius: 4,
+            background: isRisky ? 'var(--color-danger)' : pct >= 20 ? 'var(--color-warning)' : 'var(--color-success)',
+            transition: 'width 0.4s ease',
+          }}
+        />
       </div>
     </div>
   );

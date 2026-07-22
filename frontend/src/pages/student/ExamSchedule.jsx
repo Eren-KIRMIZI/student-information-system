@@ -8,13 +8,18 @@ import 'dayjs/locale/tr';
 dayjs.locale('tr');
 
 const ExamSchedule = () => {
-  const { data: exams = [], isLoading, isError, refetch } = useQuery({
+  const {
+    data: exams = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['exam-schedule', 'me'],
     queryFn: () => getMyExamSchedule(),
   });
 
-  const upcoming = exams.filter(e => new Date(e.examDate) >= new Date());
-  const past = exams.filter(e => new Date(e.examDate) < new Date());
+  const upcoming = exams.filter((e) => new Date(e.examDate) >= new Date());
+  const past = exams.filter((e) => new Date(e.examDate) < new Date());
 
   return (
     <div className="animate-fade-in">
@@ -33,7 +38,7 @@ const ExamSchedule = () => {
           <EmptyState icon={CalendarClock} title="Yaklaşan sınav yok" description="Tüm sınavlarınız tamamlandı" />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 16 }}>
-            {upcoming.map(exam => (
+            {upcoming.map((exam) => (
               <ExamListItem key={exam.id} exam={exam} />
             ))}
           </div>
@@ -47,7 +52,7 @@ const ExamSchedule = () => {
           </h3>
           <div className="card" style={{ padding: 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 16 }}>
-              {past.map(exam => (
+              {past.map((exam) => (
                 <div key={exam.id} style={{ opacity: 0.6 }}>
                   <ExamListItem exam={exam} />
                 </div>
