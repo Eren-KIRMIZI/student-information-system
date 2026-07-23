@@ -4,6 +4,11 @@ Fakulte, bolum, ders, ogrenci, akademisyen, kayit, not, devamsizlik, duyuru ve t
 islemlerini tek bir platform uzerinden yonetmek icin gelistirilmis kapsamli bir web
 uygulamasi. Monorepo mimarisi ile backend ve frontend tek bir depo icinde barindirilir.
 
+Video:
+
+https://www.youtube.com/watch?v=485USP7cc1o
+
+---
 <img width="317" height="317" alt="Uni-Photoroom" src="https://github.com/user-attachments/assets/8182fde1-1b90-4ca5-ba0f-7c5a7a8f392c" />
 
 ---
